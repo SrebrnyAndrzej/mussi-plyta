@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { copy, kontrahentDemo, progiRabatowe } from "@/config/brief";
 import { zloty } from "@/lib/pricing";
+import { zdjecia } from "@/data/media";
 
 type Category = "plyta" | "blat" | "front" | "sklejka" | "obrzeze" | "akcesorium";
 type Availability = "na-stanie" | "ostatnie-sztuki" | "na-zamowienie";
@@ -81,7 +83,22 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
         </div>
       </header>
 
-      <section aria-labelledby="catalog-filter-title" className="mt-10 rounded-shell bg-shell p-1.5 ring-1 ring-hair">
+      <figure className="mt-9 overflow-hidden rounded-shell ring-1 ring-hair">
+        <Image
+          src={zdjecia.dekory.src}
+          alt={zdjecia.dekory.alt}
+          width={zdjecia.dekory.szer}
+          height={zdjecia.dekory.wys}
+          sizes="(min-width: 1024px) 1440px, 100vw"
+          className="aspect-[21/9] w-full object-cover"
+          priority
+        />
+        <figcaption className="bg-surface px-5 py-3 text-xs leading-5 text-mute">
+          {copy.katalog.podpisEkspozycji}
+        </figcaption>
+      </figure>
+
+      <section aria-labelledby="catalog-filter-title" className="mt-5 rounded-shell bg-shell p-1.5 ring-1 ring-hair">
         <div className="rounded-core bg-surface p-4 shadow-[var(--inner)] sm:p-5">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">

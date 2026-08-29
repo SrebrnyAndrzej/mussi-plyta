@@ -15,11 +15,11 @@ export type DemoOrder = {
 };
 
 export const portalNavigation = [
-  { href: "/panel", label: "Pulpit", code: "01" },
-  { href: "/projekty/palmowa", label: "Projekty", code: "02" },
-  { href: "/katalog", label: "Katalog", code: "03" },
-  { href: "/zamowienia", label: "Zamówienia", code: "04" },
-  { href: "/zamowienia#dokumenty", label: "Dokumenty", code: "05" },
+  { href: "/panel", label: "Pulpit", ikona: "pulpit" },
+  { href: "/projekty/palmowa", label: "Projekty", ikona: "projekty" },
+  { href: "/katalog", label: "Katalog", ikona: "katalog" },
+  { href: "/zamowienia", label: "Zamówienia", ikona: "zamowienia" },
+  { href: "/zamowienia#dokumenty", label: "Dokumenty", ikona: "dokumenty" },
 ] as const;
 
 export const dashboardCopy = {

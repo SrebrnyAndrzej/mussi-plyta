@@ -20,11 +20,11 @@ export const authCopy = {
 } as const;
 
 export const warehouseNavigation = [
-  { href: "/hurtownia", label: "Operacje", code: "H1" },
-  { href: "/hurtownia/zamowienia", label: "Zamówienia", code: "H2" },
-  { href: "/hurtownia/stany", label: "Stany", code: "H3" },
-  { href: "/hurtownia/klienci", label: "Klienci i rabaty", code: "H4" },
-  { href: "/hurtownia/integracje", label: "Integracje", code: "H5" },
+  { href: "/hurtownia", label: "Operacje", ikona: "operacje" },
+  { href: "/hurtownia/zamowienia", label: "Zamówienia", ikona: "obsluga" },
+  { href: "/hurtownia/stany", label: "Stany", ikona: "stany" },
+  { href: "/hurtownia/klienci", label: "Klienci i rabaty", ikona: "klienci" },
+  { href: "/hurtownia/integracje", label: "Integracje", ikona: "integracje" },
 ] as const;
 
 export const warehouseDashboardCopy = {

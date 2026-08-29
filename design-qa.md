@@ -64,3 +64,32 @@ No actionable P0, P1 or P2 differences remain.
 - P3: add real product and hardware thumbnails after licensing and catalog asset decisions are confirmed.
 
 final result: passed
+
+---
+
+## Domknięcie P3 przez leada, 29 sierpnia
+
+Oba punkty `Follow-up polish` były zablokowane na decyzjach leada. Decyzje podjęte:
+
+- **Biblioteka ikon: Phosphor** (`@phosphor-icons/react`, waga `regular`).
+  Wybrana z listy dozwolonych w skillach designu, ma wagi pasujące do
+  technicznego charakteru i jest tree-shakeable. Zestaw jest zamknięty
+  i typowany w `src/components/ikona.tsx`. Markery numeryczne `01`–`05`
+  oraz `H1`–`H5` w nawigacji zastąpione ikonami.
+- **Miniatury produktowe: nie dodajemy.** Hurtownia nie ma fotografii
+  poszczególnych dekorów, a stockowe zamienniki albo rysowane imitacje
+  byłyby gorsze niż ich brak. Próbki zostają gradientami CSS w polu `probka`.
+  Zamiast tego katalog dostał prawdziwe zdjęcie regału z próbkami
+  z archiwum hurtowni, z podpisem mówiącym wprost, czym jest.
+
+Obie decyzje zapisane w `DESIGN.md` jako zasady 9 i 10, więc kolejne
+sesje nie będą ich podważać.
+
+## Znalezione przy okazji
+
+- **P2, naprawione:** `/katalog` i `/kreator` używały poziomej powłoki,
+  a `/panel`, `/zamowienia` i `/projekty` paska bocznego. Chrome zmieniało
+  się w trakcie przejścia między ekranami portalu. Sprawdzone, że to nie był
+  podział na publiczne i zalogowane, bo wariant poziomy też pokazywał próg
+  kontrahenta i wylogowanie. Wszystkie trasy po zalogowaniu dzielą teraz
+  `PortalShell`.

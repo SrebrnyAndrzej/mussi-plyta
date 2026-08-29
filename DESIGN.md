@@ -60,6 +60,23 @@ Logotypy producentów jadą w karuzeli, w skali szarości na 62% krycia, kolor w
 pod kursorem. Karuzela zatrzymuje się pod kursorem i zamienia w zwykły scroll
 przy `prefers-reduced-motion`.
 
+### 9. Ikony: jedna rodzina, Phosphor
+`@phosphor-icons/react`, waga `regular`, rozmiar 18 px w nawigacji.
+Wszystkie ikony przechodzą przez `src/components/ikona.tsx`, gdzie
+zestaw jest zamknięty i typowany. **Nie dokładamy drugiej biblioteki ikon
+i nie rysujemy własnych ścieżek SVG.** Brakuje glifu? Dopisz go do zestawu
+w `ikona.tsx`, nie importuj bezpośrednio w komponencie.
+
+Nawigacja nie używa numerków `01`, `02`, `03` jako markerów. To ślad
+generatora, a nie system.
+
+### 10. Zdjęcia produktowe: nie fabrykujemy ich
+Hurtownia nie ma fotografii poszczególnych dekorów. Próbki w katalogu to
+gradienty CSS w polu `probka`, które przybliżają laminat, i tak zostaje,
+dopóki klient nie dostarczy zdjęć. **Nie wstawiamy stockowych zamienników
+ani rysowanych imitacji próbek.** Prawdziwe zdjęcia hurtowni z `public/zdjecia/`
+służą do budowania kontekstu, nie do udawania kart produktowych.
+
 ## Czego nie robimy nigdy
 
 - Gradientowych blobów, mesh gradientów, aury i poświat

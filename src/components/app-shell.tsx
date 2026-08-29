@@ -7,6 +7,7 @@ import { copy, firma, kontrahentDemo, progiRabatowe } from "@/config/brief";
 import { portalNavigation } from "@/data/portal-demo";
 import { warehouseNavigation } from "@/data/warehouse-demo";
 import { MussiLogo } from "@/components/mussi-logo";
+import { Ikona, type NazwaIkony } from "@/components/ikona";
 
 const productLinks = [
   { href: "/panel", label: "Pulpit" },
@@ -46,7 +47,7 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
             const active = isActive(pathname, item.href);
             return (
               <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}>
-                <span className={`font-mono text-[10px] ${active ? "text-accent" : "text-mute"}`}>{item.code}</span>
+                <Ikona nazwa={item.ikona as NazwaIkony} className={active ? "text-accent" : "text-mute"} />
                 {item.label}
               </Link>
             );
@@ -70,7 +71,7 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
 }
 
 function WarehouseShell({ children, pathname }: { children: ReactNode; pathname: string }) {
-  return <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[240px_minmax(0,1fr)]"><a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">{copy.wspolne.pominNawigacje}</a><aside className="sticky top-0 z-30 hidden h-screen border-r border-hair bg-surface lg:flex lg:flex-col"><Link href="/" className="pressable mx-5 mt-6 rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><div className="mx-4 mt-6 rounded-ctl bg-ink px-4 py-3 text-white"><p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/55">Tryb pracownika</p><p className="mt-1 text-xs font-semibold">Obsługa hurtowni</p></div><nav aria-label="Panel hurtowni" className="mt-5 space-y-1 px-4">{warehouseNavigation.map((item) => {const active=isActive(pathname,item.href); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}><span className={`font-mono text-[10px] ${active ? "text-accent" : "text-mute"}`}>{item.code}</span>{item.label}</Link>;})}</nav><div className="mt-auto border-t border-hair p-5"><WarehouseAccount /></div></aside><div className="min-w-0"><header className="sticky top-0 z-30 flex min-h-16 items-center border-b border-hair bg-paper/95 px-4 backdrop-blur-xl lg:hidden"><Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><nav className="ml-auto flex items-center gap-1 overflow-x-auto" aria-label="Panel hurtowni">{warehouseNavigation.slice(0,4).map((item)=><Link key={item.href} href={item.href} className={`rounded-full px-2.5 py-2 text-[10px] font-semibold ${isActive(pathname,item.href)?"bg-ink text-white":"text-mute"}`}>{item.label}</Link>)}</nav></header>{children}</div></div>;
+  return <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[240px_minmax(0,1fr)]"><a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">{copy.wspolne.pominNawigacje}</a><aside className="sticky top-0 z-30 hidden h-screen border-r border-hair bg-surface lg:flex lg:flex-col"><Link href="/" className="pressable mx-5 mt-6 rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><div className="mx-4 mt-6 rounded-ctl bg-ink px-4 py-3 text-white"><p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/55">Tryb pracownika</p><p className="mt-1 text-xs font-semibold">Obsługa hurtowni</p></div><nav aria-label="Panel hurtowni" className="mt-5 space-y-1 px-4">{warehouseNavigation.map((item) => {const active=isActive(pathname,item.href); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}><Ikona nazwa={item.ikona as NazwaIkony} className={active ? "text-accent" : "text-mute"} />{item.label}</Link>;})}</nav><div className="mt-auto border-t border-hair p-5"><WarehouseAccount /></div></aside><div className="min-w-0"><header className="sticky top-0 z-30 flex min-h-16 items-center border-b border-hair bg-paper/95 px-4 backdrop-blur-xl lg:hidden"><Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><nav className="ml-auto flex items-center gap-1 overflow-x-auto" aria-label="Panel hurtowni">{warehouseNavigation.slice(0,4).map((item)=><Link key={item.href} href={item.href} className={`rounded-full px-2.5 py-2 text-[10px] font-semibold ${isActive(pathname,item.href)?"bg-ink text-white":"text-mute"}`}>{item.label}</Link>)}</nav></header>{children}</div></div>;
 }
 
 function TopShell({ children, pathname }: { children: ReactNode; pathname: string }) {
@@ -110,6 +111,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   if (pathname === "/" || pathname === "/logowanie" || pathname === "/wylogowano") return children;
   if (pathname.startsWith("/hurtownia")) return <WarehouseShell pathname={pathname}>{children}</WarehouseShell>;
-  if (pathname === "/panel" || pathname.startsWith("/zamowienia")) return <PortalShell pathname={pathname}>{children}</PortalShell>;
+  // Wszystkie ekrany po zalogowaniu dzielą jedną powłokę z paskiem bocznym.
+  // Wcześniej katalog i kreator wpadały do wariantu poziomego, więc chrome
+  // zmieniało się w trakcie przejścia z pulpitu, choć oba warianty i tak
+  // pokazywały próg kontrahenta i wylogowanie.
+  const trasyPortalu = ["/panel", "/katalog", "/kreator", "/projekty", "/zamowienia"];
+  if (trasyPortalu.some((t) => pathname === t || pathname.startsWith(`${t}/`)))
+    return <PortalShell pathname={pathname}>{children}</PortalShell>;
   return <TopShell pathname={pathname}>{children}</TopShell>;
 }

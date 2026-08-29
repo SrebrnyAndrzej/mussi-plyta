@@ -186,6 +186,7 @@ export const copy = {
       "Wycena orientacyjna. Materiał liczymy osobno, a rozkrój nietypowy wyceniamy z rysunku.",
   },
   katalog: {
+    podpisEkspozycji: "Regał z próbkami w hurtowni przy Działkowej. Każdy dekor z katalogu możesz zobaczyć na miejscu przed zamówieniem.",
     eyebrow: "Dekory i materiały",
     tytul: "Dekory, które mamy dziś na stanie",
     opis:
