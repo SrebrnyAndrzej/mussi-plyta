@@ -63,14 +63,27 @@ export const progiRabatowe = [
 
 /** Włączniki funkcji. Pozwalają wyciąć moduł na demo bez usuwania kodu. */
 export const funkcje = {
+  logowanie: true,
   katalog: true,
   kreatorFormatek: true,
   koszyk: true,
   panelKlienta: true,
+  /** Zaplecze hurtowni. Wyłączenie odcina trasy /hurtownia i ukrywa nawigację. */
+  panelHurtowni: true,
+  /** Kontrakt i ekrany są gotowe, prawdziwe połączenie wdraża Lead. */
+  integracjaSystemuSprzedazowego: false,
   /** Zaplecze ERP: pokazujemy dopiero po zaakceptowaniu Etapu 3. */
   zaplecze: false,
   /** Prawdziwa baza zamiast danych zalążkowych. */
   supabase: false,
+} as const;
+
+/** Zasady obsługi zamówień używane w demonstracyjnym panelu klienta. */
+export const obslugaZamowien = {
+  czasNaZmianyGodziny: 48,
+  terminRealizacjiDniRobocze: 5,
+  komunikatBraku:
+    "Termin może się wydłużyć, jeżeli stan magazynowy nie pozwala na realizację zamówienia.",
 } as const;
 
 /** Dane kontrahenta używane wyłącznie w poniedziałkowej makiecie portalu. */
@@ -85,6 +98,13 @@ export const kreatorDomyslne = {
   szerokosc: 560,
   sztuk: 1,
   grubosc: 18,
+} as const;
+
+/** Klucz kolumn używany przez import list formatek Mussi. */
+export const importMussi = {
+  separator: ";",
+  kolumny: ["Lp.", "Oznaczenie(np. frez)", "x", "Długość", "Szerokość", "Ilość", "słoje", "Okleina"],
+  przyklad: ["1", "5981 bs", "", "2500", "505", "2", "", "1010"],
 } as const;
 
 /**
@@ -108,7 +128,23 @@ export const copy = {
     opis:
       "Dodaj formatki, ustaw obrzeże na każdej krawędzi i zobacz rozkrój policzony na żywo.",
     nowaPozycja: "Nowa pozycja",
+    importTytul: "Import listy formatek",
+    importFormaty: "CSV / XLSX",
+    importOpis: "Wgraj CSV albo Excel XLSX zgodny z kluczem Mussi.",
+    importWybierz: "Wybierz plik CSV lub XLSX",
+    importPomoc: "Oznaczenie płyty może być wpisane tylko w pierwszym wierszu grupy — kolejne formatki je dziedziczą. Okleina: góra, dół, lewa, prawa; 0 oznacza brak, 1 lub 2 grubość w mm. Słoje oznacz literą T lub X.",
+    importKlucz: "Klucz Mussi",
+    importWzor: "Pobierz wzór CSV",
+    importCzytanie: "Czytam plik",
+    importGotowe: "Pozycje gotowe do dodania",
+    importBledy: "Uwagi do importu",
+    importDodaj: "Dodaj do rozkroju",
+    importWyczysc: "Wyczyść import",
+    importBladPliku: "Nie udało się odczytać pliku.",
+    importBrakDekoru: "nie rozpoznano dekoru",
+    importDekorZastepczy: "użyto aktualnie wybranej płyty",
     dekor: "Dekor",
+    wybranoZKatalogu: "Wybrano z katalogu",
     dlugosc: "Długość",
     szerokosc: "Szerokość",
     sztuk: "Sztuk",
@@ -116,6 +152,15 @@ export const copy = {
     sloje: "Słoje wzdłuż długości",
     obrzeze: "Obrzeże, dotknij aby zmienić",
     obrzezePomoc: "Każde dotknięcie zmienia grubość: brak, 1 mm, 2 mm.",
+    obrzezeProdukt: "Obrzeże do płyty",
+    obrzezeSugestia: "Sugestia systemu",
+    obrzezeWybraneRecznie: "Wybór ręczny",
+    obrzezeBrak: "Brak obrzeża w katalogu",
+    obrzezeZmien: "Zmień obrzeże",
+    obrzezeZamknij: "Zamknij wybór",
+    obrzezeSzukaj: "Szukaj po kodzie, nazwie lub producencie",
+    obrzezeBrakWynikow: "Brak obrzeży pasujących do wyszukiwania.",
+    obrzezeWyniki: "Wyniki wyszukiwania obrzeży",
     krawedzie: ["górna", "dolna", "lewa", "prawa"],
     zmienKrawedz: "Zmień obrzeże, krawędź",
     dodaj: "Dodaj formatkę",
@@ -159,8 +204,8 @@ export const copy = {
     ostatnieSztuki: "ostatnie sztuki",
     naZamowienie: "na zamówienie",
     grubosc: "Grubość",
-    cenaKatalogowa: "Cena katalogowa",
     twojaCena: "Twoja cena",
+    uzyjWKreatorze: "Użyj w kreatorze",
     brakWynikow: "Brak materiałów dla wybranych filtrów.",
     pozycji: "pozycji",
     wyniki: "Wyniki katalogu",

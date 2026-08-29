@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { copy, kontrahentDemo, progiRabatowe } from "@/config/brief";
 import { zloty } from "@/lib/pricing";
@@ -131,7 +132,7 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
           <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {filtered.map((produkt) => (
               <li key={produkt.id} className="lift-on-hover pressable rounded-shell bg-shell p-1.5 ring-1 ring-hair">
-                <article className="flex h-full min-h-[31rem] flex-col overflow-hidden rounded-core bg-surface shadow-[var(--inner)]">
+                <article className="flex h-full min-h-[34rem] flex-col overflow-hidden rounded-core bg-surface shadow-[var(--inner)]">
                   <div className="relative aspect-[1.42/1] overflow-hidden bg-paper-2" style={{ background: produkt.probka }}>
                     <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4">
                       <span className="rounded-full bg-white/92 px-3 py-2 font-mono text-[10px] font-semibold tracking-[0.08em] text-ink shadow-[var(--lift-sm)]">
@@ -159,10 +160,6 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
                         <dt className="text-xs text-mute">{copy.katalog.grubosc}</dt>
                         <dd className="font-mono text-xs font-medium tabular-nums text-ink">{produkt.grubosciMm.join(" / ")} {copy.kreator.jednostkaMm}</dd>
                       </div>
-                      <div className="mt-2 flex items-baseline justify-between gap-4">
-                        <dt className="text-xs text-mute">{copy.katalog.cenaKatalogowa}</dt>
-                        <dd className="font-mono text-xs tabular-nums text-mute line-through">{zloty.format(produkt.cenaKatalogowa)}</dd>
-                      </div>
                     </dl>
 
                     <div className="mt-auto pt-6">
@@ -173,6 +170,19 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
                         </div>
                         <p className="pb-1 text-right text-[10px] leading-4 text-mute">/ {produkt.jednostka}<br />{copy.wspolne.cenaNetto}</p>
                       </div>
+                      {produkt.kategoria !== "obrzeze" && produkt.kategoria !== "akcesorium" && (
+                        <Link
+                          href={`/kreator?material=${encodeURIComponent(produkt.id)}`}
+                          className="pressable mt-3 flex min-h-11 w-full items-center justify-between rounded-full bg-ink py-1.5 pl-4 pr-1.5 text-xs font-semibold text-white"
+                        >
+                          {copy.katalog.uzyjWKreatorze}
+                          <span className="grid size-8 place-items-center rounded-full bg-white/12" aria-hidden="true">
+                            <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8">
+                              <path d="M4 10h11M11 6l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </article>
