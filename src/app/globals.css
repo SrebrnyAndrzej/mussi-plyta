@@ -1,26 +1,58 @@
 @import "tailwindcss";
 
+/**
+ * Tokeny wyjęte z makiety zaakceptowanej przez klienta.
+ * Jeden akcent na całą aplikację: karmin z logotypu Mussi.
+ * Skala promieni: powłoka 28, rdzeń 22, kontrolka 12, elementy klikalne pełna pigułka.
+ *
+ * Zmiana kierunku wizualnego po poniedziałku = edycja tego bloku.
+ */
+@theme {
+  --color-paper: #f3f4f6;
+  --color-paper-2: #eaecef;
+  --color-surface: #ffffff;
+  --color-ink: #0e1013;
+  --color-body: #3e444b;
+  --color-mute: #697079;
+  --color-accent: #9f0832;
+  --color-accent-ink: #8a0a2c;
+  --color-ok: #2a6b4a;
+
+  --color-shell: rgb(14 16 19 / 0.035);
+  --color-hair: rgb(14 16 19 / 0.07);
+  --color-hair-2: rgb(14 16 19 / 0.045);
+
+  --font-display: var(--font-display), "Geist", system-ui, sans-serif;
+  --font-sans: var(--font-sans), system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --radius-shell: 28px;
+  --radius-core: 22px;
+  --radius-ctl: 12px;
+
+  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --lift-sm: 0 1px 2px rgb(14 16 19 / 0.035), 0 6px 16px -12px rgb(14 16 19 / 0.14);
+  --lift: 0 1px 2px rgb(14 16 19 / 0.04), 0 10px 24px -14px rgb(14 16 19 / 0.16),
+    0 40px 72px -46px rgb(14 16 19 / 0.24);
+  --inner: inset 0 1px 0 rgb(255 255 255 / 0.9);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Aplikacja jest jednomotywowa i jasna, zgodnie z decyzją z makiety. */
+html {
+  color-scheme: light;
+  background: var(--color-paper);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
