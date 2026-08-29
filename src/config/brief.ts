@@ -73,5 +73,99 @@ export const funkcje = {
   supabase: false,
 } as const;
 
+/** Dane kontrahenta używane wyłącznie w poniedziałkowej makiecie portalu. */
+export const kontrahentDemo = {
+  nazwa: "Stolarnia Nowak",
+  kodProgu: "B2",
+} as const;
+
+/** Wartości startowe formularza przepisane z zaakceptowanej makiety. */
+export const kreatorDomyslne = {
+  dlugosc: 720,
+  szerokosc: 560,
+  sztuk: 1,
+  grubosc: 18,
+} as const;
+
+/**
+ * Copy aplikacji. Etykiety pochodzą z zaakceptowanej makiety HTML i briefu 003.
+ * Trzymamy je poza komponentami, aby korekta języka nie wymagała zmian w JSX.
+ */
+export const copy = {
+  wspolne: {
+    portal: "Portal B2B",
+    kreator: "Kreator formatek",
+    katalog: "Katalog",
+    koszyk: "Koszyk",
+    konto: "Konto klienta",
+    prog: "Próg kontrahenta",
+    cenaNetto: "netto",
+    pominNawigacje: "Przejdź do treści",
+  },
+  kreator: {
+    eyebrow: "Rozkrój i wycena",
+    tytul: "Policz sam, zanim zadzwonisz",
+    opis:
+      "Dodaj formatki, ustaw obrzeże na każdej krawędzi i zobacz rozkrój policzony na żywo.",
+    nowaPozycja: "Nowa pozycja",
+    dekor: "Dekor",
+    dlugosc: "Długość",
+    szerokosc: "Szerokość",
+    sztuk: "Sztuk",
+    jednostkaMm: "mm",
+    sloje: "Słoje wzdłuż długości",
+    obrzeze: "Obrzeże, dotknij aby zmienić",
+    obrzezePomoc: "Każde dotknięcie zmienia grubość: brak, 1 mm, 2 mm.",
+    krawedzie: ["górna", "dolna", "lewa", "prawa"],
+    zmienKrawedz: "Zmień obrzeże, krawędź",
+    dodaj: "Dodaj formatkę",
+    lista: "Lista formatek",
+    pustaLista: "Lista jest pusta. Dodaj pierwszą formatkę powyżej.",
+    usun: "Usuń",
+    brak: "brak",
+    rozkroj: "Rozkrój na żywo",
+    pustyRozkroj: "Podgląd pojawi się po dodaniu pierwszej formatki.",
+    arkusz: "Arkusz",
+    arkusze: "Arkusze",
+    wykorzystanie: "Wykorzystanie materiału",
+    odrzucone: "Formatka odrzucona",
+    odrzuconeOpis: "Wymiar nie mieści się w parametrach produkcyjnych.",
+    wymiary: "Wymiary",
+    slojeSkrot: "Słoje",
+    wycena: "Wycena usług",
+    ciecie: "Cięcie",
+    obrzezeMetry: "Obrzeże",
+    oklejanie: "Oklejanie",
+    razem: "Usługi netto",
+    wycenaInfo:
+      "Wycena orientacyjna. Materiał liczymy osobno, a rozkrój nietypowy wyceniamy z rysunku.",
+  },
+  katalog: {
+    eyebrow: "Dekory i materiały",
+    tytul: "Dekory, które mamy dziś na stanie",
+    opis:
+      "Pełny katalog po zalogowaniu, razem z ceną dopasowaną do progu kontrahenta.",
+    filtrKategorii: "Kategoria",
+    filtrDostepnosci: "Dostępność",
+    wszystkie: "Wszystkie",
+    dostepne: "Na stanie",
+    plyta: "Płyty",
+    blat: "Blaty",
+    front: "Fronty",
+    sklejka: "Sklejki",
+    obrzeze: "Obrzeża",
+    akcesorium: "Akcesoria",
+    naStanie: "na stanie",
+    ostatnieSztuki: "ostatnie sztuki",
+    naZamowienie: "na zamówienie",
+    grubosc: "Grubość",
+    cenaKatalogowa: "Cena katalogowa",
+    twojaCena: "Twoja cena",
+    brakWynikow: "Brak materiałów dla wybranych filtrów.",
+    pozycji: "pozycji",
+    wyniki: "Wyniki katalogu",
+  },
+} as const;
+
 export type ProgRabatowy = (typeof progiRabatowe)[number];
 export type PozycjaCennika = { cena: number; jednostka: string; opis: string };

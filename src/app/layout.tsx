@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import { firma } from "@/config/brief";
+import { AppShell } from "@/components/app-shell";
 import "./globals.css";
 
 const display = Bricolage_Grotesque({
@@ -42,7 +43,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="pl"
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-paper text-body">{children}</body>
+      <body className="min-h-full bg-paper font-sans text-body">
+        <AppShell>{children}</AppShell>
+      </body>
     </html>
   );
 }
