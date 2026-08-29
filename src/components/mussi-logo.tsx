@@ -8,7 +8,7 @@ export function MussiLogo({ priority = false }: { priority?: boolean }) {
       width={120}
       height={56}
       priority={priority}
-      className="h-auto w-[104px] sm:w-[120px]"
+      className="h-auto w-[96px] sm:w-[108px]"
     />
   );
 }

@@ -106,7 +106,7 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
       <a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform duration-150 ease-[var(--ease-out)] focus:translate-y-0">Przejdź do treści</a>
       <header className="pointer-events-none fixed inset-x-0 top-4 z-40 px-4 sm:top-6 sm:px-6">
         <div className="pointer-events-auto mx-auto flex min-h-16 w-full max-w-[1180px] items-center gap-4 rounded-full border border-white/60 bg-surface/72 px-4 shadow-[var(--lift-sm),inset_0_1px_0_rgb(255_255_255/0.9)] backdrop-blur-2xl backdrop-saturate-150 sm:px-5">
-          <a href="#top" aria-label={`${firma.nazwa}, początek strony`} className="pressable flex items-center rounded-ctl"><MussiLogo priority /></a>
+          <a href="#top" aria-label={`${firma.nazwa}, początek strony`} className="pressable flex items-center rounded-ctl p-1.5"><MussiLogo priority /></a>
           <nav className="ml-auto hidden items-center gap-6 text-sm font-semibold text-mute lg:flex" aria-label="Strona główna">
             <a href="#oferta" className="hover:text-ink">Oferta</a><a href="#dekory" className="hover:text-ink">Dekory</a><a href="#rozkroj" className="hover:text-ink">Rozkrój</a><a href="#cennik" className="hover:text-ink">Cennik</a><a href="#realizacje" className="hover:text-ink">Realizacje</a><a href="#kontakt" className="hover:text-ink">Kontakt</a><Link href="/logowanie" className="text-accent-ink hover:text-accent">Panel klienta</Link>
           </nav>
