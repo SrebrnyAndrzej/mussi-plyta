@@ -1,0 +1,7 @@
+{
+  "routes": [
+    { "id": 1, "from": "Warehouse A", "to": "Client X", "eta_min": 35, "vehicle": "Van 12" },
+    { "id": 2, "from": "Warehouse B", "to": "Client Y", "eta_min": 20, "vehicle": "Truck 3" },
+    { "id": 3, "from": "Warehouse A", "to": "Client Z", "eta_min": 50, "vehicle": "Van 7" }
+  ]
+}
