@@ -61,11 +61,18 @@ export function policzRozkroj(formatki: Formatka[]): WynikRozkroju {
   const sztuki: Array<{ d: number; s: number; sloje: boolean; zrodlo: number }> = [];
 
   formatki.forEach((f, i) => {
-    const zaDuza =
-      Math.min(f.dlugosc, f.szerokosc) > Math.max(plyta.szerokosc, plyta.wysokosc) ||
-      Math.max(f.dlugosc, f.szerokosc) > Math.max(plyta.szerokosc, plyta.wysokosc);
-    const zaMala =
-      f.dlugosc < minFormatka.szerokosc || f.szerokosc < minFormatka.szerokosc;
+    // Formatka mieści się, jeśli wchodzi w arkusz w którejkolwiek orientacji.
+    // Przy wymuszonych słojach wolno sprawdzić tylko orientację zadaną,
+    // bo obracanie zmieniłoby kierunek usłojenia.
+    const wchodziWprost = f.dlugosc <= plyta.szerokosc && f.szerokosc <= plyta.wysokosc;
+    const wchodziObrocona = f.szerokosc <= plyta.szerokosc && f.dlugosc <= plyta.wysokosc;
+    const zaDuza = f.sloje ? !wchodziWprost : !(wchodziWprost || wchodziObrocona);
+
+    // Okleiniarka ma dolny limit na obu bokach: krótszy nie mniej niż 70 mm,
+    // dłuższy nie mniej niż 150 mm. Wcześniej sprawdzany był tylko krótszy bok.
+    const krotszy = Math.min(f.dlugosc, f.szerokosc);
+    const dluzszy = Math.max(f.dlugosc, f.szerokosc);
+    const zaMala = krotszy < minFormatka.szerokosc || dluzszy < minFormatka.wysokosc;
     if (zaDuza || zaMala || f.sztuk < 1) {
       odrzucone.push(f);
       return;

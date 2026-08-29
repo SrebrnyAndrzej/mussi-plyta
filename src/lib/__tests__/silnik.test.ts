@@ -127,3 +127,60 @@ describe("koszyk i rabaty", () => {
     expect(doNastepnegoProgu(999_999).nastepny).toBeNull();
   });
 });
+
+describe("odrzucanie formatek, przypadki brzegowe", () => {
+  const baza = { obrzeze: [1, 1, 1, 1] as [number, number, number, number], sztuk: 1, sloje: false };
+
+  it("odrzuca formatkę, która nie wchodzi w arkusz w żadnej orientacji", () => {
+    // 2500 x 2500: dłuższy bok mieści się w 2800, ale krótszy nie mieści się w 2070
+    const w = policzRozkroj([{ ...baza, dlugosc: 2500, szerokosc: 2500 }]);
+    expect(w.odrzucone).toHaveLength(1);
+    expect(w.arkuszy).toBe(0);
+  });
+
+  it("przyjmuje formatkę, która wchodzi dopiero po obróceniu", () => {
+    // 2000 x 2700 nie wchodzi wprost, ale po obrocie tak
+    const w = policzRozkroj([{ ...baza, dlugosc: 2000, szerokosc: 2700 }]);
+    expect(w.odrzucone).toHaveLength(0);
+    expect(w.arkuszy).toBe(1);
+  });
+
+  it("odrzuca tę samą formatkę, gdy słoje blokują obrót", () => {
+    const w = policzRozkroj([{ ...baza, dlugosc: 2000, szerokosc: 2700, sloje: true }]);
+    expect(w.odrzucone).toHaveLength(1);
+  });
+
+  it("odrzuca formatkę krótszą niż minimum okleiniarki na dłuższym boku", () => {
+    // 100 x 100: krótszy bok ponad 70, ale dłuższy poniżej 150
+    const w = policzRozkroj([{ ...baza, dlugosc: 100, szerokosc: 100 }]);
+    expect(w.odrzucone).toHaveLength(1);
+  });
+
+  it("przyjmuje formatkę dokładnie na granicy minimum", () => {
+    const w = policzRozkroj([{ ...baza, dlugosc: 150, szerokosc: 70 }]);
+    expect(w.odrzucone).toHaveLength(0);
+  });
+
+  it("nie gubi pozycji: co nie zostało odrzucone, trafia na arkusz", () => {
+    const lista = [
+      { ...baza, dlugosc: 720, szerokosc: 560, sztuk: 5 },
+      { ...baza, dlugosc: 3000, szerokosc: 400 },
+      { ...baza, dlugosc: 100, szerokosc: 100 },
+    ];
+    const w = policzRozkroj(lista);
+    const ulozonych = w.arkusze.reduce((s, a) => s + a.sztuki.length, 0);
+    const odrzuconychSztuk = w.odrzucone.reduce((s, f) => s + f.sztuk, 0);
+    expect(ulozonych + odrzuconychSztuk).toBe(7);
+  });
+
+  it("każda ułożona sztuka mieści się w obrysie także przy wielu arkuszach", () => {
+    const w = policzRozkroj([{ ...baza, dlugosc: 1200, szerokosc: 900, sztuk: 20 }]);
+    expect(w.arkuszy).toBeGreaterThan(1);
+    for (const ark of w.arkusze) {
+      for (const s of ark.sztuki) {
+        expect(s.x + s.dlugosc).toBeLessThanOrEqual(rozkroj.plyta.szerokosc);
+        expect(s.y + s.szerokosc).toBeLessThanOrEqual(rozkroj.plyta.wysokosc);
+      }
+    }
+  });
+});
