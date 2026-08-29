@@ -116,3 +116,29 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* ══════════ karuzela logotypów producentów ══════════
+   Dwa identyczne rzędy przesuwane o połowę szerokości dają
+   pętlę bez szwu. Zatrzymuje się pod kursorem i przy
+   prefers-reduced-motion, gdzie zamienia się w zwykły scroll. */
+@keyframes przesuw-logo {
+  to { transform: translateX(-50%); }
+}
+.karuzela-logo {
+  display: flex;
+  width: max-content;
+  animation: przesuw-logo 48s linear infinite;
+}
+.karuzela-logo:hover,
+.karuzela-logo:focus-within {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .karuzela-logo { animation: none; width: auto; }
+  .karuzela-maska { overflow-x: auto; }
+}
+/* wygaszenie krawędzi, żeby logotypy nie ucinały się twardo */
+.karuzela-maska {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}

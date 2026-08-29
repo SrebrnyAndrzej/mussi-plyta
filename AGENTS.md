@@ -70,6 +70,12 @@ w bloku `@theme`. Zmiana kierunku wizualnego = edycja tego bloku, nie klas w kom
 
 ## Ustalony język wizualny
 
+> **Wiążący kontrakt estetyczny jest w `DESIGN.md` w tym katalogu.**
+> Przeczytaj go przed dotknięciem czegokolwiek w UI. Obowiązuje tak samo
+> Claude Code, jak i Codexa. Wyjście poza ten język wymaga pisemnej zgody
+> właściciela projektu, bo klient zaakceptował już makietę w tym kierunku.
+
+
 Klient widział już i zaakceptował makietę w tym kierunku, więc to nie jest otwarte pole:
 
 - **Rzeczowy, warsztatowy, bliżej dokumentu technicznego niż startupowego SaaS-a.**
