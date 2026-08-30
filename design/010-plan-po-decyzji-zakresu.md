@@ -66,12 +66,33 @@ granicznej i czasu do wygaśnięcia są **naszą propozycją, nie ustaleniem**.
 Specyfikacja zostawia otwarte pytanie o dni robocze kontra kalendarzowe i kalendarz
 świąt. Dziś pomijamy tylko soboty i niedziele.
 
+## Partia 2, zrobiona
+
+Wpięcie silników w interfejs. Licznik okna zmian liczy z silnika i pokazuje
+konkretną datę zamknięcia, zmiana ilości tworzy wersję, po zamknięciu okna
+zostaje wniosek. Rezerwacje widoczne w kolejce hurtowni, z jawnym komunikatem,
+że przy braku pokrycia stan żadnego indeksu nie został pomniejszony.
+
+## Partia 3, zrobiona
+
+### Dokumenty jako obiekty, `src/lib/dokumenty.ts`
+
+Potwierdzenie zamówienia zamraża wersję i cenę, i jako dokument niefiskalny
+nie wymaga danych rejestrowych. WZ powstaje dopiero przy wydaniu i niesie
+migawkę podmiotu. Faktury przechodzą przez bramkę z zadania 008, więc podmiot
+bez kompletu danych nadal nic nie wystawi. Korekta niesie różnicę wobec faktury,
+nie wartość docelową, i odwołuje się do jej numeru.
+
+Adapter KSeF jest osobny i celowo nie blokuje magazynu. `czyBlokujeMagazyn`
+zwraca zawsze fałsz i istnieje po to, żeby ten warunek dało się przetestować,
+a `sciezkaAwaryjna` mówi operatorowi wprost, że wydanie towaru jest możliwe
+mimo nieudanej wysyłki.
+
+Panel hurtowni pokazuje całą ścieżkę pod jednym numerem zamówienia, razem z tym,
+czego jeszcze brakuje.
+
 ## Partie następne
 
-2. Wpięcie obu silników w interfejs: licznik okna zmian liczony naprawdę,
-   historia wersji u klienta, rezerwacje widoczne w panelu hurtowni.
-3. Dokumenty jako obiekty: potwierdzenie zamówienia, WZ, faktura, korekta,
-   powiązane z wersją i podziałem na podmioty z zadania 008.
 4. Warunki handlowe: cenniki z datami obowiązywania, ceny indywidualne,
    limit kupiecki, formy płatności, blokady handlowe.
 5. Kolejka produkcji i plan odbiorów.
