@@ -26,8 +26,9 @@ function odmienPozycje(ile: number) {
 /**
  * Stały, lewitujący koszyk z podglądem zawartości.
  *
- * Nie zajmuje miejsca w nagłówku i jest dostępny przez cały czas przeglądania,
- * a klient sprawdza pozycje i kwotę bez opuszczania ekranu, na którym jest.
+ * Sam przycisk to wyłącznie ikona z licznikiem pozycji. Kwoty i pozycje
+ * pokazuje dopiero popup, żeby stała obecność koszyka nie zajmowała miejsca
+ * ani nie wystawiała kwot na każdym ekranie.
  * Podgląd jest wyłącznie do odczytu: ilości zmienia się na stronie koszyka,
  * żeby nie było dwóch miejsc rządzących tym samym stanem.
  *
@@ -151,19 +152,14 @@ export function MiniKoszyk() {
         aria-expanded={otwarty}
         aria-controls={panelId}
         aria-label={`Koszyk, ${summary.lines} ${odmienPozycje(summary.lines)}, ${zloty.format(summary.gross)} brutto`}
-        className="pointer-events-auto pressable flex min-h-12 items-center gap-3 rounded-full bg-surface/85 px-4 py-2 shadow-[var(--lift)] ring-1 ring-hair backdrop-blur-xl backdrop-saturate-150"
+        className="pointer-events-auto pressable relative grid size-14 place-items-center rounded-full bg-surface/85 text-accent shadow-[var(--lift)] ring-1 ring-hair backdrop-blur-xl backdrop-saturate-150"
       >
-        <span className="relative grid size-8 place-items-center rounded-full bg-paper text-accent">
-          <Ikona nazwa="koszyk" rozmiar={17} />
-          {summary.lines > 0 && (
-            <span className="absolute -right-1 -top-1 grid min-w-[1.1rem] place-items-center rounded-full bg-accent px-1 py-0.5 font-mono text-[9px] leading-none text-white ring-2 ring-surface">
-              {summary.lines}
-            </span>
-          )}
-        </span>
-        <span className="font-mono text-xs font-semibold tabular-nums text-ink">
-          {zloty.format(summary.gross)}
-        </span>
+        <Ikona nazwa="koszyk" rozmiar={22} />
+        {summary.lines > 0 && (
+          <span className="absolute -right-0.5 -top-0.5 grid min-w-[1.35rem] place-items-center rounded-full bg-accent px-1.5 py-0.5 font-mono text-[10px] leading-none text-white ring-2 ring-surface">
+            {summary.lines}
+          </span>
+        )}
       </button>
     </div>
   );
