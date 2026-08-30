@@ -22,6 +22,7 @@ export const authCopy = {
 
 export const warehouseNavigation = [
   { href: "/hurtownia", label: "Operacje", ikona: "operacje" },
+  { href: "/hurtownia/wyjatki", label: "Wyjątki i zadania", ikona: "ostrzezenie" },
   { href: "/hurtownia/zamowienia", label: "Zamówienia", ikona: "obsluga" },
   { href: "/hurtownia/stany", label: "Stany", ikona: "stany" },
   { href: "/hurtownia/zakupy", label: "Zakupy i dostawy", ikona: "zakupy" },
