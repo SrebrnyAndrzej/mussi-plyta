@@ -1,4 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
+
+/* Zaplecze widzą wyłącznie pracownicy hurtowni. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
+});
 
 test("grupuje braki według dostawcy i tworzy zamówienia robocze", async ({ page }) => {
   await page.goto("/hurtownia/zakupy");
@@ -19,10 +25,13 @@ test("wysyła zamówienie i zapisuje dostawę częściową", async ({ page }) =>
 
   await expect(page.getByText(/ZD-2026-R01 wysłano do dostawcy/)).toBeVisible();
   await page.getByRole("button", { name: "Przyjęcia" }).click();
+  /* Magazynier wpisuje, ile faktycznie przyjechało, i to trafia na dokument. */
+  const ilosc = page.getByRole("spinbutton").first();
+  await ilosc.fill("12");
   await page.getByRole("button", { name: "Zapisz dostawę częściową" }).click();
 
   await expect(page.getByText(/Braki pozostają w kolejce/)).toBeVisible();
-  await expect(page.getByText("przyjęto 12 kpl", { exact: true })).toBeVisible();
+  await expect(page.getByText(/przyjęto 12 /)).toBeVisible();
 });
 
 test("moduł mieści się na ekranie telefonu", async ({ page }) => {

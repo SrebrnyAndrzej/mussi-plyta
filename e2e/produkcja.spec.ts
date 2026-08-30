@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
 
 /**
  * Kolejka produkcji.
@@ -6,6 +7,11 @@ import { expect, test } from "@playwright/test";
  * Reguła następstwa etapów pilnuje, żeby nie dało się okleić formatki,
  * której nie wycięto. To jedyne miejsce, gdzie kolejność ma fizyczny sens.
  */
+
+/* Zaplecze widzą wyłącznie pracownicy hurtowni. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
+});
 
 test("kolejka stawia zaległe zlecenie przed spokojnymi", async ({ page }) => {
   await page.goto("/hurtownia/produkcja");

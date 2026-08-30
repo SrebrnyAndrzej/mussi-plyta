@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Ikona } from "@/components/ikona";
-import { useSesja } from "@/lib/sesja";
+import { useSesja, type RolaSesji } from "@/lib/sesja";
 
 /**
  * Prywatna część portalu.
@@ -17,9 +17,19 @@ import { useSesja } from "@/lib/sesja";
  * To zasłona na interfejsie, nie zabezpieczenie. Prawdziwa kontrola dostępu
  * należy do serwera i wchodzi razem z bazą.
  */
-export function BramkaSesji({ children }: { children: ReactNode }) {
+export function BramkaSesji({
+  children,
+  wymaganaRola,
+}: {
+  children: ReactNode;
+  /** Gdy podana, sama sesja nie wystarczy: rola musi się zgadzać. */
+  wymaganaRola?: RolaSesji;
+}) {
   const sesja = useSesja();
-  if (sesja.zalogowany) return <>{children}</>;
+  const wpuszczamy = sesja.zalogowany && (!wymaganaRola || sesja.rola === wymaganaRola);
+  if (wpuszczamy) return <>{children}</>;
+
+  const zlaRola = sesja.zalogowany && wymaganaRola && sesja.rola !== wymaganaRola;
 
   return (
     <main id="main-content" className="grid min-h-[70vh] place-items-center px-4 py-14">
@@ -29,21 +39,25 @@ export function BramkaSesji({ children }: { children: ReactNode }) {
             <Ikona nazwa="klienci" rozmiar={22} />
           </span>
           <p className="mt-6 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-ink">
-            Strefa kontrahenta
+            {wymaganaRola === "hurtownia" ? "Zaplecze hurtowni" : "Strefa kontrahenta"}
           </p>
           <h1 className="text-balance mt-4 font-display text-3xl font-semibold tracking-[-0.04em] text-ink">
-            Ta część portalu jest dla zalogowanych
+            {zlaRola ? "To konto nie ma dostępu do tej części" : "Ta część portalu jest dla zalogowanych"}
           </h1>
           <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-mute">
-            Ceny, terminy i dokumenty zależą od warunków handlowych Twojej firmy,
-            więc pokazujemy je dopiero po zalogowaniu. Asortyment obejrzysz bez konta.
+            {wymaganaRola === "hurtownia"
+              ? "Zaplecze widzą wyłącznie pracownicy hurtowni. Zalogowany kontrahent ma swój portal, bez stanów magazynowych i warunków innych firm."
+              : "Ceny, terminy i dokumenty zależą od warunków handlowych Twojej firmy, więc pokazujemy je dopiero po zalogowaniu. Asortyment obejrzysz bez konta."}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link href="/logowanie" className="pressable flex min-h-12 items-center justify-center rounded-full bg-accent px-6 text-sm font-semibold text-white">
               Zaloguj się
             </Link>
-            <Link href="/katalog" className="pressable flex min-h-12 items-center justify-center gap-2 rounded-full bg-paper px-6 text-sm font-semibold text-ink ring-1 ring-hair">
-              Przeglądaj katalog
+            <Link
+              href={wymaganaRola === "hurtownia" ? "/panel" : "/katalog"}
+              className="pressable flex min-h-12 items-center justify-center gap-2 rounded-full bg-paper px-6 text-sm font-semibold text-ink ring-1 ring-hair"
+            >
+              {wymaganaRola === "hurtownia" ? "Wróć do portalu" : "Przeglądaj katalog"}
               <Ikona nazwa="dalej" rozmiar={14} />
             </Link>
           </div>

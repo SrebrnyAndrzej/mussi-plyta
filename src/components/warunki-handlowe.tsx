@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { progiRabatowe } from "@/config/brief";
+import { dzisDemo, progiRabatowe } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
 import { cenniki, cenyIndywidualne, indeksyDemo, kontrahenci } from "@/data/warunki-demo";
 import { zloty } from "@/lib/pricing";
@@ -46,7 +46,7 @@ export function WarunkiHandlowe() {
   const [powod, setPowod] = useState("");
   const [blad, setBlad] = useState<string | null>(null);
   const [proba, setProba] = useState(12000);
-  const [dzien, setDzien] = useState("2026-08-30");
+  const [dzien, setDzien] = useState(() => dzisDemo().toISOString().slice(0, 10));
 
   const wybrany = lista.find((k) => k.id === wybranyId) ?? lista[0];
   const dataCennika = useMemo(() => new Date(`${dzien}T12:00:00Z`), [dzien]);

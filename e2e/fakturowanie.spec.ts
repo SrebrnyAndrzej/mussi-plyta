@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
 
 /**
  * Bramka wystawienia dokumentów.
@@ -7,6 +8,11 @@ import { expect, test } from "@playwright/test";
  * kompletu danych rejestrowych. Silnik tego pilnuje, ale liczy się, czy pilnuje
  * tego także ekran, na którym siedzi operator.
  */
+
+/* Zaplecze widzą wyłącznie pracownicy hurtowni. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
+});
 
 test("kartoteka nie udaje, że podmioty są gotowe", async ({ page }) => {
   await page.goto("/hurtownia/podmioty");

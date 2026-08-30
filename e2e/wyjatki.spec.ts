@@ -1,4 +1,10 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
+
+/* Zaplecze widzą wyłącznie pracownicy hurtowni. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
+});
 
 test("filtruje wyjątki według obszaru", async ({ page }) => {
   await page.goto("/hurtownia/wyjatki");

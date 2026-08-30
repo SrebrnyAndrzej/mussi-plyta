@@ -51,6 +51,7 @@ test("bez powodu zmiany nie da się zapisać wersji", async ({ page }) => {
 });
 
 test("koszyk bez pokrycia nie zakłada rezerwacji na nic", async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
   await page.goto("/hurtownia/zamowienia");
   await page.getByRole("button", { name: /M-2026-0847/ }).click();
 
@@ -61,6 +62,7 @@ test("koszyk bez pokrycia nie zakłada rezerwacji na nic", async ({ page }) => {
 });
 
 test("kompletny koszyk dostaje rezerwację z terminem ważności", async ({ page }) => {
+  await zalogujJako(page, "hurtownia");
   await page.goto("/hurtownia/zamowienia");
 
   const rezerwacja = page.getByRole("region", { name: "Rezerwacja magazynowa" });

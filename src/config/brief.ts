@@ -94,6 +94,18 @@ export const rezerwacje = {
   wygasanieGodzin: 24,
 } as const;
 
+/**
+ * Dzień odniesienia demonstracji.
+ *
+ * Trzy ekrany miały wcześniej wpisaną datę na sztywno i po dobie pokazywały
+ * wczoraj. Tutaj jest jedno źródło. Zwracamy dzień bieżący, bo dane zalążkowe
+ * mają terminy we wrześniu 2026 i dopóki są w przyszłości, wszystko się zgadza.
+ * Gdy miną, trzeba przesunąć terminy w `src/data`, a nie zamrażać zegar.
+ */
+export function dzisDemo(): Date {
+  return new Date();
+}
+
 export const terminy = {
   dniRealizacji: 5,
   dniRobocze: true,

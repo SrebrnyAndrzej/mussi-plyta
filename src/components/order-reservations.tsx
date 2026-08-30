@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { dzisDemo } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
 import type { WarehouseOrderId, WarehouseOrderStatus } from "@/data/warehouse-demo";
 import { podsumujRezerwacje, zarezerwuj, type PozycjaDoRezerwacji } from "@/lib/rezerwacje";
@@ -10,7 +11,8 @@ type PozycjaRezerwacji = PozycjaDoRezerwacji & {
   jednostka: string;
 };
 
-const DEMO_TERAZ = new Date("2026-08-30T10:45:00+02:00");
+/* Jedno źródło dnia odniesienia, patrz `dzisDemo` w brief.ts. */
+const DEMO_TERAZ = dzisDemo();
 
 const pozycjeWedlugZamowienia: Record<WarehouseOrderId, PozycjaRezerwacji[]> = {
   "M-2026-0848": [

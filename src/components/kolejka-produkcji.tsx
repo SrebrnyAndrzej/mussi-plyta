@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { dzisDemo } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
 import { slotyDemo, wydanieDemo, zleceniaDemo } from "@/data/produkcja-demo";
 import {
@@ -25,7 +26,8 @@ import {
 
 const OPERATOR = "produkcja";
 /* Dzień odniesienia demonstracji, żeby pilność zleceń była czytelna na pokazie. */
-const DZIS = new Date("2026-08-30T08:00:00Z");
+/* Jedno źródło dnia odniesienia, patrz `dzisDemo` w brief.ts. */
+const DZIS = dzisDemo();
 
 const tonPilnosci: Record<PilnoscZlecenia, string> = {
   "po-terminie": "bg-danger-paper text-accent-ink",

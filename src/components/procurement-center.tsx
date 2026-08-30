@@ -134,12 +134,28 @@ export function ProcurementCenter() {
     setMessage(`${selectedOrder.id} wysłano do dostawcy. Oczekujemy na potwierdzenie terminu.`);
   }
 
+  /**
+   * Ilości faktycznie przyjęte, wpisywane przez magazyniera.
+   * Domyślnie tyle, ile zamówiono, więc pełne przyjęcie to jedno kliknięcie.
+   */
+  const [przyjete, setPrzyjete] = useState<Record<string, number>>({});
+  const iloscPrzyjeta = (linia: { demandId: string; quantity: number }) =>
+    przyjete[linia.demandId] ?? linia.quantity;
+
+  /** Częściowe przyjęcie ma sens dopiero, gdy któraś ilość jest niższa od zamówionej. */
+  const czyCzesciowe = (selectedOrder?.lines ?? []).some(
+    (line) => iloscPrzyjeta(line) < line.quantity,
+  );
+
   function receiveOrder(partial: boolean) {
     if (!selectedOrder) return;
     updateOrder(selectedOrder.id, (order) => ({
       ...order,
       status: partial ? "Dostawa częściowa" : "Przyjęte",
-      lines: order.lines.map((line) => ({ ...line, received: partial ? line.received : line.quantity })),
+      lines: order.lines.map((line) => ({
+        ...line,
+        received: partial ? Math.min(iloscPrzyjeta(line), line.quantity) : line.quantity,
+      })),
     }));
     setMessage(partial ? `Zapisano częściowe przyjęcie ${selectedOrder.id}. Braki pozostają w kolejce.` : `${selectedOrder.id} przyjęto w całości. Powiązane zamówienia mogą zostać ponownie zweryfikowane.`);
   }
@@ -194,8 +210,8 @@ export function ProcurementCenter() {
 
       {tab === "Przyjęcia" && selectedOrder && (
         <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <section className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="rounded-core bg-surface p-5 shadow-[var(--inner)] sm:p-7"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Dokument przyjęcia</p><h2 className="mt-2 font-display text-2xl font-semibold text-ink">{selectedOrder.id}</h2><p className="mt-1 text-sm text-mute">{supplierById(selectedOrder.supplierId)?.name} · plan: {selectedOrder.expectedAt}</p></div><select value={selectedOrder.id} onChange={(event) => setSelectedOrderId(event.target.value)} aria-label="Wybierz dostawę do przyjęcia" className="min-h-11 rounded-ctl bg-paper px-3 text-sm text-ink ring-1 ring-inset ring-hair">{orders.filter((order) => order.status !== "Robocze").map((order) => <option key={order.id} value={order.id}>{order.id} · {supplierById(order.supplierId)?.name}</option>)}</select></div><div className="mt-6 divide-y divide-hair border-y border-hair">{selectedOrder.lines.map((line) => { const item = demandById(line.demandId); return <article key={line.demandId} className="grid gap-3 py-4 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><p className="text-sm font-semibold text-ink">{item?.name}</p><p className="mt-1 font-mono text-[10px] text-mute">{item?.sku}</p></div><span className="font-mono text-xs text-mute">zamówiono {line.quantity} {item?.unit}</span><strong className={`font-mono text-xs ${line.received < line.quantity ? "text-warning" : "text-ok"}`}>przyjęto {line.received} {item?.unit}</strong></article>; })}</div></div></section>
-          <aside className="rounded-core bg-ink p-6 text-white"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">Kontrola dostawy</p><h2 className="mt-3 font-display text-2xl font-semibold">Zgodność ilościowa</h2><p className="mt-3 text-sm leading-6 text-white/60">Pełne przyjęcie zamyka zapotrzebowanie. Przyjęcie częściowe pozostawia brak w kolejce zakupowej.</p><div className="mt-6 grid gap-3"><button type="button" onClick={() => receiveOrder(false)} className="pressable min-h-12 rounded-full bg-white px-5 text-sm font-semibold text-ink">Przyjmij całość</button><button type="button" onClick={() => receiveOrder(true)} className="pressable min-h-12 rounded-full bg-white/10 px-5 text-sm font-semibold text-white ring-1 ring-white/15">Zapisz dostawę częściową</button></div></aside>
+          <section className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="rounded-core bg-surface p-5 shadow-[var(--inner)] sm:p-7"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Dokument przyjęcia</p><h2 className="mt-2 font-display text-2xl font-semibold text-ink">{selectedOrder.id}</h2><p className="mt-1 text-sm text-mute">{supplierById(selectedOrder.supplierId)?.name} · plan: {selectedOrder.expectedAt}</p></div><select value={selectedOrder.id} onChange={(event) => setSelectedOrderId(event.target.value)} aria-label="Wybierz dostawę do przyjęcia" className="min-h-11 rounded-ctl bg-paper px-3 text-sm text-ink ring-1 ring-inset ring-hair">{orders.filter((order) => order.status !== "Robocze").map((order) => <option key={order.id} value={order.id}>{order.id} · {supplierById(order.supplierId)?.name}</option>)}</select></div><div className="mt-6 divide-y divide-hair border-y border-hair">{selectedOrder.lines.map((line) => { const item = demandById(line.demandId); return <article key={line.demandId} className="grid gap-3 py-4 sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><p className="text-sm font-semibold text-ink">{item?.name}</p><p className="mt-1 font-mono text-[10px] text-mute">{item?.sku}</p></div><span className="font-mono text-xs text-mute">zamówiono {line.quantity} {item?.unit}</span><span className="flex items-center gap-2"><label className="sr-only" htmlFor={`przyjeto-${line.demandId}`}>Przyjęto: {item?.name}</label><input id={`przyjeto-${line.demandId}`} type="number" min={0} max={line.quantity} value={iloscPrzyjeta(line)} onChange={(event) => setPrzyjete((obecne) => ({ ...obecne, [line.demandId]: Number(event.target.value) }))} className="min-h-11 w-20 rounded-ctl bg-paper px-2 text-right font-mono text-xs tabular-nums text-ink ring-1 ring-inset ring-hair focus:ring-accent" /><strong className={`font-mono text-xs ${line.received < line.quantity ? "text-warning" : "text-ok"}`}>przyjęto {line.received} {item?.unit}</strong></span></article>; })}</div></div></section>
+          <aside className="rounded-core bg-ink p-6 text-white"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">Kontrola dostawy</p><h2 className="mt-3 font-display text-2xl font-semibold">Zgodność ilościowa</h2><p className="mt-3 text-sm leading-6 text-white/60">Pełne przyjęcie zamyka zapotrzebowanie. Przyjęcie częściowe pozostawia brak w kolejce zakupowej.</p><div className="mt-6 grid gap-3"><button type="button" onClick={() => receiveOrder(false)} className="pressable min-h-12 rounded-full bg-white px-5 text-sm font-semibold text-ink">Przyjmij całość</button><button type="button" disabled={!czyCzesciowe} onClick={() => receiveOrder(true)} className="pressable min-h-12 rounded-full bg-white/10 px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40 ring-1 ring-white/15">Zapisz dostawę częściową</button></div></aside>
         </div>
       )}
     </main>
