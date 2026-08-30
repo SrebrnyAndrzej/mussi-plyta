@@ -37,6 +37,7 @@ export type Akcesorium = {
   rezerwacje: number;
   /** Poziom, poniżej którego zamawiamy u dostawcy. */
   stanMinimalny: number;
+  image?: string;
 };
 
 export const kategorieAkcesoriow: Array<{ id: KategoriaAkcesorium; nazwa: string }> = [
@@ -107,4 +108,19 @@ export const akcesoria: Akcesorium[] = [
   { sku: "OB-ABS-22x1", nazwa: "Obrzeże ABS 22 x 1 mm, dobierane do dekoru", producent: "Hranipex", kategoria: "obrzeza", jednostka: "mb", cena: 2.4, stanSystemowy: 1840, rezerwacje: 420, stanMinimalny: 600 },
   { sku: "OB-ABS-22x2", nazwa: "Obrzeże ABS 22 x 2 mm", producent: "Hranipex", kategoria: "obrzeza", jednostka: "mb", cena: 3.6, stanSystemowy: 148, rezerwacje: 96, stanMinimalny: 200 },
   { sku: "OB-DUO-SZK", nazwa: "Obrzeże DUO imitujące szkło", producent: "Hranipex", kategoria: "obrzeza", jednostka: "mb", cena: 6.8, stanSystemowy: 92, rezerwacje: 12, stanMinimalny: 40 },
+
+  // ── scraped from website ──
+  { sku: "SCR-UCH-1", nazwa: "Uchwyty meblowe", producent: "Mussi", kategoria: "uchwyty", jednostka: "szt", cena: 10.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/1.webp" },
+  { sku: "SCR-GAL-2", nazwa: "Gałki meblowe", producent: "Mussi", kategoria: "uchwyty", jednostka: "szt", cena: 8.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/2.webp" },
+  { sku: "SCR-NOG-3", nazwa: "Nogi meblowe", producent: "Mussi", kategoria: "uchwyty", jednostka: "szt", cena: 25.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/3.webp" },
+  { sku: "SCR-WIE-5", nazwa: "Wieszaki małe", producent: "Mussi", kategoria: "uchwyty", jednostka: "szt", cena: 12.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/5.webp" },
+  { sku: "SCR-SZU-7", nazwa: "Szuflady z cichym domykiem", producent: "Mussi", kategoria: "szuflady", jednostka: "kpl", cena: 45.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/7.webp" },
+  { sku: "SCR-CAR-8", nazwa: "Cargo", producent: "Mussi", kategoria: "kosze", jednostka: "kpl", cena: 150.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/akcesoria/8.webp" },
+  { sku: "SCR-WKR-1", nazwa: "Wkręty", producent: "Mussi", kategoria: "zlaczki", jednostka: "opak", cena: 15.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/1.webp" },
+  { sku: "SCR-OSW-3", nazwa: "Oświetlenie", producent: "Mussi", kategoria: "oswietlenie", jednostka: "szt", cena: 30.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/3.webp" },
+  { sku: "SCR-RAM-5", nazwa: "Ramki aluminiowe", producent: "Mussi", kategoria: "szklo", jednostka: "mb", cena: 40.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/5.webp" },
+  { sku: "SCR-POJ-8", nazwa: "Pojemniki na odpady", producent: "Mussi", kategoria: "kosze", jednostka: "kpl", cena: 60.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/8.webp" },
+  { sku: "SCR-Szk-6", nazwa: "Szkło", producent: "Mussi", kategoria: "szklo", jednostka: "m2", cena: 120.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/6.webp" },
+  { sku: "SCR-Blt-2", nazwa: "Akcesoria Blum", producent: "Blum", kategoria: "okucia", jednostka: "szt", cena: 20.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/2.webp" },
+  { sku: "SCR-Klej-4", nazwa: "Kleje i rozpuszczalniki", producent: "Mussi", kategoria: "chemia", jednostka: "szt", cena: 12.0, stanSystemowy: 100, rezerwacje: 0, stanMinimalny: 20, image: "/images/nowosci/4.webp" },
 ];
