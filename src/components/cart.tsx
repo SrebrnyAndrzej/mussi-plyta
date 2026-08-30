@@ -6,7 +6,7 @@ import { Ikona } from "@/components/ikona";
 import { kontrahentDemo, obslugaZamowien } from "@/config/brief";
 import { cartCopy, cartServiceDemo } from "@/data/portal-demo";
 import type { Dekor, Dostepnosc } from "@/data/dekory";
-import { readCartBrowserLines, saveCartBrowserState } from "@/lib/cart-browser";
+import { readCartBrowserLines, saveCartBrowserState, useCartBrowserLines } from "@/lib/cart-browser";
 import { cenaDlaKontrahenta, podsumujKoszyk, zloty } from "@/lib/pricing";
 
 type CartGroup = keyof typeof cartCopy.groups;
@@ -112,6 +112,14 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
     });
     return () => { cancelled = true; };
   }, [products, selectedId]);
+
+  /* Ilości da się zmienić także w lewitującym koszyku, więc strona podąża
+     za wspólnym zapisem zamiast trzymać własną, rozjeżdżającą się kopię. */
+  const wspolnePozycje = useCartBrowserLines<CartLine>();
+  useEffect(() => {
+    if (!browserReady || wspolnePozycje.length === 0) return;
+    queueMicrotask(() => setLines(wspolnePozycje));
+  }, [browserReady, wspolnePozycje]);
 
   useEffect(() => {
     if (!browserReady) return;

@@ -45,8 +45,13 @@ function WarehouseAccount() {
  */
 const TRASY_PUBLICZNE = ["/katalog"];
 
+/** Pulpit klienta podsumowuje konto, a nie zakupy, więc koszyka tam nie ma.
+ *  Panel hurtowni ma własną powłokę i nigdy go nie dostał. */
+const TRASY_BEZ_KOSZYKA = ["/panel"];
+
 function PortalShell({ children, pathname }: { children: ReactNode; pathname: string }) {
   const trasaPubliczna = TRASY_PUBLICZNE.some((t) => pathname === t || pathname.startsWith(`${t}/`));
+  const trasaBezKoszyka = TRASY_BEZ_KOSZYKA.some((t) => pathname === t || pathname.startsWith(`${t}/`));
   return (
     <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[228px_minmax(0,1fr)]">
       <a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">
@@ -84,10 +89,10 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
         </header>
         {trasaPubliczna ? children : <BramkaSesji>{children}</BramkaSesji>}
       </div>
-      {/* Koszyk jest poza przewijaną treścią, więc towarzyszy klientowi
-          na każdym ekranie portalu, łącznie ze stroną koszyka. O tym,
-          czy w ogóle się pojawia, decyduje sesja wewnątrz komponentu. */}
-      <MiniKoszyk />
+      {/* Koszyk towarzyszy klientowi tam, gdzie kupuje. Na pulpicie klienta
+          i w panelu hurtowni nie ma czego śledzić, więc tam go nie ma.
+          O tym, czy w ogóle się pojawia, decyduje jeszcze sesja. */}
+      {!trasaBezKoszyka && <MiniKoszyk />}
     </div>
   );
 }

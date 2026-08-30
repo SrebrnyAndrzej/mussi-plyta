@@ -23,11 +23,63 @@ test.beforeEach(async ({ page }) => {
   await zalogujJako(page);
 });
 
-test("towarzyszy klientowi na każdym ekranie portalu", async ({ page }) => {
-  for (const trasa of ["/katalog", "/panel", "/kreator", "/zamowienia", "/koszyk"]) {
+test("towarzyszy klientowi tam, gdzie kupuje, ale nie na pulpicie", async ({ page }) => {
+  for (const trasa of ["/katalog", "/kreator", "/zamowienia", "/koszyk"]) {
     await page.goto(trasa);
     await expect(page.getByRole("button", { name: NAZWA_KOSZYKA }), trasa).toBeVisible();
   }
+
+  /* Pulpit podsumowuje konto, a nie zakupy. */
+  await page.goto("/panel");
+  await expect(page.getByRole("button", { name: NAZWA_KOSZYKA })).toBeHidden();
+});
+
+test("ilość zmienia się w popupie i przelicza kwotę", async ({ page }) => {
+  await page.goto("/koszyk");
+  await page.waitForFunction(() => window.localStorage.getItem("mussi-b2b:cart-lines:v1") !== null);
+
+  await page.goto("/katalog");
+  await page.getByRole("button", { name: NAZWA_KOSZYKA }).click();
+  const panel = page.getByRole("dialog", { name: "Podgląd koszyka" });
+
+  const przed = znormalizuj(await panel.innerText()).match(/Brutto ([\d ]+,\d\d) zł/)?.[1];
+  await panel.getByRole("button", { name: /^Zwiększ ilość: Dąb Craft Złoty$/ }).click();
+  await expect
+    .poll(async () => znormalizuj(await panel.innerText()).match(/Brutto ([\d ]+,\d\d) zł/)?.[1])
+    .not.toBe(przed);
+});
+
+test("zmiana w popupie dochodzi do strony koszyka bez przeładowania", async ({ page }) => {
+  await page.goto("/koszyk");
+  await page.waitForFunction(() => window.localStorage.getItem("mussi-b2b:cart-lines:v1") !== null);
+
+  const wiersz = page.locator("main").getByText("Dąb Craft Złoty").first();
+  await expect(wiersz).toBeVisible();
+  const przed = znormalizuj(await page.locator("main").innerText());
+
+  await page.getByRole("button", { name: NAZWA_KOSZYKA }).click();
+  await page
+    .getByRole("dialog", { name: "Podgląd koszyka" })
+    .getByRole("button", { name: /^Zwiększ ilość: Dąb Craft Złoty$/ })
+    .click();
+
+  await expect
+    .poll(async () => znormalizuj(await page.locator("main").innerText()))
+    .not.toBe(przed);
+});
+
+test("pozycję da się usunąć z popupu", async ({ page }) => {
+  await page.goto("/koszyk");
+  await page.waitForFunction(() => window.localStorage.getItem("mussi-b2b:cart-lines:v1") !== null);
+
+  await page.goto("/katalog");
+  await page.getByRole("button", { name: NAZWA_KOSZYKA }).click();
+  const panel = page.getByRole("dialog", { name: "Podgląd koszyka" });
+
+  await expect(panel).toContainText("5 pozycji");
+  await panel.getByRole("button", { name: /^Usuń z koszyka: Dąb Craft Złoty$/ }).click();
+  await expect(panel).toContainText("4 pozycje");
+  await expect(panel).not.toContainText("Dąb Craft Złoty");
 });
 
 test("bez zalogowania koszyka nie ma, a katalog nie pokazuje cen", async ({ browser }) => {
@@ -63,7 +115,8 @@ test("po napełnieniu koszyka podgląd pokazuje pozycje i kwoty ze strony koszyk
   );
   const stronaKoszyka = await page.locator("main").innerText();
 
-  await page.goto("/panel");
+  /* Katalog, bo na pulpicie koszyka celowo nie ma. */
+  await page.goto("/katalog");
   await page.getByRole("button", { name: NAZWA_KOSZYKA }).click();
   const panel = page.getByRole("dialog", { name: "Podgląd koszyka" });
 

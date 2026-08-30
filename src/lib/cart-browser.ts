@@ -1,6 +1,8 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { kontrahentDemo } from "@/config/brief";
+import { podsumujKoszyk } from "@/lib/pricing";
 
 export type CartIndicatorSummary = {
   lines: number;
@@ -131,4 +133,51 @@ export function readCartBrowserLines<T>(): T[] | null {
   } catch {
     return null;
   }
+}
+
+
+/** Minimum, którego potrzeba, żeby przeliczyć koszyk po zmianie ilości. */
+type PozycjaDoPrzeliczenia = {
+  id: string;
+  nazwa: string;
+  ilosc: number;
+  jednostka: string;
+  cenaKatalogowa: number;
+};
+
+const MAKS_ILOSC = 999;
+
+function zapiszPozycje(pozycje: PozycjaDoPrzeliczenia[]) {
+  const podsumowanie = podsumujKoszyk(
+    pozycje.map((p) => ({
+      nazwa: p.nazwa,
+      ilosc: p.ilosc,
+      jednostka: p.jednostka,
+      cenaKatalogowa: p.cenaKatalogowa,
+    })),
+    kontrahentDemo.kodProgu,
+  );
+  saveCartBrowserState(pozycje, {
+    lines: pozycje.length,
+    items: pozycje.reduce((suma, p) => suma + p.ilosc, 0),
+    gross: podsumowanie.brutto,
+  });
+}
+
+/**
+ * Zmiana ilości pozycji.
+ *
+ * Zapis idzie przez ten sam magazyn, z którego czyta strona koszyka,
+ * więc obie powierzchnie pokazują ten sam stan. Ilość trzyma się w granicach
+ * od jednego do `MAKS_ILOSC`; zejście do zera to usunięcie, nie ujemny stan.
+ */
+export function zmienIloscPozycji(id: string, zmiana: number) {
+  const pozycje = (readCartBrowserLines<PozycjaDoPrzeliczenia>() ?? []).map((p) =>
+    p.id === id ? { ...p, ilosc: Math.max(1, Math.min(MAKS_ILOSC, p.ilosc + zmiana)) } : p,
+  );
+  zapiszPozycje(pozycje);
+}
+
+export function usunPozycje(id: string) {
+  zapiszPozycje((readCartBrowserLines<PozycjaDoPrzeliczenia>() ?? []).filter((p) => p.id !== id));
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { Ikona } from "@/components/ikona";
 import { kontrahentDemo } from "@/config/brief";
-import { useCartBrowserLines, useCartIndicatorSummary } from "@/lib/cart-browser";
+import { usunPozycje, useCartBrowserLines, useCartIndicatorSummary, zmienIloscPozycji } from "@/lib/cart-browser";
 import { useSesja } from "@/lib/sesja";
 import { podsumujKoszyk, zloty } from "@/lib/pricing";
 
@@ -29,8 +29,8 @@ function odmienPozycje(ile: number) {
  * Sam przycisk to wyłącznie ikona z licznikiem pozycji. Kwoty i pozycje
  * pokazuje dopiero popup, żeby stała obecność koszyka nie zajmowała miejsca
  * ani nie wystawiała kwot na każdym ekranie.
- * Podgląd jest wyłącznie do odczytu: ilości zmienia się na stronie koszyka,
- * żeby nie było dwóch miejsc rządzących tym samym stanem.
+ * Ilości zmienia się wprost w popupie. Zapis idzie do tego samego magazynu,
+ * z którego czyta strona koszyka, więc obie powierzchnie pokazują ten sam stan.
  *
  * Stan pochodzi z `src/lib/cart-browser.ts`, tego samego, z którego korzysta
  * wskaźnik w nawigacji.
@@ -105,16 +105,46 @@ export function MiniKoszyk() {
             ) : (
               <ul className="max-h-[min(24rem,50vh)] divide-y divide-hair overflow-y-auto">
                 {pozycje.map((p) => (
-                  <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 px-5 py-3">
-                    <span className="min-w-0">
-                      <strong className="block truncate text-xs font-semibold text-ink">{p.nazwa}</strong>
-                      <span className="mt-1 block font-mono text-[10px] text-mute">
-                        {p.kod}, {p.ilosc} {p.jednostka}
+                  <li key={p.id} className="px-5 py-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <strong className="min-w-0 flex-1 text-xs font-semibold leading-5 text-ink">{p.nazwa}</strong>
+                      <strong className="shrink-0 font-mono text-xs tabular-nums text-ink">
+                        {zloty.format(poRabacie(p))}
+                      </strong>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between gap-3">
+                      <span className="font-mono text-[10px] text-mute">{p.kod}</span>
+                      <span className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => zmienIloscPozycji(p.id, -1)}
+                          disabled={p.ilosc <= 1}
+                          aria-label={`Zmniejsz ilość: ${p.nazwa}`}
+                          className="pressable grid size-11 place-items-center rounded-full bg-paper text-ink ring-1 ring-hair disabled:text-mute/50"
+                        >
+                          <Ikona nazwa="minus" rozmiar={13} />
+                        </button>
+                        <span className="min-w-[3.5rem] text-center font-mono text-xs tabular-nums text-ink">
+                          {p.ilosc} {p.jednostka}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => zmienIloscPozycji(p.id, 1)}
+                          aria-label={`Zwiększ ilość: ${p.nazwa}`}
+                          className="pressable grid size-11 place-items-center rounded-full bg-paper text-ink ring-1 ring-hair"
+                        >
+                          <Ikona nazwa="plus" rozmiar={13} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => usunPozycje(p.id)}
+                          aria-label={`Usuń z koszyka: ${p.nazwa}`}
+                          className="pressable ml-1 grid size-11 place-items-center rounded-full text-mute hover:bg-danger-paper hover:text-accent-ink"
+                        >
+                          <Ikona nazwa="usun" rozmiar={13} />
+                        </button>
                       </span>
-                    </span>
-                    <strong className="self-center font-mono text-xs tabular-nums text-ink">
-                      {zloty.format(poRabacie(p))}
-                    </strong>
+                    </div>
                   </li>
                 ))}
               </ul>
