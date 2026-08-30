@@ -272,6 +272,28 @@ Sam stan liczbowy nie wystarczy. Potrzebne są:
 - integracja KSeF powinna być przewidziana jako osobny, odporny na awarie adapter,
 - status KSeF nie może blokować pracy magazynu bez kontrolowanej ścieżki awaryjnej.
 
+## Trzy podmioty i podział fakturowania
+
+Hurtownia działa operacyjnie jako trzy podmioty odpowiedzialne za różne części sprzedaży:
+
+1. podmiot sprzedający płyty, blaty, fronty i obrzeża,
+2. podmiot sprzedający okucia i akcesoria,
+3. Stolarnia U Kazia realizująca cięcie, oklejanie i pozostałe usługi stolarskie.
+
+Jedno zamówienie klienta może wygenerować od jednego do trzech dokumentów sprzedaży. Pracownik hurtowni musi mieć możliwość przypisania każdej grupy pozycji do podmiotu wystawiającego fakturę oraz ręcznego zmienienia sugerowanego przypisania przed wystawieniem dokumentów.
+
+System powinien:
+
+- proponować podmiot na podstawie kategorii produktu lub usługi,
+- liczyć osobne wartości netto, VAT i brutto dla każdego podmiotu,
+- blokować wystawienie dokumentu, jeżeli pozycja nie ma podmiotu albo dane formalne podmiotu są niekompletne,
+- przechowywać na dokumencie migawkę nazwy prawnej, NIP, adresu, rachunku i serii numeracji,
+- obsługiwać osobne serie faktur, korekt, WZ i połączenia KSeF dla każdego podmiotu,
+- zapisywać w audycie każdą zmianę podmiotu wraz z użytkownikiem, datą i powodem,
+- pokazywać klientowi komplet dokumentów pod jednym numerem zamówienia, mimo że wystawiły je różne podmioty.
+
+Do uzupełnienia przed backendem pozostają pełne dane prawne podmiotu akcesoriowego i Stolarni U Kazia.
+
 ## Bezpieczeństwo
 
 Minimalny poziom projektu:

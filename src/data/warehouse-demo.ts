@@ -42,12 +42,33 @@ export const warehouseDashboardCopy = {
 } as const;
 
 export const warehouseOrders = [
-  { id: "M-2026-0848", client: "Stolarnia Dąb", project: "Apartament Parkowa", status: "Nowe" as const, placed: "dzisiaj, 07:42", deadline: "4 września", stock: "Kompletne", value: "11 240,80 zł", priority: "standard" },
-  { id: "M-2026-0847", client: "Meble Krawiec", project: "Kuchnia Zielona", status: "Do weryfikacji" as const, placed: "dzisiaj, 07:16", deadline: "4 września", stock: "2 niezgodności", value: "7 818,40 zł", priority: "uwaga" },
-  { id: "M-2026-0842", client: "Stolarnia Nowak", project: "Kuchnia Palmowa", status: "W produkcji" as const, placed: "28 sierpnia, 10:31", deadline: "3 września", stock: "1 brak", value: "8 462,70 zł", priority: "uwaga" },
-  { id: "M-2026-0839", client: "Forma Studio", project: "Recepcja Klinika", status: "Gotowe" as const, placed: "27 sierpnia, 13:08", deadline: "dzisiaj", stock: "Kompletne", value: "15 029,00 zł", priority: "standard" },
-  { id: "M-2026-0835", client: "Stolarstwo Lis", project: "Szafy Hotelowe", status: "Wstrzymane" as const, placed: "26 sierpnia, 15:44", deadline: "do ustalenia", stock: "5 braków", value: "21 684,30 zł", priority: "blokada" },
+  { id: "M-2026-0848", client: "Stolarnia Dąb", project: "Apartament Parkowa", status: "Nowe" as const, placed: "dzisiaj, 07:42", deadline: "4 września", stock: "Kompletne", value: "11 240,80 zł", valueNet: 11240.8, priority: "standard" },
+  { id: "M-2026-0847", client: "Meble Krawiec", project: "Kuchnia Zielona", status: "Do weryfikacji" as const, placed: "dzisiaj, 07:16", deadline: "4 września", stock: "2 niezgodności", value: "7 818,40 zł", valueNet: 7818.4, priority: "uwaga" },
+  { id: "M-2026-0842", client: "Stolarnia Nowak", project: "Kuchnia Palmowa", status: "W produkcji" as const, placed: "28 sierpnia, 10:31", deadline: "3 września", stock: "1 brak", value: "8 462,70 zł", valueNet: 8462.7, priority: "uwaga" },
+  { id: "M-2026-0839", client: "Forma Studio", project: "Recepcja Klinika", status: "Gotowe" as const, placed: "27 sierpnia, 13:08", deadline: "dzisiaj", stock: "Kompletne", value: "15 029,00 zł", valueNet: 15029, priority: "standard" },
+  { id: "M-2026-0835", client: "Stolarstwo Lis", project: "Szafy Hotelowe", status: "Wstrzymane" as const, placed: "26 sierpnia, 15:44", deadline: "do ustalenia", stock: "5 braków", value: "21 684,30 zł", valueNet: 21684.3, priority: "blokada" },
 ] as const;
+
+export const invoiceAllocationCopy = {
+  eyebrow: "Dokumenty sprzedaży",
+  title: "Podział fakturowania",
+  description: "Przypisz każdą grupę pozycji do podmiotu, który ma ją zafakturować. Jedno zamówienie może wygenerować kilka dokumentów.",
+  suggested: "Przywróć sugerowany podział",
+  assignment: "Podmiot wystawiający fakturę",
+  summary: "Dokumenty do wystawienia",
+  net: "Netto",
+  vat: "VAT 23%",
+  gross: "Brutto",
+  legalReady: "Dane formalne kompletne",
+  legalMissing: "Dane formalne do uzupełnienia",
+  save: "Zapisz podział fakturowania",
+  saved: "Podział zapisany w wersji demonstracyjnej",
+  savedHint: "Po integracji przypisania trafią do dokumentów sprzedaży i otrzymają osobne serie numeracji.",
+  invoice: "dokument",
+  invoicesFew: "dokumenty",
+  invoicesMany: "dokumentów",
+  demoNotice: "Nazwy prawne podmiotu akcesoriowego i stolarni wymagają uzupełnienia przed wystawieniem pierwszej faktury.",
+} as const;
 
 export const warehouseMetrics = [
   { label: warehouseDashboardCopy.newOrders, value: "7", hint: "3 od ostatniej synchronizacji" },

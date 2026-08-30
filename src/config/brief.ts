@@ -228,3 +228,35 @@ export const operatorHurtowni = {
   imie: "Biuro",
   login: "biuro",
 } as const;
+
+/**
+ * Podmioty, które mogą wystawiać dokumenty do jednego zamówienia.
+ * Tylko pierwszy podmiot ma dziś potwierdzoną pełną nazwę prawną.
+ * Pozostałe nazwy są robocze i przed integracją wymagają uzupełnienia
+ * o nazwę prawną, NIP, adres, rachunek oraz serię numeracji dokumentów.
+ */
+export const podmiotyFakturujace = [
+  {
+    id: "plyty",
+    nazwaRobocza: "Płyty",
+    nazwaPrawna: firma.pelnaNazwa,
+    zakres: "Płyty, blaty, fronty i obrzeża",
+    daneFormalne: "pelne",
+  },
+  {
+    id: "akcesoria",
+    nazwaRobocza: "Akcesoria",
+    nazwaPrawna: null,
+    zakres: "Okucia, systemy i pozostałe akcesoria",
+    daneFormalne: "do-uzupelnienia",
+  },
+  {
+    id: "stolarnia",
+    nazwaRobocza: `Stolarnia ${firma.stolarnia}`,
+    nazwaPrawna: null,
+    zakres: "Cięcie, oklejanie i usługi stolarskie",
+    daneFormalne: "do-uzupelnienia",
+  },
+] as const;
+
+export type PodmiotFakturujacyId = (typeof podmiotyFakturujace)[number]["id"];
