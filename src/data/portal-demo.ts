@@ -107,6 +107,14 @@ export const activeOrder = {
   deliveryHint: "środa",
   value: "8 462,70 zł",
   valueNet: 8462.7,
+  /* Zakotwiczenie demonstracyjne: ile godzin temu system przyjął zamówienie.
+     Dzięki temu okno zmian na pokazie zawsze jest żywe. */
+  godzinOdPrzyjecia: 28,
+  pozycje: [
+    { id: "plyty", nazwa: "Rozkrój płyt", ilosc: 18, netto: 5628.4 },
+    { id: "obrzeza", nazwa: "Okleiny i obrzeża", ilosc: 5, netto: 1124.3 },
+    { id: "okucia", nazwa: "Akcesoria i okucia", ilosc: 35, netto: 1710 },
+  ],
   rows: [
     { label: "Rozkrój płyt", description: "18 płyt · 6 materiałów · 142 elementy", value: "5 628,40 zł" },
     { label: "Okleiny i obrzeża", description: "PVC 2 mm · ABS 1 mm · 5 dekorów", value: "1 124,30 zł" },

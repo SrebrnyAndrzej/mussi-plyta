@@ -1,5 +1,11 @@
 # 009-audyt-frontendu-erp — czego brakuje do frontendu ERP/CRM
 
+> **Częściowo nieaktualne od 30 sierpnia 2026.** Klient odrzucił kalkulator marży
+> stolarza, czyli pozycję numer jeden tego audytu, i zawęził zakres produktu do
+> dwóch rzeczy: ułatwienia pracy hurtowni i zamówień online. Nowe uszeregowanie
+> i plan wdrożenia są w `010-plan-po-decyzji-zakresu.md`. Ten dokument zostaje
+> jako zapis stanu i argumentów sprzed decyzji.
+
 Audyt stanu na 30 sierpnia 2026, po domknięciu fakturowania (zadanie 008).
 Punkt odniesienia: `004-b2b-crm-erp-spec.md`, czyli nasza własna specyfikacja domenowa.
 Każdy brak jest sprawdzony w kodzie, nie wywnioskowany z teorii.

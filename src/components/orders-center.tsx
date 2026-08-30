@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { OknoZmian } from "@/components/okno-zmian";
 import { activeOrder, demoOrders, orderDetailSections, ordersCopy, type DemoOrder } from "@/data/portal-demo";
 import { pozycjeZamowienia } from "@/data/warehouse-demo";
 import { odmienDokumenty, podzielNaDokumenty, sugerowanyPodzial } from "@/lib/fakturowanie";
@@ -94,7 +95,7 @@ export function OrdersCenter() {
             {section === "obrzeza" && <OrderEdges />}
             {section === "okucia" && <OrderHardware />}
             {section === "dokumenty" && <OrderDocuments />}
-            {editing && selected.editable && <div className="mt-6 rounded-ctl border border-[#dfc6cd] bg-danger-paper p-5"><h3 className="text-sm font-semibold text-ink">Tryb edycji zamówienia</h3><p className="mt-2 text-xs leading-5 text-mute">W wersji demonstracyjnej możesz potwierdzić zmianę obrzeża i terminu odbioru. Zmiany nie są wysyłane do backendu.</p><label className="mt-4 block text-xs font-semibold text-ink">Uwagi do zamówienia<textarea className="mt-2 min-h-24 w-full rounded-ctl bg-surface p-3 text-sm font-normal text-ink ring-1 ring-inset ring-hair focus:ring-accent" defaultValue="Proszę przygotować elementy w kolejności montażu." /></label><button type="button" onClick={() => { setSaved(true); setEditing(false); }} className="mt-4 rounded-full bg-accent px-5 py-2.5 text-xs font-semibold text-white">{ordersCopy.saveChanges}</button></div>}
+            {editing && selected.editable && <OknoZmian />}
             {saved && <p className="mt-5 rounded-ctl bg-[#edf7f0] p-4 text-sm font-semibold text-ok" aria-live="polite">{ordersCopy.savedChanges}</p>}
           </div>
         </div>

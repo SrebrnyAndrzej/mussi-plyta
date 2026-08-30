@@ -62,6 +62,52 @@ export const progiRabatowe = [
 ] as const;
 
 /** Włączniki funkcji. Pozwalają wyciąć moduł na demo bez usuwania kodu. */
+/**
+ * Zakres produktu, ustalony z klientem 30 sierpnia 2026.
+ *
+ * Portal ma robić dwie rzeczy: odciążać biuro hurtowni i przyjmować
+ * zamówienia online. Klient świadomie odrzucił prywatny kalkulator marży
+ * stolarza, mimo naszej rekomendacji. Sekcja o kalkulatorze w
+ * `design/004-b2b-crm-erp-spec.md` jest od tej decyzji nieaktualna.
+ *
+ * Reguła przy szeregowaniu prac: moduł wchodzi, jeżeli skraca pracę biura
+ * albo domyka ścieżkę zamówienia online. Moduł, którego jedynym beneficjentem
+ * jest stolarz, nie wchodzi.
+ */
+/**
+ * Terminy i okno zmian.
+ *
+ * `dniRobocze` i `godzinaGraniczna` to nasza propozycja, nie ustalenie.
+ * Specyfikacja zostawia otwarte pytanie, czy pięć dni to dni kalendarzowe
+ * czy robocze, jaka jest godzina graniczna i który kalendarz świąt obowiązuje.
+ * Do potwierdzenia z hurtownią. Dziś pomijamy tylko soboty i niedziele,
+ * bez świąt.
+ */
+/**
+ * Rezerwacje stanów.
+ *
+ * Rezerwacja zakładana przy złożeniu zamówienia jest miękka: wygasa,
+ * jeżeli hurtownia nie potwierdzi zamówienia w podanym czasie. Po potwierdzeniu
+ * staje się twarda i trzyma towar do wydania. Czas do potwierdzenia z hurtownią.
+ */
+export const rezerwacje = {
+  wygasanieGodzin: 24,
+} as const;
+
+export const terminy = {
+  dniRealizacji: 5,
+  dniRobocze: true,
+  godzinaGraniczna: 12,
+  oknoZmianGodzin: 48,
+} as const;
+
+export const zakresProduktu = {
+  ulatwienieDlaHurtowni: true,
+  zamowieniaOnline: true,
+  kalkulatorMarzyStolarza: false,
+  pelnyCrmDlaStolarza: false,
+} as const;
+
 export const funkcje = {
   logowanie: true,
   katalog: true,

@@ -189,6 +189,10 @@ System powinien:
 
 ## Prywatny kalkulator marży stolarza
 
+> **Nieaktualne od 30 sierpnia 2026.** Klient odrzucił ten moduł. Portal ma być
+> ułatwieniem dla hurtowni i kanałem zamówień online, a nie narzędziem pracy
+> stolarza. Sekcję zostawiamy dla historii decyzji, nie do realizacji.
+
 To osobny moduł od zamówienia Mussi. Pozwala dodać:
 
 - koszt zakupu w Mussi,
