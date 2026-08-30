@@ -292,7 +292,17 @@ System powinien:
 - zapisywać w audycie każdą zmianę podmiotu wraz z użytkownikiem, datą i powodem,
 - pokazywać klientowi komplet dokumentów pod jednym numerem zamówienia, mimo że wystawiły je różne podmioty.
 
-Do uzupełnienia przed backendem pozostają pełne dane prawne podmiotu akcesoriowego i Stolarni U Kazia.
+Stan realizacji we frontendzie, po zadaniu 008:
+
+- propozycja podmiotu po kategorii: działa,
+- osobne netto, VAT i brutto na podmiot: działa,
+- blokada wystawienia przy braku podmiotu lub niekompletnych danych: działa,
+- migawka danych rejestrowych na dokumencie: działa,
+- serie numeracji faktur, korekt i WZ oraz status KSeF: pola i numeracja działają, integracji KSeF brak,
+- audyt zmiany podmiotu z powodem, autorem i datą: działa w sesji, bez zapisu w bazie,
+- komplet dokumentów u klienta pod jednym numerem zamówienia: działa.
+
+Do uzupełnienia przed backendem pozostają pełne dane prawne wszystkich trzech podmiotów. Podmiot płytowy ma nazwę i adres, ale nie ma NIP-u, rachunku ani serii numeracji, więc również nie może dziś wystawić dokumentu.
 
 ## Bezpieczeństwo
 

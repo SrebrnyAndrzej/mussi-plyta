@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { activeOrder, demoOrders, orderDetailSections, ordersCopy, type DemoOrder } from "@/data/portal-demo";
+import { pozycjeZamowienia } from "@/data/warehouse-demo";
+import { odmienDokumenty, podzielNaDokumenty, sugerowanyPodzial } from "@/lib/fakturowanie";
+import { zloty } from "@/lib/pricing";
 
 function statusTone(status: DemoOrder["status"]) {
   if (status === "W produkcji") return "bg-danger-paper text-accent-ink";
@@ -112,8 +115,16 @@ function OrderHardware() {
   return <div><h3 className="font-display text-xl font-semibold text-ink">Okucia i akcesoria</h3><p className="mt-2 text-sm text-mute">35 pozycji od Blum, GTV i Hettich. Jedna prowadnica oczekuje na dostawę.</p><div className="mt-5 rounded-ctl border border-[#d9c8ae] bg-[#fbf7f0] p-4 text-sm text-ink">Prowadnica Blum 500 mm · przewidywana dostawa 5 września</div></div>;
 }
 
+/**
+ * Klient widzi komplet dokumentów pod jednym numerem zamówienia,
+ * mimo że wystawiają je różne podmioty hurtowni.
+ */
 function OrderDocuments() {
-  return <div><h3 className="font-display text-xl font-semibold text-ink">Dokumenty zamówienia</h3><div className="mt-5 grid gap-3 sm:grid-cols-2"><button type="button" className="rounded-ctl bg-paper p-5 text-left text-sm font-semibold text-ink ring-1 ring-hair">Specyfikacja zamówienia<span className="mt-1 block text-xs font-normal text-mute">PDF · 1,8 MB</span></button><button type="button" className="rounded-ctl bg-paper p-5 text-left text-sm font-semibold text-ink ring-1 ring-hair">Lista formatek<span className="mt-1 block text-xs font-normal text-mute">CSV · 42 pozycje</span></button></div></div>;
+  const pozycje = pozycjeZamowienia(activeOrder.valueNet);
+  const dokumenty = podzielNaDokumenty(pozycje, sugerowanyPodzial(pozycje));
+  const razem = dokumenty.reduce((suma, d) => suma + d.brutto, 0);
+
+  return <div><h3 className="font-display text-xl font-semibold text-ink">Dokumenty zamówienia</h3><p className="mt-2 max-w-2xl text-sm leading-6 text-mute">Zamówienie {activeOrder.id} rozlicza {dokumenty.length} {odmienDokumenty(dokumenty.length)}. Każdy wystawia inny podmiot, a komplet zawsze zostaje pod jednym numerem zamówienia.</p><ul className="mt-5 divide-y divide-hair border-y border-hair">{dokumenty.map((dokument) => <li key={dokument.podmiot.id} className="grid gap-2 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"><div className="min-w-0"><p className="text-sm font-semibold text-ink">{dokument.podmiot.nazwaPrawna ?? dokument.podmiot.nazwaRobocza}</p><p className="mt-1 text-xs text-mute">{dokument.podmiot.zakres}</p><p className="mt-1 font-mono text-[10px] uppercase tracking-[0.1em] text-mute">{dokument.numer ?? "numer po wystawieniu"}</p></div><div className="sm:text-right"><strong className="font-mono text-sm tabular-nums text-ink">{zloty.format(dokument.brutto)}</strong><span className={`mt-1 block text-[10px] font-semibold ${dokument.gotowy ? "text-ok" : "text-warning"}`}>{dokument.gotowy ? "gotowy do pobrania" : "w przygotowaniu"}</span></div></li>)}</ul><p className="mt-4 flex justify-between gap-4 text-sm"><span className="font-semibold text-ink">Razem brutto</span><strong className="font-mono tabular-nums text-accent-ink">{zloty.format(Math.round(razem * 100) / 100)}</strong></p><div className="mt-5 grid gap-3 sm:grid-cols-2"><button type="button" className="rounded-ctl bg-paper p-5 text-left text-sm font-semibold text-ink ring-1 ring-hair">Specyfikacja zamówienia<span className="mt-1 block text-xs font-normal text-mute">PDF · 1,8 MB</span></button><button type="button" className="rounded-ctl bg-paper p-5 text-left text-sm font-semibold text-ink ring-1 ring-hair">Lista formatek<span className="mt-1 block text-xs font-normal text-mute">CSV · 42 pozycje</span></button></div></div>;
 }
 
 function Timeline() {

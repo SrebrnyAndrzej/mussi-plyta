@@ -1,3 +1,4 @@
+import type { PozycjaDokumentu } from "@/lib/fakturowanie";
 export type WarehouseOrderStatus = "Nowe" | "Do weryfikacji" | "Przyjęte" | "W produkcji" | "Gotowe" | "Wstrzymane";
 
 export const authCopy = {
@@ -24,6 +25,7 @@ export const warehouseNavigation = [
   { href: "/hurtownia/zamowienia", label: "Zamówienia", ikona: "obsluga" },
   { href: "/hurtownia/stany", label: "Stany", ikona: "stany" },
   { href: "/hurtownia/klienci", label: "Klienci i rabaty", ikona: "klienci" },
+  { href: "/hurtownia/podmioty", label: "Podmioty", ikona: "dokumenty" },
   { href: "/hurtownia/integracje", label: "Integracje", ikona: "integracje" },
 ] as const;
 
@@ -67,8 +69,38 @@ export const invoiceAllocationCopy = {
   invoice: "dokument",
   invoicesFew: "dokumenty",
   invoicesMany: "dokumentów",
-  demoNotice: "Nazwy prawne podmiotu akcesoriowego i stolarni wymagają uzupełnienia przed wystawieniem pierwszej faktury.",
+  demoNotice: "Żaden podmiot nie ma dziś kompletu danych rejestrowych, więc wystawienie dokumentów jest zablokowane.",
+  reason: "Powód zmiany podmiotu",
+  operator: "Operator",
+  issue: "Wystaw dokumenty",
+  blockedTitle: "Wystawienie zablokowane",
+  blockedHint: "Uzupełnij dane w kartotece podmiotów, aby odblokować wystawienie.",
+  registryLink: "Otwórz kartotekę podmiotów",
+  number: "Numer dokumentu",
+  numberPending: "po nadaniu serii",
+  auditTitle: "Historia zmian podmiotu",
+  auditEmpty: "Brak zmian. Obowiązuje podział sugerowany przez system.",
+  snapshotTitle: "Dane na dokumencie",
 } as const;
+
+/**
+ * Grupy pozycji jednego zamówienia. Do czasu podpięcia koszyka
+ * wartości wynikają proporcjonalnie z wartości netto zamówienia.
+ */
+export function pozycjeZamowienia(totalNet: number): PozycjaDokumentu[] {
+  const zaokr = (v: number) => Math.round(v * 100) / 100;
+  const materialy = zaokr(totalNet * 0.61);
+  const obrzeza = zaokr(totalNet * 0.075);
+  const akcesoria = zaokr(totalNet * 0.19);
+  const uslugi = zaokr(totalNet - materialy - obrzeza - akcesoria);
+
+  return [
+    { id: "materialy", nazwa: "Płyty, blaty i fronty", kategoria: "materialy", netto: materialy, opis: "Materiały wykorzystane w zamówieniu" },
+    { id: "obrzeza", nazwa: "Obrzeża", kategoria: "obrzeza", netto: obrzeza, opis: "Obrzeża przypisane do rozkroju" },
+    { id: "akcesoria", nazwa: "Okucia i akcesoria", kategoria: "akcesoria", netto: akcesoria, opis: "Prowadnice, zawiasy i elementy montażowe" },
+    { id: "uslugi", nazwa: "Usługi stolarskie", kategoria: "uslugi", netto: uslugi, opis: "Cięcie, oklejanie i przygotowanie zamówienia" },
+  ];
+}
 
 export const warehouseMetrics = [
   { label: warehouseDashboardCopy.newOrders, value: "7", hint: "3 od ostatniej synchronizacji" },

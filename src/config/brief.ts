@@ -231,32 +231,72 @@ export const operatorHurtowni = {
 
 /**
  * Podmioty, które mogą wystawiać dokumenty do jednego zamówienia.
- * Tylko pierwszy podmiot ma dziś potwierdzoną pełną nazwę prawną.
- * Pozostałe nazwy są robocze i przed integracją wymagają uzupełnienia
- * o nazwę prawną, NIP, adres, rachunek oraz serię numeracji dokumentów.
+ *
+ * Żaden podmiot nie ma dziś kompletu danych rejestrowych: brakuje NIP-ów,
+ * rachunków i serii numeracji. Kompletność wylicza `czyPodmiotGotowy`
+ * z `src/lib/fakturowanie.ts`, więc wpisanie brakującego pola tutaj
+ * od razu odblokowuje wystawienie dokumentu w panelu hurtowni.
+ * Do potwierdzenia na spotkaniu z klientem.
  */
+export type PodmiotFakturujacy = {
+  id: string;
+  nazwaRobocza: string;
+  zakres: string;
+  nazwaPrawna: string | null;
+  nip: string | null;
+  regon: string | null;
+  adres: string | null;
+  rachunek: string | null;
+  /** Serie numeracji: faktura, korekta, wydanie zewnętrzne. */
+  seriaFaktury: string | null;
+  seriaKorekty: string | null;
+  seriaWz: string | null;
+  ksef: "podlaczony" | "niepodlaczony";
+};
+
 export const podmiotyFakturujace = [
   {
     id: "plyty",
     nazwaRobocza: "Płyty",
-    nazwaPrawna: firma.pelnaNazwa,
     zakres: "Płyty, blaty, fronty i obrzeża",
-    daneFormalne: "pelne",
+    nazwaPrawna: firma.pelnaNazwa,
+    nip: null,
+    regon: null,
+    adres: `${firma.ulica}, ${firma.kod} ${firma.miasto}`,
+    rachunek: null,
+    seriaFaktury: null,
+    seriaKorekty: null,
+    seriaWz: null,
+    ksef: "niepodlaczony",
   },
   {
     id: "akcesoria",
     nazwaRobocza: "Akcesoria",
-    nazwaPrawna: null,
     zakres: "Okucia, systemy i pozostałe akcesoria",
-    daneFormalne: "do-uzupelnienia",
+    nazwaPrawna: null,
+    nip: null,
+    regon: null,
+    adres: null,
+    rachunek: null,
+    seriaFaktury: null,
+    seriaKorekty: null,
+    seriaWz: null,
+    ksef: "niepodlaczony",
   },
   {
     id: "stolarnia",
     nazwaRobocza: `Stolarnia ${firma.stolarnia}`,
-    nazwaPrawna: null,
     zakres: "Cięcie, oklejanie i usługi stolarskie",
-    daneFormalne: "do-uzupelnienia",
+    nazwaPrawna: null,
+    nip: null,
+    regon: null,
+    adres: null,
+    rachunek: null,
+    seriaFaktury: null,
+    seriaKorekty: null,
+    seriaWz: null,
+    ksef: "niepodlaczony",
   },
-] as const;
+] as const satisfies readonly PodmiotFakturujacy[];
 
 export type PodmiotFakturujacyId = (typeof podmiotyFakturujace)[number]["id"];
