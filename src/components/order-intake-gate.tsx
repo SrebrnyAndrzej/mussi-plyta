@@ -1,17 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Ikona } from "@/components/ikona";
+import { terminy } from "@/config/brief";
+import {
+  dozwolonePrzejscia,
+  statusy,
+  terminOczekiwany,
+  zmienStatus,
+  type StatusZamowienia,
+  type Zamowienie,
+} from "@/lib/zamowienia";
 
 type Priorytet = "standard" | "uwaga" | "blokada";
-type Decyzja = "" | "dostawa" | "zamiennik" | "czesciowo";
+const OPERATOR = "biuro";
 
-const decyzje: Array<{ id: Exclude<Decyzja, "">; nazwa: string; opis: string }> = [
-  { id: "dostawa", nazwa: "Czekamy na dostawę", opis: "Całość zostaje w jednym terminie." },
-  { id: "zamiennik", nazwa: "Proponujemy zamiennik", opis: "Operator kontaktuje się z klientem przed zmianą." },
-  { id: "czesciowo", nazwa: "Realizacja częściowa", opis: "Dostępne pozycje trafiają do produkcji osobno." },
-];
+function dateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
 
 function ton(priorytet: Priorytet) {
   if (priorytet === "standard") return "bg-[#edf7f0] text-ok ring-[#c8e4d2]";
@@ -30,14 +40,46 @@ export function OrderIntakeGate({
   priority: Priorytet;
   deadline: string;
 }) {
-  const [decision, setDecision] = useState<Decyzja>("");
-  const [plannedDate, setPlannedDate] = useState("2026-09-08");
+  const initialDate = useMemo(() => terminOczekiwany(new Date()), []);
+  const [order, setOrder] = useState<Zamowienie>(() => ({
+    id: orderId,
+    status: "okno-zmian",
+    przyjeteO: new Date(),
+    terminOczekiwany: initialDate,
+    terminPotwierdzony: null,
+    wersje: [{
+      numer: 1,
+      pozycje: [{ id: "calosc", nazwa: orderId, ilosc: 1, netto: 0 }],
+      wartoscNetto: 0,
+      prognoza: initialDate,
+      utworzona: new Date(),
+      autor: OPERATOR,
+      powod: null,
+    }],
+  }));
+  const [decision, setDecision] = useState<StatusZamowienia | "">("");
+  const [plannedDate, setPlannedDate] = useState(() => dateInputValue(initialDate));
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
   const hasIssue = priority !== "standard";
+  const allowedTransitions = dozwolonePrzejscia(order.status);
   const canSave = !hasIssue || decision !== "";
 
   function savePlan() {
     if (!canSave) return;
+    const target = decision || "zablokowane";
+    const withDeadline: Zamowienie = {
+      ...order,
+      terminPotwierdzony: new Date(`${plannedDate}T12:00:00`),
+    };
+    const result = zmienStatus(withDeadline, target, OPERATOR, statusy[target].coWidziKlient);
+    if (!result.ok) {
+      setError(result.blad);
+      setSaved(false);
+      return;
+    }
+    setOrder(result.zamowienie);
+    setError("");
     setSaved(true);
   }
 
@@ -82,11 +124,11 @@ export function OrderIntakeGate({
           <fieldset className="mt-6">
             <legend className="text-sm font-semibold text-ink">Jak obsłużyć braki lub niezgodności?</legend>
             <div className="mt-3 grid gap-3 lg:grid-cols-3">
-              {decyzje.map((item) => (
-                <label key={item.id} className={`cursor-pointer rounded-ctl p-4 ring-1 transition-colors ${decision === item.id ? "bg-danger-paper ring-accent/25" : "bg-paper ring-hair hover:bg-paper-2"}`}>
+              {allowedTransitions.map((status) => (
+                <label key={status} className={`cursor-pointer rounded-ctl p-4 ring-1 transition-colors ${decision === status ? "bg-danger-paper ring-accent/25" : "bg-paper ring-hair hover:bg-paper-2"}`}>
                   <span className="flex items-start gap-3">
-                    <input type="radio" name={`decyzja-${orderId}`} value={item.id} checked={decision === item.id} onChange={() => { setDecision(item.id); setSaved(false); }} className="mt-0.5 size-4 accent-[var(--color-accent)]" />
-                    <span><strong className="block text-sm text-ink">{item.nazwa}</strong><span className="mt-1 block text-xs leading-5 text-mute">{item.opis}</span></span>
+                    <input type="radio" name={`decyzja-${orderId}`} value={status} checked={decision === status} onChange={() => { setDecision(status); setSaved(false); setError(""); }} className="mt-0.5 size-4 accent-[var(--color-accent)]" />
+                    <span><strong className="block text-sm text-ink">{statusy[status].nazwa}</strong><span className="mt-1 block text-xs leading-5 text-mute">{statusy[status].coWidziKlient}</span></span>
                   </span>
                 </label>
               ))}
@@ -96,13 +138,14 @@ export function OrderIntakeGate({
 
         <div className="mt-6 grid gap-4 border-t border-hair pt-5 sm:grid-cols-[minmax(220px,320px)_1fr_auto] sm:items-end">
           <label className="text-xs font-semibold text-ink">Planowany termin realizacji
-            <input type="date" value={plannedDate} onChange={(event) => { setPlannedDate(event.target.value); setSaved(false); }} className="mt-2 min-h-11 w-full rounded-ctl bg-paper px-3 font-mono text-sm font-normal text-ink ring-1 ring-inset ring-hair" />
+            <input type="date" value={plannedDate} onChange={(event) => { setPlannedDate(event.target.value); setSaved(false); setError(""); }} className="mt-2 min-h-11 w-full rounded-ctl bg-paper px-3 font-mono text-sm font-normal text-ink ring-1 ring-inset ring-hair" />
           </label>
-          <p className="text-xs leading-5 text-mute">Jeżeli stan magazynowy nie pozwala dotrzymać standardowych 5 dni roboczych, zapisany plan staje się podstawą informacji dla klienta.</p>
+          <p className="text-xs leading-5 text-mute">Jeżeli stan magazynowy nie pozwala dotrzymać standardowych {terminy.dniRealizacji} dni roboczych, zapisany plan staje się podstawą informacji dla klienta.</p>
           <button type="button" disabled={!canSave} onClick={savePlan} className="pressable min-h-11 rounded-full bg-accent px-5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40">Zapisz plan obsługi</button>
         </div>
 
         {!canSave && <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-accent-ink"><Ikona nazwa="ostrzezenie" rozmiar={15} />Wybierz sposób obsługi braków przed zapisaniem planu.</p>}
+        {error && <p role="alert" className="mt-3 flex items-center gap-2 text-xs font-semibold text-accent-ink"><Ikona nazwa="ostrzezenie" rozmiar={15} />{error}</p>}
         {saved && <p aria-live="polite" className="mt-4 rounded-ctl bg-[#edf7f0] px-4 py-3 text-sm font-semibold text-ok">Plan zapisany lokalnie: {plannedDate}. Po integracji decyzja trafi do historii zamówienia i systemu sprzedażowego.</p>}
       </div>
     </section>

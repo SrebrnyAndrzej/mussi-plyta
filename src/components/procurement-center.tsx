@@ -2,16 +2,20 @@
 
 import { useMemo, useState } from "react";
 import {
-  demandById,
   initialPurchaseOrders,
-  procurementDemand,
+  procurementInventory,
+  procurementRequests,
+  procurementReservations,
   supplierById,
   suppliers,
   type ProcurementUrgency,
+  type ProcurementDemand,
   type PurchaseOrder,
   type PurchaseOrderStatus,
 } from "@/data/procurement-demo";
+import { dostepne, stanPozycji } from "@/lib/magazyn";
 import { liczba, zloty } from "@/lib/pricing";
+import { zarezerwuj } from "@/lib/rezerwacje";
 
 type Tab = "Zapotrzebowanie" | "Zamówienia do dostawców" | "Przyjęcia";
 
@@ -40,6 +44,30 @@ function blockedOrdersLabel(count: number) {
 }
 
 export function ProcurementCenter() {
+  const procurementDemand = useMemo<ProcurementDemand[]>(() => {
+    const stany = Object.fromEntries(procurementInventory.map((item) => [item.sku, item.stanSystemowy]));
+
+    return procurementRequests.flatMap((request) => {
+      const inventory = procurementInventory.find((item) => item.sku === request.sku);
+      if (!inventory) return [];
+
+      const result = zarezerwuj(procurementReservations, {
+        zamowienie: `zapotrzebowanie-${request.id}`,
+        pozycje: [{ sku: request.sku, nazwa: inventory.nazwa, ilosc: request.required }],
+        stany,
+      });
+      const shortage = result.ok ? null : result.braki.find((item) => item.sku === request.sku);
+
+      return [{
+        ...request,
+        name: inventory.nazwa,
+        available: dostepne(inventory),
+        toOrder: shortage?.brakuje ?? 0,
+        unitNet: inventory.cena,
+        stockState: stanPozycji(inventory),
+      }];
+    });
+  }, []);
   const [tab, setTab] = useState<Tab>("Zapotrzebowanie");
   const [supplierFilter, setSupplierFilter] = useState("wszyscy");
   const [onlyUrgent, setOnlyUrgent] = useState(false);
@@ -48,12 +76,16 @@ export function ProcurementCenter() {
   const [selectedOrderId, setSelectedOrderId] = useState(initialPurchaseOrders[0].id);
   const [message, setMessage] = useState("");
 
-  const visibleDemand = useMemo(() => procurementDemand.filter((item) => (supplierFilter === "wszyscy" || item.supplierId === supplierFilter) && (!onlyUrgent || item.urgency !== "planowe")), [supplierFilter, onlyUrgent]);
+  const visibleDemand = useMemo(() => procurementDemand.filter((item) => (supplierFilter === "wszyscy" || item.supplierId === supplierFilter) && (!onlyUrgent || item.urgency !== "planowe")), [procurementDemand, supplierFilter, onlyUrgent]);
   const selectedDemand = procurementDemand.filter((item) => selected.has(item.id));
   const selectedValue = selectedDemand.reduce((sum, item) => sum + item.toOrder * item.unitNet, 0);
   const selectedSuppliers = unique(selectedDemand.map((item) => item.supplierId));
   const blockedOrders = unique(procurementDemand.flatMap((item) => item.customerOrders));
   const selectedOrder = orders.find((order) => order.id === selectedOrderId) ?? orders[0];
+
+  function demandById(id: string) {
+    return procurementDemand.find((item) => item.id === id);
+  }
 
   function toggleDemand(id: string) {
     setMessage("");
@@ -93,7 +125,12 @@ export function ProcurementCenter() {
 
   function sendOrder() {
     if (!selectedOrder) return;
-    updateOrder(selectedOrder.id, (order) => ({ ...order, status: "Wysłane", sentAt: "dzisiaj, 10:48", expectedAt: `za ${supplierById(order.supplierId)?.leadTimeDays ?? 3} dni robocze` }));
+    updateOrder(selectedOrder.id, (order) => ({
+      ...order,
+      status: "Wysłane",
+      sentAt: new Date().toLocaleString("pl-PL", { dateStyle: "short", timeStyle: "short" }),
+      expectedAt: "do potwierdzenia",
+    }));
     setMessage(`${selectedOrder.id} wysłano do dostawcy. Oczekujemy na potwierdzenie terminu.`);
   }
 
@@ -102,7 +139,7 @@ export function ProcurementCenter() {
     updateOrder(selectedOrder.id, (order) => ({
       ...order,
       status: partial ? "Dostawa częściowa" : "Przyjęte",
-      lines: order.lines.map((line) => ({ ...line, received: partial ? Math.max(line.received, Math.floor(line.quantity * 0.6)) : line.quantity })),
+      lines: order.lines.map((line) => ({ ...line, received: partial ? line.received : line.quantity })),
     }));
     setMessage(partial ? `Zapisano częściowe przyjęcie ${selectedOrder.id}. Braki pozostają w kolejce.` : `${selectedOrder.id} przyjęto w całości. Powiązane zamówienia mogą zostać ponownie zweryfikowane.`);
   }

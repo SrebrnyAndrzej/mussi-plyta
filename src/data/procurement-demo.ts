@@ -1,3 +1,6 @@
+import type { Akcesorium } from "@/data/akcesoria";
+import type { Rezerwacja } from "@/lib/rezerwacje";
+
 export type ProcurementUrgency = "krytyczne" | "pilne" | "planowe";
 export type PurchaseOrderStatus = "Robocze" | "Wysłane" | "Potwierdzone" | "Dostawa częściowa" | "Przyjęte";
 
@@ -10,19 +13,24 @@ export type Supplier = {
   minimumOrderNet: number;
 };
 
-export type ProcurementDemand = {
+export type ProcurementRequest = {
   id: string;
   sku: string;
-  name: string;
   supplierId: string;
   unit: string;
   required: number;
-  available: number;
-  toOrder: number;
-  unitNet: number;
   neededBy: string;
   urgency: ProcurementUrgency;
   customerOrders: string[];
+};
+
+export type ProcurementDemand = ProcurementRequest & {
+  name: string;
+  unit: string;
+  available: number;
+  toOrder: number;
+  unitNet: number;
+  stockState: "zgodne" | "ponizej-minimum" | "brak";
 };
 
 export type PurchaseOrder = {
@@ -43,13 +51,37 @@ export const suppliers: Supplier[] = [
   { id: "peka", name: "Peka", scope: "Cargo i wyposażenie kuchenne", leadTimeDays: 5, contact: "handel@peka-demo.pl", minimumOrderNet: 1200 },
 ];
 
-export const procurementDemand: ProcurementDemand[] = [
-  { id: "d-01", sku: "BLU-TAND-500", name: "Prowadnica Blum Tandem 500 mm", supplierId: "blum", unit: "kpl", required: 20, available: 0, toOrder: 20, unitNet: 62, neededBy: "3 września", urgency: "krytyczne", customerOrders: ["M-2026-0842", "M-2026-0835"] },
-  { id: "d-02", sku: "OB-5981-ABS2", name: "Obrzeże ABS 2 mm 5981", supplierId: "hranipex", unit: "mb", required: 198, available: 52, toOrder: 146, unitNet: 3.6, neededBy: "3 września", urgency: "krytyczne", customerOrders: ["M-2026-0842"] },
-  { id: "d-03", sku: "HDF-BIA-3", name: "HDF biały 3 mm", supplierId: "kronospan", unit: "ark", required: 38, available: 22, toOrder: 16, unitNet: 74, neededBy: "4 września", urgency: "pilne", customerOrders: ["M-2026-0847", "M-2026-0848"] },
-  { id: "d-04", sku: "KR-5981-BS-18", name: "Płyta 5981 BS Dąb Palmowy 18 mm", supplierId: "kronospan", unit: "ark", required: 29, available: 17, toOrder: 12, unitNet: 220.72, neededBy: "4 września", urgency: "pilne", customerOrders: ["M-2026-0847"] },
-  { id: "d-05", sku: "PEK-CARGO-400", name: "Kosz cargo Peka 400 mm", supplierId: "peka", unit: "kpl", required: 8, available: 4, toOrder: 4, unitNet: 412, neededBy: "8 września", urgency: "planowe", customerOrders: ["M-2026-0835"] },
-  { id: "d-06", sku: "BLU-AVENT-HK", name: "Podnośnik Blum Aventos HK", supplierId: "blum", unit: "kpl", required: 15, available: 12, toOrder: 3, unitNet: 189, neededBy: "8 września", urgency: "planowe", customerOrders: ["M-2026-0835"] },
+/** Surowe stany. Dostępność i klasyfikację wylicza `src/lib/magazyn.ts`. */
+export const procurementInventory: Akcesorium[] = [
+  { sku: "BLU-TAND-500", nazwa: "Prowadnica Blum Tandem 500 mm", producent: "Blum", kategoria: "okucia", jednostka: "kpl", cena: 62, stanSystemowy: 4, rezerwacje: 4, stanMinimalny: 20 },
+  { sku: "OB-5981-ABS2", nazwa: "Obrzeże ABS 2 mm 5981", producent: "Hranipex", kategoria: "obrzeza", jednostka: "mb", cena: 3.6, stanSystemowy: 147, rezerwacje: 95, stanMinimalny: 200 },
+  { sku: "HDF-BIA-3", nazwa: "HDF biały 3 mm", producent: "Kronospan", kategoria: "okucia", jednostka: "opak", cena: 74, stanSystemowy: 31, rezerwacje: 9, stanMinimalny: 30 },
+  { sku: "KR-5981-BS-18", nazwa: "Płyta 5981 BS Dąb Palmowy 18 mm", producent: "Kronospan", kategoria: "okucia", jednostka: "opak", cena: 220.72, stanSystemowy: 24, rezerwacje: 7, stanMinimalny: 24 },
+  { sku: "PEK-CARGO-400", nazwa: "Kosz cargo Peka 400 mm", producent: "Peka", kategoria: "kosze", jednostka: "kpl", cena: 412, stanSystemowy: 7, rezerwacje: 3, stanMinimalny: 5 },
+  { sku: "BLU-AVENT-HK", nazwa: "Podnośnik Blum Aventos HK", producent: "Blum", kategoria: "okucia", jednostka: "kpl", cena: 189, stanSystemowy: 18, rezerwacje: 6, stanMinimalny: 8 },
+];
+
+/** Istniejące blokady stanów potrzebne silnikowi rezerwacji do obliczenia pokrycia. */
+export const procurementReservations: Rezerwacja[] = procurementInventory
+  .filter((item) => item.rezerwacje > 0)
+  .map((item) => ({
+    id: `stan-poczatkowy-${item.sku}`,
+    zamowienie: `istniejace-${item.sku}`,
+    sku: item.sku,
+    ilosc: item.rezerwacje,
+    utworzona: "2026-08-31T08:00:00.000Z",
+    wygasa: null,
+    stan: "aktywna",
+  }));
+
+/** Zapotrzebowanie klientów bez powielonej dostępności i ilości do zakupu. */
+export const procurementRequests: ProcurementRequest[] = [
+  { id: "d-01", sku: "BLU-TAND-500", supplierId: "blum", unit: "kpl", required: 20, neededBy: "3 września", urgency: "krytyczne", customerOrders: ["M-2026-0842", "M-2026-0835"] },
+  { id: "d-02", sku: "OB-5981-ABS2", supplierId: "hranipex", unit: "mb", required: 198, neededBy: "3 września", urgency: "krytyczne", customerOrders: ["M-2026-0842"] },
+  { id: "d-03", sku: "HDF-BIA-3", supplierId: "kronospan", unit: "ark", required: 38, neededBy: "4 września", urgency: "pilne", customerOrders: ["M-2026-0847", "M-2026-0848"] },
+  { id: "d-04", sku: "KR-5981-BS-18", supplierId: "kronospan", unit: "ark", required: 29, neededBy: "4 września", urgency: "pilne", customerOrders: ["M-2026-0847"] },
+  { id: "d-05", sku: "PEK-CARGO-400", supplierId: "peka", unit: "kpl", required: 8, neededBy: "8 września", urgency: "planowe", customerOrders: ["M-2026-0835"] },
+  { id: "d-06", sku: "BLU-AVENT-HK", supplierId: "blum", unit: "kpl", required: 15, neededBy: "8 września", urgency: "planowe", customerOrders: ["M-2026-0835"] },
 ];
 
 export const initialPurchaseOrders: PurchaseOrder[] = [
@@ -60,8 +92,4 @@ export const initialPurchaseOrders: PurchaseOrder[] = [
 
 export function supplierById(id: string) {
   return suppliers.find((supplier) => supplier.id === id);
-}
-
-export function demandById(id: string) {
-  return procurementDemand.find((item) => item.id === id);
 }
