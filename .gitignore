@@ -42,3 +42,7 @@ next-env.d.ts
 
 # artefakty QA i podglądy z sesji designerskich
 /output/
+
+# Playwright
+/playwright-report
+/test-results

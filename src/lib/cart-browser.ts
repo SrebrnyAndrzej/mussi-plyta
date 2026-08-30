@@ -12,8 +12,27 @@ export const CART_LINES_STORAGE_KEY = "mussi-b2b:cart-lines:v1";
 const CART_SUMMARY_STORAGE_KEY = "mussi-b2b:cart-summary:v1";
 const CART_SUMMARY_EVENT = "mussi:cart-summary";
 
-const defaultSummary: CartIndicatorSummary = { lines: 5, items: 124, gross: 2936.53 };
+/**
+ * Stan przed pierwszym zapisem i migawka serwerowa.
+ *
+ * Zera, a nie wartości przykładowe: wskaźnik nie może obiecywać pozycji,
+ * których podgląd koszyka nie ma czym pokazać. Po wejściu na stronę koszyka
+ * zapisuje się prawdziwy stan i obie liczby zaczynają się zgadzać.
+ */
+const defaultSummary: CartIndicatorSummary = { lines: 0, items: 0, gross: 0 };
 let currentSummary = defaultSummary;
+
+/**
+ * Pozycje trzymane w jednej, stabilnej referencji.
+ *
+ * `useSyncExternalStore` porównuje migawki tożsamością, więc parsowanie JSON
+ * przy każdym odczycie zapętliłoby render. Nowa tablica powstaje wyłącznie
+ * wtedy, gdy naprawdę zmienił się zapis w przeglądarce.
+ */
+const pustePozycje: unknown[] = [];
+let currentLines: unknown[] = pustePozycje;
+let ostatniSurowyZapis: string | null = null;
+
 const listeners = new Set<() => void>();
 
 function poprawnePodsumowanie(value: unknown): value is CartIndicatorSummary {
@@ -37,17 +56,36 @@ function readSummary() {
   }
 }
 
+function readLines() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(CART_LINES_STORAGE_KEY);
+    if (raw === ostatniSurowyZapis) return;
+    ostatniSurowyZapis = raw;
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    currentLines = Array.isArray(parsed) ? parsed : pustePozycje;
+  } catch {
+    ostatniSurowyZapis = null;
+    currentLines = pustePozycje;
+  }
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   readSummary();
+  readLines();
   queueMicrotask(() => listener());
 
   const onStorage = (event: StorageEvent) => {
-    if (event.key !== CART_SUMMARY_STORAGE_KEY) return;
+    if (event.key !== CART_SUMMARY_STORAGE_KEY && event.key !== CART_LINES_STORAGE_KEY) return;
     readSummary();
+    readLines();
     notify();
   };
-  const onSummary = () => listener();
+  const onSummary = () => {
+    readLines();
+    listener();
+  };
   window.addEventListener("storage", onStorage);
   window.addEventListener(CART_SUMMARY_EVENT, onSummary);
   return () => {
@@ -61,10 +99,24 @@ export function useCartIndicatorSummary() {
   return useSyncExternalStore(subscribe, () => currentSummary, () => defaultSummary);
 }
 
+/**
+ * Pozycje koszyka na żywo, do podglądu bez wchodzenia na stronę koszyka.
+ * Na serwerze zwraca pustą listę, bo koszyk mieszka w przeglądarce.
+ */
+export function useCartBrowserLines<T>(): T[] {
+  return useSyncExternalStore(
+    subscribe,
+    () => currentLines as T[],
+    () => pustePozycje as T[],
+  );
+}
+
 export function saveCartBrowserState(lines: unknown[], summary: CartIndicatorSummary) {
   if (typeof window === "undefined") return;
   currentSummary = summary;
-  window.localStorage.setItem(CART_LINES_STORAGE_KEY, JSON.stringify(lines));
+  currentLines = lines;
+  ostatniSurowyZapis = JSON.stringify(lines);
+  window.localStorage.setItem(CART_LINES_STORAGE_KEY, ostatniSurowyZapis);
   window.localStorage.setItem(CART_SUMMARY_STORAGE_KEY, JSON.stringify(summary));
   window.dispatchEvent(new Event(CART_SUMMARY_EVENT));
   notify();

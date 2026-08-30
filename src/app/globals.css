@@ -166,3 +166,11 @@ a[href="#main-content"] {
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
+
+/* Wjazd panelu mini koszyka. Tylko transform i opacity, jedna krzywa. */
+@keyframes wjazd {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}

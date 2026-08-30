@@ -10,6 +10,7 @@ import { warehouseNavigation } from "@/data/warehouse-demo";
 import { MussiLogo } from "@/components/mussi-logo";
 import { Ikona, type NazwaIkony } from "@/components/ikona";
 import { CartIndicator } from "@/components/cart-indicator";
+import { MiniKoszyk } from "@/components/mini-koszyk";
 
 const productLinks = [
   { href: "/panel", label: "Pulpit" },
@@ -62,7 +63,6 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
         <header className="sticky top-0 z-30 border-b border-hair bg-paper/95 px-3 pb-2 pt-1 backdrop-blur-xl lg:hidden">
           <div className="flex min-h-12 items-center">
             <Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link>
-            <CartIndicator variant="mobile" active={isActive(pathname, "/koszyk")} />
           </div>
           <nav className="flex w-full gap-1 overflow-x-auto pb-1" aria-label={copy.wspolne.portal}>
             {widoczne(portalNavigation).map((item) => (
@@ -75,6 +75,9 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
         </header>
         {children}
       </div>
+      {/* Koszyk jest poza przewijaną treścią, więc towarzyszy klientowi
+          na każdym ekranie portalu. Na samej stronie koszyka byłby zbędny. */}
+      {!isActive(pathname, "/koszyk") && <MiniKoszyk />}
     </div>
   );
 }
