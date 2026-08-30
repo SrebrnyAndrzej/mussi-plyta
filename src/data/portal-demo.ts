@@ -18,8 +18,8 @@ export const portalNavigation = [
   { href: "/panel", label: "Pulpit", ikona: "pulpit" },
   { href: "/projekty/palmowa", label: "Projekty", ikona: "projekty" },
   { href: "/katalog", label: "Katalog", ikona: "katalog" },
-  { href: "/koszyk", label: "Koszyk", ikona: "koszyk" },
   { href: "/zamowienia", label: "Zamówienia", ikona: "zamowienia" },
+  { href: "/koszyk", label: "Koszyk", ikona: "koszyk" },
   { href: "/zamowienia#dokumenty", label: "Dokumenty", ikona: "dokumenty" },
 ] as const;
 

@@ -167,7 +167,7 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
                                 </span>
                               </div>
                               <h4 className="text-balance mt-2 font-display text-lg font-semibold leading-tight tracking-[-0.02em] text-ink">{line.nazwa}</h4>
-                              <p className="mt-1 text-xs text-mute">{line.producent} · {zloty.format(unitPrice)} / {line.jednostka} {cartCopy.unitPrice.toLowerCase()}</p>
+                              <p className="mt-1 text-xs text-mute">{line.producent} · {cartCopy.unitPrice}: <span className="font-mono tabular-nums text-ink">{zloty.format(unitPrice)} / {line.jednostka}</span></p>
                             </div>
 
                             <div className="flex items-center justify-between gap-4 sm:justify-end">
