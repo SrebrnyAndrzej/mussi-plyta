@@ -9,14 +9,17 @@ import {
   FileText,
   Files,
   Gauge,
+  Handshake,
   Minus,
   Plus,
   PlugsConnected,
   Receipt,
+  Sparkle,
   ShoppingCartSimple,
   SquaresFour,
   Stack,
   Trash,
+  UserCircleGear,
   UsersThree,
   Warning,
   type Icon as PhosphorIcon,
@@ -46,6 +49,9 @@ const zestaw = {
   minus: Minus,
   plus: Plus,
   usun: Trash,
+  produkcja: Sparkle,
+  warunki: Handshake,
+  zespol: UserCircleGear,
 } satisfies Record<string, PhosphorIcon>;
 
 export type NazwaIkony = keyof typeof zestaw;

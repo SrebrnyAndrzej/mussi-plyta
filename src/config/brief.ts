@@ -121,6 +121,14 @@ export const funkcje = {
   /** Zaplecze ERP: pokazujemy dopiero po zaakceptowaniu Etapu 3. */
   /** Prawdziwa baza zamiast danych zalążkowych. */
   supabase: false,
+  /**
+   * Moduły zbudowane do decyzji na spotkaniu. Każdy da się wyłączyć
+   * jedną linią, bez wycinania kodu: `bramka` zwraca wtedy 404,
+   * a wpis znika z nawigacji.
+   */
+  warunkiHandlowe: true,
+  kolejkaProdukcji: true,
+  organizacjaIRole: true,
 } as const;
 
 /** Zasady obsługi zamówień używane w demonstracyjnym panelu klienta. */

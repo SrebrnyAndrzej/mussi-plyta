@@ -25,6 +25,8 @@ export const warehouseNavigation = [
   { href: "/hurtownia/zamowienia", label: "Zamówienia", ikona: "obsluga" },
   { href: "/hurtownia/stany", label: "Stany", ikona: "stany" },
   { href: "/hurtownia/klienci", label: "Klienci i rabaty", ikona: "klienci" },
+  { href: "/hurtownia/produkcja", label: "Produkcja", ikona: "produkcja" },
+  { href: "/hurtownia/warunki", label: "Warunki", ikona: "warunki" },
   { href: "/hurtownia/podmioty", label: "Podmioty", ikona: "dokumenty" },
   { href: "/hurtownia/integracje", label: "Integracje", ikona: "integracje" },
 ] as const;

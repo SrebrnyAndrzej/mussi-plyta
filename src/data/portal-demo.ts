@@ -21,6 +21,7 @@ export const portalNavigation = [
   { href: "/zamowienia", label: "Zamówienia", ikona: "zamowienia" },
   { href: "/koszyk", label: "Koszyk", ikona: "koszyk" },
   { href: "/zamowienia#dokumenty", label: "Dokumenty", ikona: "dokumenty" },
+  { href: "/zespol", label: "Zespół", ikona: "zespol" },
 ] as const;
 
 export const cartCopy = {

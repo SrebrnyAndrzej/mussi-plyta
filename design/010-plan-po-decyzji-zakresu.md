@@ -91,12 +91,55 @@ mimo nieudanej wysyłki.
 Panel hurtowni pokazuje całą ścieżkę pod jednym numerem zamówienia, razem z tym,
 czego jeszcze brakuje.
 
-## Partie następne
+## Partia 4, zrobiona: warunki handlowe
 
-4. Warunki handlowe: cenniki z datami obowiązywania, ceny indywidualne,
-   limit kupiecki, formy płatności, blokady handlowe.
-5. Kolejka produkcji i plan odbiorów.
-6. Organizacja i role w zawężonym zakresie.
+`src/lib/warunki.ts`. Cenniki z datami obowiązywania, ceny negocjowane
+indywidualnie, limit kupiecki, formy płatności i blokady handlowe.
+
+Cena indywidualna bije próg rabatowy, bo została uzgodniona wprost, a próg
+jest tylko regułą ogólną. Limit sprawdzamy wyłącznie przy płatnościach
+odroczonych, bo przy przedpłacie hurtownia nikogo nie kredytuje. Kontrahent
+w weryfikacji kupuje tylko z góry. Każda zmiana warunków wymaga powodu
+i zostawia osobny wpis audytu dla każdego zmienionego pola.
+
+Ekran `/hurtownia/warunki` pokazuje, skąd wzięła się cena, i sprawdza
+zamówienie zanim biuro je przyjmie.
+
+## Partia 5, zrobiona: kolejka produkcji i plan odbiorów
+
+`src/lib/produkcja.ts`. Cięcie, oklejanie i kompletacja w jednej kolejce
+ułożonej od tego, co się pali: najpierw po terminie, potem zagrożone,
+pilne i spokojne. Zlecenie ze wstrzymanym etapem jest zagrożone niezależnie
+od kalendarza, bo ktoś musi podjąć decyzję, zanim zegar cokolwiek zmieni.
+
+Etapu nie da się zacząć przed zamknięciem poprzedniego, bo nie da się
+okleić formatki, której nie wycięto. Do tego okna odbioru z pojemnością
+rampy, realizacja częściowa i podgląd spiętrzenia terminów.
+
+Ekran `/hurtownia/produkcja`.
+
+## Partia 6, zrobiona: organizacja i role
+
+`src/lib/organizacja.ts`, zakres zawężony. Trzy role zamiast czterech:
+właściciel, kupujący i podgląd. Kosztorysant odpadł razem z pomysłem
+na CRM dla stolarza.
+
+Przekroczenie limitu nie jest odmową. Zamówienie idzie do akceptacji,
+bo zatrzymanie kupującego w środku pracy kosztuje więcej niż jedno
+kliknięcie właściciela. Ostatni właściciel konta nie może zniknąć.
+
+Ekran `/zespol` po stronie stolarza.
+
+## Wszystko za flagami
+
+Każdy z trzech modułów ma własną flagę w `funkcje`: `warunkiHandlowe`,
+`kolejkaProdukcji`, `organizacjaIRole`. Wyłączenie jednej linii daje 404
+na trasie i usuwa wpis z nawigacji, bez wycinania kodu. Sprawdzone:
+przy wyłączonej produkcji trasa zwraca 404, menu pokazuje sześć pozycji
+zamiast siedmiu, a pozostałe moduły działają bez zmian.
+
+Dzięki temu decyzje ze spotkania da się wprowadzić od razu, a to, co
+odpadnie, zostaje w repozytorium na wypadek zmiany zdania.
 
 ## Do potwierdzenia z hurtownią
 

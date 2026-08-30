@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { copy, firma, kontrahentDemo, progiRabatowe } from "@/config/brief";
+import { funkcje } from "@/config/brief";
 import { portalNavigation } from "@/data/portal-demo";
 import { warehouseNavigation } from "@/data/warehouse-demo";
 import { MussiLogo } from "@/components/mussi-logo";
@@ -43,7 +44,7 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
       <aside className="sticky top-0 z-30 hidden h-screen border-r border-hair bg-surface lg:flex lg:flex-col">
         <Link href="/" aria-label={`${firma.nazwa}, strona główna`} className="pressable mx-5 mt-6 rounded-ctl p-1.5"><MussiLogo priority /></Link>
         <nav aria-label={copy.wspolne.portal} className="mt-10 space-y-1 px-4">
-          {portalNavigation.map((item) => {
+          {widoczne(portalNavigation).map((item) => {
             const active = isActive(pathname, item.href);
             return (
               <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}>
@@ -65,7 +66,7 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
             </Link>
           </div>
           <nav className="grid w-full grid-cols-4 gap-1" aria-label={copy.wspolne.portal}>
-            {portalNavigation.slice(0, 4).map((item) => (
+            {widoczne(portalNavigation).slice(0, 4).map((item) => (
               <Link key={item.href} href={item.href} aria-current={isActive(pathname, item.href) ? "page" : undefined} className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full px-1 text-[10px] font-semibold ${isActive(pathname, item.href) ? "bg-ink text-white" : "text-mute"}`}>
                 <Ikona nazwa={item.ikona as NazwaIkony} rozmiar={15} />
                 <span className="truncate">{item.label}</span>
@@ -80,7 +81,7 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
 }
 
 function WarehouseShell({ children, pathname }: { children: ReactNode; pathname: string }) {
-  return <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[240px_minmax(0,1fr)]"><a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">{copy.wspolne.pominNawigacje}</a><aside className="sticky top-0 z-30 hidden h-screen border-r border-hair bg-surface lg:flex lg:flex-col"><Link href="/" className="pressable mx-5 mt-6 rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><div className="mx-4 mt-6 rounded-ctl bg-ink px-4 py-3 text-white"><p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/55">Tryb pracownika</p><p className="mt-1 text-xs font-semibold">Obsługa hurtowni</p></div><nav aria-label="Panel hurtowni" className="mt-5 space-y-1 px-4">{warehouseNavigation.map((item) => {const active=isActive(pathname,item.href); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}><Ikona nazwa={item.ikona as NazwaIkony} className={active ? "text-accent" : "text-mute"} />{item.label}</Link>;})}</nav><div className="mt-auto border-t border-hair p-5"><WarehouseAccount /></div></aside><div className="min-w-0"><header className="sticky top-0 z-30 flex min-h-16 items-center border-b border-hair bg-paper/95 px-4 backdrop-blur-xl lg:hidden"><Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><nav className="ml-auto flex items-center gap-1 overflow-x-auto" aria-label="Panel hurtowni">{warehouseNavigation.slice(0,4).map((item)=><Link key={item.href} href={item.href} className={`rounded-full px-2.5 py-2 text-[10px] font-semibold ${isActive(pathname,item.href)?"bg-ink text-white":"text-mute"}`}>{item.label}</Link>)}</nav></header>{children}</div></div>;
+  return <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[240px_minmax(0,1fr)]"><a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">{copy.wspolne.pominNawigacje}</a><aside className="sticky top-0 z-30 hidden h-screen border-r border-hair bg-surface lg:flex lg:flex-col"><Link href="/" className="pressable mx-5 mt-6 rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><div className="mx-4 mt-6 rounded-ctl bg-ink px-4 py-3 text-white"><p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/55">Tryb pracownika</p><p className="mt-1 text-xs font-semibold">Obsługa hurtowni</p></div><nav aria-label="Panel hurtowni" className="mt-5 space-y-1 px-4">{widoczne(warehouseNavigation).map((item) => {const active=isActive(pathname,item.href); return <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className={`pressable flex min-h-12 items-center gap-4 rounded-ctl px-4 text-sm font-medium ${active ? "bg-paper text-accent-ink" : "text-mute hover:bg-paper hover:text-ink"}`}><Ikona nazwa={item.ikona as NazwaIkony} className={active ? "text-accent" : "text-mute"} />{item.label}</Link>;})}</nav><div className="mt-auto border-t border-hair p-5"><WarehouseAccount /></div></aside><div className="min-w-0"><header className="sticky top-0 z-30 flex min-h-16 items-center border-b border-hair bg-paper/95 px-4 backdrop-blur-xl lg:hidden"><Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link><nav className="ml-auto flex items-center gap-1 overflow-x-auto" aria-label="Panel hurtowni">{widoczne(warehouseNavigation).slice(0,4).map((item)=><Link key={item.href} href={item.href} className={`rounded-full px-2.5 py-2 text-[10px] font-semibold ${isActive(pathname,item.href)?"bg-ink text-white":"text-mute"}`}>{item.label}</Link>)}</nav></header>{children}</div></div>;
 }
 
 function TopShell({ children, pathname }: { children: ReactNode; pathname: string }) {
@@ -113,6 +114,20 @@ function TopShell({ children, pathname }: { children: ReactNode; pathname: strin
       {children}
     </>
   );
+}
+
+/**
+ * Wpis znika z menu, gdy jego moduł jest wyłączony flagą.
+ * Bez tego wyłączenie modułu zostawiałoby w nawigacji link prowadzący do 404.
+ */
+const trasyZaFlaga: Record<string, boolean> = {
+  "/hurtownia/warunki": funkcje.warunkiHandlowe,
+  "/hurtownia/produkcja": funkcje.kolejkaProdukcji,
+  "/zespol": funkcje.organizacjaIRole,
+};
+
+function widoczne<T extends { href: string }>(pozycje: readonly T[]): T[] {
+  return pozycje.filter((p) => trasyZaFlaga[p.href] !== false);
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
