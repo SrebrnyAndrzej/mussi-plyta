@@ -25,7 +25,7 @@ export function ClientDashboard() {
                 <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-ink">{dashboardCopy.activeOrder}</p>
                 <h2 id="active-order-title" className="mt-2 font-display text-3xl font-semibold tracking-[-0.035em] text-ink sm:text-4xl">Zamówienie {activeOrder.id}</h2>
               </div>
-              <Link href="/zamowienia" className="pressable w-fit rounded-full bg-paper px-4 py-2.5 text-xs font-semibold text-ink">{dashboardCopy.seeDetails}</Link>
+              <Link href="/zamowienia" className="pressable inline-flex min-h-11 w-fit items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink">{dashboardCopy.seeDetails}</Link>
             </div>
 
             <dl className="mt-6 grid divide-y divide-hair rounded-ctl bg-paper px-5 ring-1 ring-hair sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-0">
@@ -46,7 +46,7 @@ export function ClientDashboard() {
 
             <div className="mt-7 flex flex-col gap-3 rounded-ctl border border-[#d9c8ae] bg-[#fbf7f0] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center sm:justify-between">
               <p><strong className="font-semibold">Brak magazynowy:</strong> {dashboardCopy.stockAlert.replace("Brak magazynowy: ", "")}</p>
-              <Link href="/zamowienia" className="shrink-0 text-xs font-semibold text-accent-ink">{dashboardCopy.seeDetails}</Link>
+              <Link href="/zamowienia" className="inline-flex min-h-11 shrink-0 items-center text-xs font-semibold text-accent-ink">{dashboardCopy.seeDetails}</Link>
             </div>
 
             <div className="mt-7">

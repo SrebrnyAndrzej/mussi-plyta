@@ -44,8 +44,10 @@ odcień tła. **Nigdy czarne, nigdy twarde.** Karty stosują podwójną ramkę:
 zewnętrzna powłoka `bg-shell` z `ring-1 ring-hair`, wewnątrz rdzeń `bg-surface`.
 
 ### 7. Motion
-Jedna krzywa na cały dokument: `--ease-fluid` `cubic-bezier(.32,.72,0,1)`.
-Bez `linear` i bez `ease-in-out`. Animujemy wyłącznie `transform` i `opacity`.
+Jedna krzywa na sprzężenie zwrotne interfejsu: `--ease-out`
+`cubic-bezier(.23,1,.32,1)`. Jedyny dozwolony wyjątek to `linear`
+w karuzeli logotypów, bo ruch ciągły ze zmienną prędkością wygląda na usterkę.
+Bez `ease-in-out`. Animujemy wyłącznie `transform` i `opacity`.
 `prefers-reduced-motion` jest respektowane globalnie i nie wolno tego obchodzić.
 Każda animacja musi dać się uzasadnić jednym zdaniem: hierarchia, narracja,
 reakcja na akcję albo zmiana stanu. „Bo ładnie wygląda" nie jest uzasadnieniem.

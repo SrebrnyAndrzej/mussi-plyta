@@ -12,6 +12,7 @@ import { policzRozkroj, type Formatka } from "@/lib/nesting";
 import { liczba, wycenUslugi, zloty } from "@/lib/pricing";
 import { suggestEdge } from "@/lib/edge-matching";
 import { parseMussiTable, readMussiFile } from "@/lib/import-formats";
+import { Ikona } from "@/components/ikona";
 
 type MaterialOption = {
   id: string;
@@ -99,6 +100,12 @@ function EdgeEditor({
     "right-0 top-1/2 h-[62%] w-12 -translate-y-1/2",
   ] as const;
 
+  const changeEdge = (edge: EdgeIndex) => {
+    const changed: Formatka["obrzeze"] = [...value];
+    changed[edge] = nextEdge(changed[edge], thicknesses);
+    onChange(changed);
+  };
+
   return (
     <div className="mx-auto w-full max-w-[340px]" aria-describedby="edge-help">
       <div className="relative aspect-[1.55/1] w-full">
@@ -117,21 +124,25 @@ function EdgeEditor({
             <button
               key={copy.kreator.krawedzie[edge]}
               type="button"
-              aria-label={`${copy.kreator.zmienKrawedz} ${copy.kreator.krawedzie[edge]}: ${
-                value[edge] || copy.kreator.brak
-              } ${value[edge] ? copy.kreator.jednostkaMm : ""}. ${copy.kreator.zmienKrawedz}: ${
-                next || copy.kreator.brak
-              } ${next ? copy.kreator.jednostkaMm : ""}`}
+              aria-label={`${copy.kreator.krawedzStan} ${copy.kreator.krawedzie[edge]}: ${value[edge]} ${
+                copy.kreator.jednostkaMm
+              }. ${copy.kreator.krawedzPoDotknieciu} ${next} ${copy.kreator.jednostkaMm}.`}
               aria-pressed={active}
-              onClick={() => {
-                const changed: Formatka["obrzeze"] = [...value];
-                changed[edge] = nextEdge(changed[edge], thicknesses);
-                onChange(changed);
+              onPointerDown={(event) => {
+                if (event.pointerType === "mouse" && event.button !== 0) return;
+                event.preventDefault();
+                event.currentTarget.focus({ preventScroll: true });
+                changeEdge(edge);
               }}
-              className={`pressable absolute ${position} group rounded-full focus-visible:z-10`}
+              onKeyDown={(event) => {
+                if (event.repeat || (event.key !== "Enter" && event.key !== " ")) return;
+                event.preventDefault();
+                changeEdge(edge);
+              }}
+              className={`absolute ${position} group rounded-full transition-transform duration-150 ease-[var(--ease-out)] active:scale-[0.97] focus-visible:z-10`}
             >
               <span
-                className={`absolute rounded-full transition-colors duration-180 ease-[var(--ease-out)] ${
+                className={`absolute rounded-full ${
                   edge < 2 ? "inset-x-3 top-1/2 h-1 -translate-y-1/2" : "inset-y-3 left-1/2 w-1 -translate-x-1/2"
                 } ${active ? "bg-accent" : "bg-ink/16 group-hover:bg-ink/28"}`}
               />
@@ -146,7 +157,7 @@ function EdgeEditor({
                         : "right-0 top-1/2 -translate-y-1/2"
                 } ${active ? "bg-accent text-white" : "bg-paper-2 text-mute"}`}
               >
-                {value[edge] || "–"}
+                {value[edge]}
               </span>
             </button>
           );
@@ -160,7 +171,7 @@ function EdgeEditor({
               edge ? "bg-accent text-white" : "bg-paper-2 text-mute"
             }`}
           >
-            {copy.kreator.krawedzie[index]} · {edge ? `${edge} ${copy.kreator.jednostkaMm}` : copy.kreator.brak}
+            {copy.kreator.krawedzie[index]} · {edge} {copy.kreator.jednostkaMm}
           </span>
         ))}
       </div>
@@ -222,24 +233,40 @@ function Board({ formatki }: { formatki: Formatka[] }) {
   return (
     <div>
       {wynik.arkusze.length > 1 && (
-        <div className="mb-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={copy.kreator.arkusze}>
-          {wynik.arkusze.map((item, index) => (
-            <button
-              key={index}
-              type="button"
-              role="tab"
-              aria-selected={safeIndex === index}
-              onClick={() => setActiveSheet(index)}
-              className={`pressable shrink-0 rounded-full px-4 py-2 font-mono text-xs font-semibold tabular-nums ${
-                safeIndex === index ? "bg-ink text-white" : "bg-paper-2 text-mute"
-              }`}
-            >
-              {copy.kreator.arkusz} {index + 1} · {liczba.format(item.wykorzystanie * 100)}%
-            </button>
-          ))}
+        <div className="mb-4 rounded-ctl bg-paper p-2 ring-1 ring-inset ring-hair">
+          <div className="mb-2 flex items-center justify-between gap-3 px-1">
+            <span className="text-xs font-semibold text-ink">{copy.kreator.arkusze}</span>
+            <span className="font-mono text-[10px] font-semibold tabular-nums text-mute">
+              {copy.kreator.arkusz} {safeIndex + 1} / {wynik.arkusze.length}
+            </span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label={copy.kreator.arkusze}>
+            {wynik.arkusze.map((item, index) => (
+              <button
+                key={index}
+                id={`sheet-tab-${index}`}
+                type="button"
+                role="tab"
+                aria-controls={`sheet-panel-${index}`}
+                aria-selected={safeIndex === index}
+                tabIndex={safeIndex === index ? 0 : -1}
+                onClick={() => setActiveSheet(index)}
+                className={`pressable min-h-11 shrink-0 rounded-full px-4 font-mono text-xs font-semibold tabular-nums ${
+                  safeIndex === index ? "bg-ink text-white" : "bg-paper-2 text-mute"
+                }`}
+              >
+                {copy.kreator.arkusz} {index + 1} · {liczba.format(item.wykorzystanie * 100)}%
+              </button>
+            ))}
+          </div>
         </div>
       )}
-      <div className="overflow-hidden rounded-ctl bg-paper-2 p-3 ring-1 ring-inset ring-hair sm:p-5">
+      <div
+        id={`sheet-panel-${safeIndex}`}
+        role={wynik.arkusze.length > 1 ? "tabpanel" : undefined}
+        aria-labelledby={wynik.arkusze.length > 1 ? `sheet-tab-${safeIndex}` : undefined}
+        className="overflow-hidden rounded-ctl bg-paper-2 p-3 ring-1 ring-inset ring-hair sm:p-5"
+      >
         <svg
           viewBox={`0 0 ${plyta.szerokosc} ${plyta.wysokosc}`}
           role="img"
@@ -497,12 +524,12 @@ function ImportPanel({
         const resolvedMaterial = resolveMaterial(row.dekor, materialy, "");
         const material = resolvedMaterial ?? materialy.find((item) => item.id === defaultMaterialId);
         if (!material) {
-          errors.push(`${copy.kreator.importBrakDekoru}: wiersz ${row.sourceRow}, ${row.dekor || "—"}.`);
+          errors.push(`${copy.kreator.importBrakDekoru}: wiersz ${row.sourceRow}, ${row.dekor || copy.kreator.brak}.`);
           return;
         }
         if (!resolvedMaterial && row.dekor && !unknownMaterials.has(row.dekor)) {
           unknownMaterials.add(row.dekor);
-          errors.push(`${row.dekor}: ${copy.kreator.importBrakDekoru} — ${copy.kreator.importDekorZastepczy} ${material.kod}.`);
+          errors.push(`${row.dekor}: ${copy.kreator.importBrakDekoru}; ${copy.kreator.importDekorZastepczy} ${material.kod}.`);
         }
         const edge = suggestEdge(material, obrzeza)?.product ?? obrzeza[0];
         items.push({
@@ -538,7 +565,7 @@ function ImportPanel({
           <a
             href={`data:text/csv;charset=utf-8,${encodeURIComponent(template)}`}
             download="mussi-formatki-wzor.csv"
-            className="pressable w-fit rounded-full bg-paper px-4 py-2.5 text-xs font-semibold text-ink ring-1 ring-inset ring-hair"
+            className="pressable inline-flex min-h-11 w-fit items-center rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-inset ring-hair"
           >
             {copy.kreator.importWzor}
           </a>
@@ -585,10 +612,13 @@ function ImportPanel({
                 </p>
               ))}
             </div>
-            <div className={`rounded-ctl p-4 ring-1 ring-inset ${state.errors.length > 0 ? "bg-danger-paper text-accent-ink ring-accent/15" : "bg-paper text-mute ring-hair"}`}>
-              <p className="text-xs">{copy.kreator.importBledy}</p>
+            <div
+              className={`rounded-ctl p-4 ring-1 ring-inset ${state.errors.length > 0 ? "bg-danger-paper text-accent-ink ring-accent/15" : "bg-paper text-mute ring-hair"}`}
+              role={state.errors.length > 0 ? "alert" : undefined}
+            >
+              <p className="text-xs font-semibold">{copy.kreator.importBledy}</p>
               <p className="mt-2 font-mono text-2xl font-semibold tabular-nums">{state.errors.length}</p>
-              {state.errors.slice(0, 3).map((error) => <p key={error} className="mt-2 text-[10px] leading-4">{error}</p>)}
+              {state.errors.slice(0, 3).map((error) => <p key={error} className="mt-2 text-[11px] leading-5">{error}</p>)}
             </div>
           </div>
         )}
@@ -689,7 +719,10 @@ export function Creator({
       </header>
 
       <div className="mt-10 grid items-start gap-5 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
-        <div className="space-y-5">
+        {/* min-w-0: element siatki domyślnie ma min-width auto i nie zwęża się
+            poniżej naturalnej szerokości treści, co na telefonie rozpychało
+            kolumnę do 544 px i dawało przewijanie w poziomie. */}
+        <div className="min-w-0 space-y-5">
           <ImportPanel
             materialy={materialy}
             obrzeza={obrzeza}
@@ -811,11 +844,20 @@ export function Creator({
                 </span>
               </div>
               {formatki.length === 0 ? (
-                <p className="mt-5 rounded-ctl bg-paper-2 px-4 py-6 text-center text-sm leading-6 text-mute ring-1 ring-inset ring-hair">
-                  {copy.kreator.pustaLista}
-                </p>
+                <div className="mt-5 grid min-h-44 place-items-center rounded-ctl bg-paper-2 px-5 py-8 text-center ring-1 ring-inset ring-hair" role="status">
+                  <div>
+                    <span className="mx-auto grid size-11 place-items-center rounded-full bg-surface text-mute ring-1 ring-inset ring-hair" aria-hidden="true">
+                      <Ikona nazwa="projekty" rozmiar={20} />
+                    </span>
+                    <p className="mx-auto mt-4 max-w-xs text-sm leading-6 text-mute">{copy.kreator.pustaLista}</p>
+                  </div>
+                </div>
               ) : (
-                <ul className="mt-4 divide-y divide-hair">
+                <ul
+                  className={`mt-4 divide-y divide-hair ${formatki.length > 6 ? "max-h-[36rem] overflow-y-auto overscroll-contain pr-2" : ""}`}
+                  aria-label={copy.kreator.lista}
+                  tabIndex={formatki.length > 6 ? 0 : undefined}
+                >
                   {formatki.map((item, index) => {
                     const rejected = policzRozkroj([item]).odrzucone.length > 0;
                     const decorName = materialy.find((option) => option.id === item.dekor);
@@ -837,7 +879,7 @@ export function Creator({
                               <button
                                 type="button"
                                 onClick={() => setFormatki((items) => items.filter((_, itemIndex) => itemIndex !== index))}
-                                className="pressable -mr-2 rounded-full px-3 py-2 text-xs font-semibold text-mute hover:bg-paper-2 hover:text-ink"
+                                className="pressable -mr-2 min-h-11 rounded-full px-3 text-xs font-semibold text-mute hover:bg-paper-2 hover:text-ink"
                               >
                                 {copy.kreator.usun}
                               </button>
@@ -849,7 +891,7 @@ export function Creator({
                             </div>
                             {rejected && (
                               <div className="mt-3 rounded-ctl bg-danger-paper px-3 py-2 text-xs leading-5 text-accent-ink" role="alert">
-                                <strong>{copy.kreator.odrzucone}.</strong> {copy.kreator.odrzuconeOpis}
+                                <strong>{copy.kreator.odrzucone}.</strong> {copy.kreator.odrzuconeOpis} {copy.kreator.wymiary}: {item.dlugosc} × {item.szerokosc} {copy.kreator.jednostkaMm}; {copy.kreator.arkusz.toLowerCase()}: {rozkroj.plyta.szerokosc} × {rozkroj.plyta.wysokosc} {copy.kreator.jednostkaMm}.
                               </div>
                             )}
                           </div>

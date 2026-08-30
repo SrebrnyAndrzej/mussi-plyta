@@ -32,7 +32,6 @@
   --radius-core: 22px;
   --radius-ctl: 12px;
 
-  --ease-fluid: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   --breakpoint-wide: 90rem;
@@ -69,6 +68,11 @@ a {
   touch-action: manipulation;
 }
 
+/* Link pomijania jest obsługiwany klawiaturą, więc pojawia się bez animacji. */
+a[href="#main-content"] {
+  transition: none;
+}
+
 :focus-visible {
   outline: 3px solid rgb(159 8 50 / 0.32);
   outline-offset: 3px;
@@ -88,11 +92,7 @@ a {
 }
 
 .pressable {
-  transition:
-    transform 150ms var(--ease-out),
-    background-color 180ms var(--ease-out),
-    color 180ms var(--ease-out),
-    box-shadow 180ms var(--ease-out);
+  transition: transform 150ms var(--ease-out);
 }
 
 .pressable:active {
@@ -104,6 +104,19 @@ a {
     transform: translateY(-2px);
     box-shadow: var(--lift);
   }
+
+  .logo-producenta:hover {
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  .karuzela-logo:hover {
+    animation-play-state: paused;
+  }
+}
+
+.logo-producenta {
+  transition: opacity 180ms var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -113,7 +126,19 @@ a {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  .pressable {
+    transform: none !important;
+    transition: opacity 120ms var(--ease-out) !important;
+  }
+
+  .pressable:active {
+    opacity: 0.82;
   }
 }
 
@@ -129,7 +154,6 @@ a {
   width: max-content;
   animation: przesuw-logo 48s linear infinite;
 }
-.karuzela-logo:hover,
 .karuzela-logo:focus-within {
   animation-play-state: paused;
 }

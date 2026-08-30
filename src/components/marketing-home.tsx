@@ -140,7 +140,7 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
                 <div key={rzad} aria-hidden={rzad === 1} className="flex shrink-0 items-center gap-x-12 pr-12 sm:gap-x-16 sm:pr-16">
                   {logotypy.map((l) => (
                     <Image key={`${rzad}-${l.nazwa}`} src={l.src} alt={rzad === 0 ? l.nazwa : ""} width={140} height={34}
-                      className="h-[22px] w-auto shrink-0 opacity-[0.62] grayscale transition duration-500 ease-[var(--ease-fluid)] hover:opacity-100 hover:grayscale-0 sm:h-[26px]" />
+                      className="logo-producenta h-[22px] w-auto shrink-0 opacity-[0.62] grayscale sm:h-[26px]" />
                   ))}
                 </div>
               ))}

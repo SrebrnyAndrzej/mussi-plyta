@@ -73,7 +73,6 @@ export const funkcje = {
   /** Kontrakt i ekrany są gotowe, prawdziwe połączenie wdraża Lead. */
   integracjaSystemuSprzedazowego: false,
   /** Zaplecze ERP: pokazujemy dopiero po zaakceptowaniu Etapu 3. */
-  zaplecze: false,
   /** Prawdziwa baza zamiast danych zalążkowych. */
   supabase: false,
 } as const;
@@ -132,7 +131,7 @@ export const copy = {
     importFormaty: "CSV / XLSX",
     importOpis: "Wgraj CSV albo Excel XLSX zgodny z kluczem Mussi.",
     importWybierz: "Wybierz plik CSV lub XLSX",
-    importPomoc: "Oznaczenie płyty może być wpisane tylko w pierwszym wierszu grupy — kolejne formatki je dziedziczą. Okleina: góra, dół, lewa, prawa; 0 oznacza brak, 1 lub 2 grubość w mm. Słoje oznacz literą T lub X.",
+    importPomoc: "Oznaczenie płyty może być wpisane tylko w pierwszym wierszu grupy; kolejne formatki je dziedziczą. Okleina: góra, dół, lewa, prawa; 0 oznacza brak, 1 lub 2 grubość w mm. Słoje oznacz literą T lub X.",
     importKlucz: "Klucz Mussi",
     importWzor: "Pobierz wzór CSV",
     importCzytanie: "Czytam plik",
@@ -151,7 +150,7 @@ export const copy = {
     jednostkaMm: "mm",
     sloje: "Słoje wzdłuż długości",
     obrzeze: "Obrzeże, dotknij aby zmienić",
-    obrzezePomoc: "Każde dotknięcie zmienia grubość: brak, 1 mm, 2 mm.",
+    obrzezePomoc: "Każde dotknięcie zmienia wartość: 0 → 1 → 2 → 0.",
     obrzezeProdukt: "Obrzeże do płyty",
     obrzezeSugestia: "Sugestia systemu",
     obrzezeWybraneRecznie: "Wybór ręczny",
@@ -163,6 +162,8 @@ export const copy = {
     obrzezeWyniki: "Wyniki wyszukiwania obrzeży",
     krawedzie: ["górna", "dolna", "lewa", "prawa"],
     zmienKrawedz: "Zmień obrzeże, krawędź",
+    krawedzStan: "Krawędź",
+    krawedzPoDotknieciu: "Po dotknięciu ustawisz",
     dodaj: "Dodaj formatkę",
     lista: "Lista formatek",
     pustaLista: "Lista jest pusta. Dodaj pierwszą formatkę powyżej.",
@@ -207,6 +208,8 @@ export const copy = {
     grubosc: "Grubość",
     twojaCena: "Twoja cena",
     uzyjWKreatorze: "Użyj w kreatorze",
+    dodajDoKoszyka: "Dodaj do koszyka",
+    jednostka: "Jednostka sprzedaży",
     brakWynikow: "Brak materiałów dla wybranych filtrów.",
     pozycji: "pozycji",
     wyniki: "Wyniki katalogu",
@@ -215,3 +218,13 @@ export const copy = {
 
 export type ProgRabatowy = (typeof progiRabatowe)[number];
 export type PozycjaCennika = { cena: number; jednostka: string; opis: string };
+
+/**
+ * Kto obsługuje magazyn po stronie hurtowni. Podpisuje korekty ręczne,
+ * żeby po miesiącu dało się ustalić, kto zmienił stan i dlaczego.
+ * Docelowo zastąpi to zalogowany użytkownik z Supabase.
+ */
+export const operatorHurtowni = {
+  imie: "Biuro",
+  login: "biuro",
+} as const;
