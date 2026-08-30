@@ -126,6 +126,8 @@ export const funkcje = {
    * jedną linią, bez wycinania kodu: `bramka` zwraca wtedy 404,
    * a wpis znika z nawigacji.
    */
+  rezerwacjeStanow: true,
+  dokumentyZamowienia: true,
   warunkiHandlowe: true,
   kolejkaProdukcji: true,
   organizacjaIRole: true,
