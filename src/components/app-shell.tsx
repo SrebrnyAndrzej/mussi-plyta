@@ -9,6 +9,7 @@ import { portalNavigation } from "@/data/portal-demo";
 import { warehouseNavigation } from "@/data/warehouse-demo";
 import { MussiLogo } from "@/components/mussi-logo";
 import { Ikona, type NazwaIkony } from "@/components/ikona";
+import { CartIndicator } from "@/components/cart-indicator";
 
 const productLinks = [
   { href: "/panel", label: "Pulpit" },
@@ -54,16 +55,14 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
             );
           })}
         </nav>
-        <div className="mt-auto border-t border-hair p-5"><AccountBadge /></div>
+        <CartIndicator variant="sidebar" active={isActive(pathname, "/koszyk")} />
+        <div className="mt-4 border-t border-hair p-5"><AccountBadge /></div>
       </aside>
       <div className="min-w-0">
         <header className="sticky top-0 z-30 border-b border-hair bg-paper/95 px-3 pb-2 pt-1 backdrop-blur-xl lg:hidden">
           <div className="flex min-h-12 items-center">
             <Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link>
-            <Link href="/koszyk" aria-current={isActive(pathname, "/koszyk") ? "page" : undefined} className={`pressable ml-auto flex min-h-10 items-center gap-2 rounded-full px-3 text-[10px] font-semibold ${isActive(pathname, "/koszyk") ? "bg-ink text-white" : "bg-surface text-ink ring-1 ring-hair"}`}>
-              <Ikona nazwa="koszyk" rozmiar={16} />
-              {copy.wspolne.koszyk}
-            </Link>
+            <CartIndicator variant="mobile" active={isActive(pathname, "/koszyk")} />
           </div>
           <nav className="flex w-full gap-1 overflow-x-auto pb-1" aria-label={copy.wspolne.portal}>
             {widoczne(portalNavigation).map((item) => (

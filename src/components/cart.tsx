@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Ikona } from "@/components/ikona";
 import { kontrahentDemo, obslugaZamowien } from "@/config/brief";
 import { cartCopy, cartServiceDemo } from "@/data/portal-demo";
 import type { Dekor, Dostepnosc } from "@/data/dekory";
+import { readCartBrowserLines, saveCartBrowserState } from "@/lib/cart-browser";
 import { cenaDlaKontrahenta, podsumujKoszyk, zloty } from "@/lib/pricing";
 
 type CartGroup = keyof typeof cartCopy.groups;
@@ -64,6 +65,7 @@ function pluralizeItems(count: number) {
 export function Cart({ products, selectedId }: { products: CartProduct[]; selectedId?: string }) {
   const [lines, setLines] = useState<CartLine[]>(() => initialLines(products, selectedId));
   const [submitted, setSubmitted] = useState(false);
+  const [browserReady, setBrowserReady] = useState(false);
 
   const summary = useMemo(
     () =>
@@ -89,6 +91,36 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
   }, [lines]);
 
   const needsConfirmation = lines.some((line) => line.dostepnosc !== "na-stanie");
+
+  useEffect(() => {
+    const stored = readCartBrowserLines<CartLine>();
+    const selected = products.find((product) => product.id === selectedId);
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      if (stored) {
+        if (selected) {
+          const existing = stored.find((line) => line.id === selected.id);
+          setLines(existing
+            ? stored.map((line) => line.id === selected.id ? { ...line, ilosc: line.ilosc + 1 } : line)
+            : [...stored, { ...selected, ilosc: 1 }]);
+        } else {
+          setLines(stored);
+        }
+      }
+      setBrowserReady(true);
+    });
+    return () => { cancelled = true; };
+  }, [products, selectedId]);
+
+  useEffect(() => {
+    if (!browserReady) return;
+    saveCartBrowserState(lines, {
+      lines: lines.length,
+      items: lines.reduce((sum, line) => sum + line.ilosc, 0),
+      gross: summary.brutto,
+    });
+  }, [browserReady, lines, summary.brutto]);
 
   function changeQuantity(id: string, change: number) {
     setSubmitted(false);
