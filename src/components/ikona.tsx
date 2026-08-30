@@ -2,8 +2,10 @@
 
 import {
   ArrowRight,
+  ArrowsClockwise,
   Barcode,
   ChartBar,
+  ClockCounterClockwise,
   FileText,
   Files,
   Gauge,
@@ -16,6 +18,7 @@ import {
   Stack,
   Trash,
   UsersThree,
+  Warning,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
 
@@ -37,6 +40,9 @@ const zestaw = {
   klienci: UsersThree,
   integracje: PlugsConnected,
   dalej: ArrowRight,
+  korekta: ArrowsClockwise,
+  historia: ClockCounterClockwise,
+  ostrzezenie: Warning,
   minus: Minus,
   plus: Plus,
   usun: Trash,

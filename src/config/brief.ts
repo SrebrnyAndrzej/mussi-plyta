@@ -218,3 +218,13 @@ export const copy = {
 
 export type ProgRabatowy = (typeof progiRabatowe)[number];
 export type PozycjaCennika = { cena: number; jednostka: string; opis: string };
+
+/**
+ * Kto obsługuje magazyn po stronie hurtowni. Podpisuje korekty ręczne,
+ * żeby po miesiącu dało się ustalić, kto zmienił stan i dlaczego.
+ * Docelowo zastąpi to zalogowany użytkownik z Supabase.
+ */
+export const operatorHurtowni = {
+  imie: "Biuro",
+  login: "biuro",
+} as const;
