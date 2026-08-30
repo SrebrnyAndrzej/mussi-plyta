@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Ikona } from "@/components/ikona";
 import { kontrahentDemo } from "@/config/brief";
 import { useCartBrowserLines, useCartIndicatorSummary } from "@/lib/cart-browser";
+import { useSesja } from "@/lib/sesja";
 import { podsumujKoszyk, zloty } from "@/lib/pricing";
 
 type PozycjaKoszyka = {
@@ -35,6 +36,7 @@ function odmienPozycje(ile: number) {
  */
 export function MiniKoszyk() {
   const [otwarty, setOtwarty] = useState(false);
+  const sesja = useSesja();
   const summary = useCartIndicatorSummary();
   const pozycje = useCartBrowserLines<PozycjaKoszyka>();
   const panelId = useId();
@@ -73,6 +75,9 @@ export function MiniKoszyk() {
     kontrahentDemo.kodProgu,
   );
   const poRabacie = (p: PozycjaKoszyka) => p.ilosc * p.cenaKatalogowa * (1 - podsumowanie.prog.rabat);
+
+  /* Koszyk i kwoty są wyłącznie dla zalogowanego kontrahenta. */
+  if (!sesja.zalogowany) return null;
 
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6">

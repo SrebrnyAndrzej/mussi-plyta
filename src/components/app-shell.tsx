@@ -10,6 +10,7 @@ import { warehouseNavigation } from "@/data/warehouse-demo";
 import { MussiLogo } from "@/components/mussi-logo";
 import { Ikona, type NazwaIkony } from "@/components/ikona";
 import { CartIndicator } from "@/components/cart-indicator";
+import { BramkaSesji } from "@/components/bramka-sesji";
 import { MiniKoszyk } from "@/components/mini-koszyk";
 
 const productLinks = [
@@ -37,7 +38,15 @@ function WarehouseAccount() {
   return <details className="group relative"><summary className="flex cursor-pointer list-none items-center gap-3 rounded-ctl [&::-webkit-details-marker]:hidden"><span className="grid size-10 place-items-center rounded-full bg-ink font-mono text-xs font-semibold text-white">MO</span><div className="min-w-0"><p className="truncate text-xs font-semibold text-ink">Magazyn · Operator</p><p className="mt-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Zmiana dzienna</p></div></summary><div className="absolute bottom-[calc(100%+12px)] left-0 w-full rounded-ctl bg-surface p-2 ring-1 ring-hair shadow-[var(--lift)]"><Link href="/panel" className="block rounded-ctl px-3 py-2 text-xs font-semibold text-ink hover:bg-paper">Widok klienta</Link><Link href="/wylogowano" className="block rounded-ctl px-3 py-2 text-xs font-semibold text-accent-ink hover:bg-danger-paper">Wyloguj</Link></div></details>;
 }
 
+/**
+ * Publiczne w portalu są wyłącznie kategorie asortymentu. Reszta, czyli panel,
+ * koszyk, kreator, projekty, zamówienia i zespół, pokazuje ceny kontrahenta
+ * albo jego dokumenty, więc wymaga sesji.
+ */
+const TRASY_PUBLICZNE = ["/katalog"];
+
 function PortalShell({ children, pathname }: { children: ReactNode; pathname: string }) {
+  const trasaPubliczna = TRASY_PUBLICZNE.some((t) => pathname === t || pathname.startsWith(`${t}/`));
   return (
     <div className="min-h-screen bg-paper lg:grid lg:grid-cols-[228px_minmax(0,1fr)]">
       <a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform focus:translate-y-0">
@@ -73,11 +82,12 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
             ))}
           </nav>
         </header>
-        {children}
+        {trasaPubliczna ? children : <BramkaSesji>{children}</BramkaSesji>}
       </div>
       {/* Koszyk jest poza przewijaną treścią, więc towarzyszy klientowi
-          na każdym ekranie portalu. Na samej stronie koszyka byłby zbędny. */}
-      {!isActive(pathname, "/koszyk") && <MiniKoszyk />}
+          na każdym ekranie portalu, łącznie ze stroną koszyka. O tym,
+          czy w ogóle się pojawia, decyduje sesja wewnątrz komponentu. */}
+      <MiniKoszyk />
     </div>
   );
 }

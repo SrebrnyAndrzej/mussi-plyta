@@ -6,6 +6,8 @@ import { useState, type FormEvent } from "react";
 import { MussiLogo } from "@/components/mussi-logo";
 import { firma } from "@/config/brief";
 import { authCopy } from "@/data/warehouse-demo";
+import { kontrahentDemo } from "@/config/brief";
+import { zaloguj } from "@/lib/sesja";
 
 export function LoginScreen() {
   const router = useRouter();
@@ -15,6 +17,7 @@ export function LoginScreen() {
 
   function enter(route: "/panel" | "/hurtownia") {
     setLoading(true);
+    zaloguj(route === "/hurtownia" ? "hurtownia" : "klient", kontrahentDemo.nazwa);
     window.setTimeout(() => router.push(route), 350);
   }
 

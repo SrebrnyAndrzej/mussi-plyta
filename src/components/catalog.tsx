@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { copy, kontrahentDemo, progiRabatowe } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
 import { zloty } from "@/lib/pricing";
+import { useCzyWidacCeny } from "@/lib/sesja";
 import { zdjecia } from "@/data/media";
 
 type Category = "plyta" | "blat" | "front" | "sklejka" | "obrzeze" | "akcesorium";
@@ -45,6 +46,7 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
   const [category, setCategory] = useState<"all" | Category>("all");
   const [availableOnly, setAvailableOnly] = useState(false);
   const prog = progiRabatowe.find((item) => item.kod === kontrahentDemo.kodProgu);
+  const widacCeny = useCzyWidacCeny();
   const filtered = useMemo(
     () =>
       produkty.filter(
@@ -181,13 +183,28 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
                     </dl>
 
                     <div className="mt-auto pt-6">
-                      <div className="flex items-end justify-between gap-4 rounded-ctl bg-paper px-4 py-3 ring-1 ring-inset ring-hair">
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-mute">{copy.katalog.twojaCena}</p>
-                          <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-ink">{zloty.format(produkt.cenaKontrahenta)}</p>
+                      {widacCeny ? (
+                        <div className="flex items-end justify-between gap-4 rounded-ctl bg-paper px-4 py-3 ring-1 ring-inset ring-hair">
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-mute">{copy.katalog.twojaCena}</p>
+                            <p className="mt-1 font-mono text-xl font-semibold tabular-nums text-ink">{zloty.format(produkt.cenaKontrahenta)}</p>
+                          </div>
+                          <p className="pb-1 text-right text-[10px] leading-4 text-mute">/ {produkt.jednostka}<br />{copy.wspolne.cenaNetto}</p>
                         </div>
-                        <p className="pb-1 text-right text-[10px] leading-4 text-mute">/ {produkt.jednostka}<br />{copy.wspolne.cenaNetto}</p>
-                      </div>
+                      ) : (
+                        /* Cena kontrahenta zależy od jego progu i umowy, więc nie
+                           pokazujemy jej publicznie. Asortyment zostaje widoczny. */
+                        <Link
+                          href="/logowanie"
+                          className="pressable flex min-h-12 items-center justify-between gap-3 rounded-ctl bg-paper px-4 py-3 ring-1 ring-inset ring-hair"
+                        >
+                          <span className="min-w-0">
+                            <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-mute">Cena dla Twojej firmy</span>
+                            <span className="mt-1 block text-sm font-semibold text-ink">Zaloguj się, aby zobaczyć</span>
+                          </span>
+                          <Ikona nazwa="dalej" rozmiar={14} />
+                        </Link>
+                      )}
                       {produkt.kategoria !== "obrzeze" && produkt.kategoria !== "akcesorium" && (
                         <Link
                           href={`/kreator?material=${encodeURIComponent(produkt.id)}`}

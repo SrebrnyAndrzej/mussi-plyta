@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
 
 /**
  * Okno zmian zamówienia i rezerwacje.
@@ -6,6 +7,11 @@ import { expect, test } from "@playwright/test";
  * Dwie reguły, które przy pomyłce kosztują najwięcej: klient edytujący
  * zamówienie po terminie oraz rezerwacja założona na koszyk bez pokrycia.
  */
+
+/* Panel klienta jest za sesją, kolejka hurtowni ma własną flagę. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page);
+});
 
 test("licznik okna zmian podaje konkretną datę zamknięcia", async ({ page }) => {
   await page.goto("/zamowienia");

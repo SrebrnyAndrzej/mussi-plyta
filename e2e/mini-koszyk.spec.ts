@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { zalogujJako } from "./fixtures/sesja";
 
 /**
  * Stały koszyk z podglądem zawartości.
@@ -17,15 +18,31 @@ const NAZWA_KOSZYKA = /^Koszyk, /;
  */
 const znormalizuj = (tekst: string) => tekst.replace(/[\s\u00a0\u202f]+/g, " ");
 
-test("towarzyszy klientowi na ekranach portalu, ale nie na stronie koszyka", async ({ page }) => {
-  await page.goto("/katalog");
-  await expect(page.getByRole("button", { name: NAZWA_KOSZYKA })).toBeVisible();
+/* Koszyk i kwoty są wyłącznie dla zalogowanego kontrahenta. */
+test.beforeEach(async ({ page }) => {
+  await zalogujJako(page);
+});
 
-  await page.goto("/panel");
-  await expect(page.getByRole("button", { name: NAZWA_KOSZYKA })).toBeVisible();
+test("towarzyszy klientowi na każdym ekranie portalu", async ({ page }) => {
+  for (const trasa of ["/katalog", "/panel", "/kreator", "/zamowienia", "/koszyk"]) {
+    await page.goto(trasa);
+    await expect(page.getByRole("button", { name: NAZWA_KOSZYKA }), trasa).toBeVisible();
+  }
+});
 
-  await page.goto("/koszyk");
-  await expect(page.getByRole("button", { name: NAZWA_KOSZYKA })).toBeHidden();
+test("bez zalogowania koszyka nie ma, a katalog nie pokazuje cen", async ({ browser }) => {
+  /* Osobny kontekst, żeby nie dziedziczył sesji wstrzykniętej w beforeEach. */
+  const kontekst = await browser.newContext();
+  const strona = await kontekst.newPage();
+
+  await strona.goto("/katalog");
+  await expect(strona.getByRole("button", { name: NAZWA_KOSZYKA })).toBeHidden();
+  await expect(strona.getByText("Zaloguj się, aby zobaczyć").first()).toBeVisible();
+
+  await strona.goto("/panel");
+  await expect(strona.getByRole("heading", { name: "Ta część portalu jest dla zalogowanych" })).toBeVisible();
+
+  await kontekst.close();
 });
 
 test("pusty koszyk nie obiecuje pozycji, których nie ma", async ({ page }) => {

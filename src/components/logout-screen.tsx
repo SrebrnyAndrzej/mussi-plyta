@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect } from "react";
 import { MussiLogo } from "@/components/mussi-logo";
 import { authCopy } from "@/data/warehouse-demo";
+import { wyloguj } from "@/lib/sesja";
 
 export function LogoutScreen() {
+  /* Wejście na ten ekran jest samym wylogowaniem, więc sesja znika tutaj. */
+  useEffect(() => {
+    wyloguj();
+  }, []);
+
   return (
     <main id="main-content" className="grid min-h-screen place-items-center bg-paper px-4 py-10">
       <section className="w-full max-w-xl rounded-shell bg-shell p-1.5 ring-1 ring-hair">
