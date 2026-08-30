@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { copy, kontrahentDemo, progiRabatowe } from "@/config/brief";
+import { Ikona } from "@/components/ikona";
 import { zloty } from "@/lib/pricing";
 import { zdjecia } from "@/data/media";
 
@@ -110,7 +111,7 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
                     type="button"
                     aria-pressed={category === item.value}
                     onClick={() => setCategory(item.value)}
-                    className={`pressable shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${
+                    className={`pressable min-h-11 shrink-0 rounded-full px-4 text-xs font-semibold ${
                       category === item.value ? "bg-ink text-white" : "bg-paper-2 text-mute hover:text-ink"
                     }`}
                   >
@@ -174,8 +175,8 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
 
                     <dl className="mt-5 border-t border-hair pt-4">
                       <div className="flex items-baseline justify-between gap-4">
-                        <dt className="text-xs text-mute">{copy.katalog.grubosc}</dt>
-                        <dd className="font-mono text-xs font-medium tabular-nums text-ink">{produkt.grubosciMm.join(" / ")} {copy.kreator.jednostkaMm}</dd>
+                        <dt className="text-xs text-mute">{produkt.grubosciMm.length ? copy.katalog.grubosc : copy.katalog.jednostka}</dt>
+                        <dd className="font-mono text-xs font-medium tabular-nums text-ink">{produkt.grubosciMm.length ? `${produkt.grubosciMm.join(" / ")} ${copy.kreator.jednostkaMm}` : produkt.jednostka}</dd>
                       </div>
                     </dl>
 
@@ -193,11 +194,16 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
                           className="pressable mt-3 flex min-h-11 w-full items-center justify-between rounded-full bg-ink py-1.5 pl-4 pr-1.5 text-xs font-semibold text-white"
                         >
                           {copy.katalog.uzyjWKreatorze}
-                          <span className="grid size-8 place-items-center rounded-full bg-white/12" aria-hidden="true">
-                            <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8">
-                              <path d="M4 10h11M11 6l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </span>
+                          <span className="grid size-8 place-items-center rounded-full bg-white/12"><Ikona nazwa="dalej" rozmiar={16} /></span>
+                        </Link>
+                      )}
+                      {(produkt.kategoria === "obrzeze" || produkt.kategoria === "akcesorium") && (
+                        <Link
+                          href={`/koszyk?dodaj=${encodeURIComponent(produkt.id)}`}
+                          className="pressable mt-3 flex min-h-11 w-full items-center justify-between rounded-full bg-accent py-1.5 pl-4 pr-1.5 text-xs font-semibold text-white"
+                        >
+                          {copy.katalog.dodajDoKoszyka}
+                          <span className="grid size-8 place-items-center rounded-full bg-white/12"><Ikona nazwa="koszyk" rozmiar={16} /></span>
                         </Link>
                       )}
                     </div>

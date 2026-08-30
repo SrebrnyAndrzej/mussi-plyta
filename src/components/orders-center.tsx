@@ -49,7 +49,7 @@ export function OrdersCenter() {
 
       <section aria-label="Filtry zamówień" className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex gap-2 overflow-x-auto pb-1">
-          {ordersCopy.filters.map((item) => <button key={item} type="button" aria-pressed={filter === item} onClick={() => setFilter(item)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${filter === item ? "bg-ink text-white" : "bg-surface text-mute ring-1 ring-hair"}`}>{item}</button>)}
+          {ordersCopy.filters.map((item) => <button key={item} type="button" aria-pressed={filter === item} onClick={() => setFilter(item)} className={`min-h-11 shrink-0 rounded-full px-4 text-xs font-semibold ${filter === item ? "bg-ink text-white" : "bg-surface text-mute ring-1 ring-hair"}`}>{item}</button>)}
         </div>
         <label className="block w-full xl:max-w-sm"><span className="sr-only">{ordersCopy.search}</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder={ordersCopy.search} className="min-h-11 w-full rounded-full bg-surface px-5 text-sm text-ink ring-1 ring-inset ring-hair placeholder:text-mute focus:ring-accent" /></label>
       </section>
@@ -64,13 +64,13 @@ export function OrdersCenter() {
           {filtered.map((order) => {
             const selectedRow = selected.id === order.id;
             return (
-              <button key={order.id} type="button" onClick={() => { setSelectedId(order.id); setEditing(false); setSaved(false); }} className={`grid w-full gap-3 px-5 py-4 text-left transition-colors xl:grid-cols-[1.5fr_.8fr_.9fr_.8fr_.7fr_.8fr] xl:items-center ${selectedRow ? "bg-paper shadow-[inset_3px_0_0_var(--color-accent)]" : "hover:bg-paper/70"}`}>
-                <span><strong className="font-mono text-xs text-ink">{order.id}</strong><span className="mx-2 text-mute">·</span><span className="text-sm font-semibold text-ink">{order.project}</span></span>
-                <span><span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold ${statusTone(order.status)}`}>{order.status}</span></span>
-                <span><strong className={`block font-mono text-xs ${order.editable ? "text-accent-ink" : "text-mute"}`}>{order.editWindow}</strong><small className="mt-1 block text-[10px] text-mute">{order.editHint}</small></span>
-                <span><strong className="block font-mono text-xs text-ink">{order.delivery}</strong><small className="mt-1 block text-[10px] text-mute">{order.deliveryHint}</small></span>
-                <span className={`text-xs font-semibold ${order.availabilityTone === "ok" ? "text-ok" : order.availabilityTone === "warning" ? "text-accent-ink" : "text-mute"}`}>{order.availability}</span>
-                <strong className="font-mono text-sm tabular-nums text-ink xl:text-right">{order.value}</strong>
+              <button key={order.id} type="button" onClick={() => { setSelectedId(order.id); setEditing(false); setSaved(false); }} className={`grid w-full grid-cols-2 gap-x-4 gap-y-5 px-5 py-5 text-left xl:grid-cols-[1.5fr_.8fr_.9fr_.8fr_.7fr_.8fr] xl:items-center xl:gap-4 xl:py-4 ${selectedRow ? "bg-paper shadow-[inset_3px_0_0_var(--color-accent)]" : "hover:bg-paper/70"}`}>
+                <span className="col-span-2 xl:col-span-1"><strong className="font-mono text-xs text-ink">{order.id}</strong><span className="mx-2 text-mute">·</span><span className="text-sm font-semibold text-ink">{order.project}</span></span>
+                <span><small className="mb-2 block font-mono text-[9px] uppercase tracking-[0.1em] text-mute xl:hidden">{ordersCopy.columns[1]}</small><span className={`inline-flex rounded-full px-3 py-1.5 text-[10px] font-semibold ${statusTone(order.status)}`}>{order.status}</span></span>
+                <span><small className="mb-2 block font-mono text-[9px] uppercase tracking-[0.1em] text-mute xl:hidden">{ordersCopy.columns[2]}</small><strong className={`block font-mono text-xs ${order.editable ? "text-accent-ink" : "text-mute"}`}>{order.editWindow}</strong><small className="mt-1 block text-[10px] text-mute">{order.editHint}</small></span>
+                <span><small className="mb-2 block font-mono text-[9px] uppercase tracking-[0.1em] text-mute xl:hidden">{ordersCopy.columns[3]}</small><strong className="block font-mono text-xs text-ink">{order.delivery}</strong><small className="mt-1 block text-[10px] text-mute">{order.deliveryHint}</small></span>
+                <span><small className="mb-2 block font-mono text-[9px] uppercase tracking-[0.1em] text-mute xl:hidden">{ordersCopy.columns[4]}</small><strong className={`text-xs font-semibold ${order.availabilityTone === "ok" ? "text-ok" : order.availabilityTone === "warning" ? "text-accent-ink" : "text-mute"}`}>{order.availability}</strong></span>
+                <span><small className="mb-2 block font-mono text-[9px] uppercase tracking-[0.1em] text-mute xl:hidden">{ordersCopy.columns[5]}</small><strong className="font-mono text-sm tabular-nums text-ink xl:block xl:text-right">{order.value}</strong></span>
               </button>
             );
           })}
@@ -80,11 +80,11 @@ export function OrdersCenter() {
       <section className="mt-5 overflow-hidden rounded-core bg-surface ring-1 ring-hair shadow-[var(--lift-sm)]" aria-labelledby="selected-order-title">
         <header className="flex flex-col gap-4 border-b border-hair p-5 sm:flex-row sm:items-center sm:justify-between">
           <div><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Wybrane zamówienie</p><h2 id="selected-order-title" className="mt-1 font-display text-2xl font-semibold text-ink">{selected.id} · {selected.project}</h2></div>
-          <div className="flex flex-wrap gap-2"><button type="button" className="rounded-full bg-paper px-4 py-2.5 text-xs font-semibold text-ink ring-1 ring-hair">{ordersCopy.download}</button><button type="button" disabled={!selected.editable} onClick={() => { setEditing((value) => !value); setSaved(false); }} className="rounded-full bg-accent px-4 py-2.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-paper-2 disabled:text-mute">{selected.editable ? editing ? ordersCopy.closeEditor : ordersCopy.edit : ordersCopy.editLocked}</button></div>
+          <div className="flex flex-wrap gap-2"><button type="button" className="min-h-11 rounded-full bg-paper px-4 text-xs font-semibold text-ink ring-1 ring-hair">{ordersCopy.download}</button><button type="button" disabled={!selected.editable} onClick={() => { setEditing((value) => !value); setSaved(false); }} className="min-h-11 rounded-full bg-accent px-4 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-paper-2 disabled:text-mute">{selected.editable ? editing ? ordersCopy.closeEditor : ordersCopy.edit : ordersCopy.editLocked}</button></div>
         </header>
         <div className="grid lg:grid-cols-[210px_minmax(0,1fr)]">
           <nav className="border-b border-hair bg-paper p-3 lg:border-b-0 lg:border-r" aria-label="Szczegóły zamówienia">
-            {orderDetailSections.map((item) => <button key={item.id} id={item.id === "dokumenty" ? "dokumenty" : undefined} type="button" aria-pressed={section === item.id} onClick={() => setSection(item.id)} className={`block w-full rounded-ctl px-4 py-3 text-left text-xs font-semibold ${section === item.id ? "bg-surface text-accent-ink shadow-[var(--lift-sm)]" : "text-mute hover:text-ink"}`}>{item.label}</button>)}
+            {orderDetailSections.map((item) => <button key={item.id} id={item.id === "dokumenty" ? "dokumenty" : undefined} type="button" aria-pressed={section === item.id} onClick={() => setSection(item.id)} className={`block min-h-11 w-full rounded-ctl px-4 text-left text-xs font-semibold ${section === item.id ? "bg-surface text-accent-ink shadow-[var(--lift-sm)]" : "text-mute hover:text-ink"}`}>{item.label}</button>)}
           </nav>
           <div className="p-5 sm:p-7">
             {section === "plyty" && <OrderMaterials />}

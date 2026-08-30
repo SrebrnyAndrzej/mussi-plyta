@@ -56,11 +56,20 @@ function PortalShell({ children, pathname }: { children: ReactNode; pathname: st
         <div className="mt-auto border-t border-hair p-5"><AccountBadge /></div>
       </aside>
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 flex min-h-16 items-center border-b border-hair bg-paper/95 px-4 backdrop-blur-xl lg:hidden">
-          <Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link>
-          <nav className="ml-auto flex items-center gap-1 overflow-x-auto" aria-label={copy.wspolne.portal}>
+        <header className="sticky top-0 z-30 border-b border-hair bg-paper/95 px-3 pb-2 pt-1 backdrop-blur-xl lg:hidden">
+          <div className="flex min-h-12 items-center">
+            <Link href="/" className="pressable rounded-ctl p-1.5" aria-label={`${firma.nazwa}, strona główna`}><MussiLogo priority /></Link>
+            <Link href="/koszyk" aria-current={isActive(pathname, "/koszyk") ? "page" : undefined} className={`pressable ml-auto flex min-h-10 items-center gap-2 rounded-full px-3 text-[10px] font-semibold ${isActive(pathname, "/koszyk") ? "bg-ink text-white" : "bg-surface text-ink ring-1 ring-hair"}`}>
+              <Ikona nazwa="koszyk" rozmiar={16} />
+              {copy.wspolne.koszyk}
+            </Link>
+          </div>
+          <nav className="grid w-full grid-cols-4 gap-1" aria-label={copy.wspolne.portal}>
             {portalNavigation.slice(0, 4).map((item) => (
-              <Link key={item.href} href={item.href} className={`rounded-full px-3 py-2 text-xs font-semibold ${isActive(pathname, item.href) ? "bg-ink text-white" : "text-mute"}`}>{item.label}</Link>
+              <Link key={item.href} href={item.href} aria-current={isActive(pathname, item.href) ? "page" : undefined} className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-full px-1 text-[10px] font-semibold ${isActive(pathname, item.href) ? "bg-ink text-white" : "text-mute"}`}>
+                <Ikona nazwa={item.ikona as NazwaIkony} rozmiar={15} />
+                <span className="truncate">{item.label}</span>
+              </Link>
             ))}
           </nav>
         </header>
@@ -115,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Wcześniej katalog i kreator wpadały do wariantu poziomego, więc chrome
   // zmieniało się w trakcie przejścia z pulpitu, choć oba warianty i tak
   // pokazywały próg kontrahenta i wylogowanie.
-  const trasyPortalu = ["/panel", "/katalog", "/kreator", "/projekty", "/zamowienia"];
+  const trasyPortalu = ["/panel", "/katalog", "/kreator", "/projekty", "/koszyk", "/zamowienia"];
   if (trasyPortalu.some((t) => pathname === t || pathname.startsWith(`${t}/`)))
     return <PortalShell pathname={pathname}>{children}</PortalShell>;
   return <TopShell pathname={pathname}>{children}</TopShell>;

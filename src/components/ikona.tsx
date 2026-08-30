@@ -1,15 +1,20 @@
 "use client";
 
 import {
+  ArrowRight,
   Barcode,
   ChartBar,
   FileText,
   Files,
   Gauge,
+  Minus,
+  Plus,
   PlugsConnected,
   Receipt,
+  ShoppingCartSimple,
   SquaresFour,
   Stack,
+  Trash,
   UsersThree,
   type Icon as PhosphorIcon,
 } from "@phosphor-icons/react";
@@ -23,6 +28,7 @@ const zestaw = {
   pulpit: Gauge,
   projekty: SquaresFour,
   katalog: Stack,
+  koszyk: ShoppingCartSimple,
   zamowienia: Receipt,
   dokumenty: Files,
   operacje: ChartBar,
@@ -30,6 +36,10 @@ const zestaw = {
   stany: Barcode,
   klienci: UsersThree,
   integracje: PlugsConnected,
+  dalej: ArrowRight,
+  minus: Minus,
+  plus: Plus,
+  usun: Trash,
 } satisfies Record<string, PhosphorIcon>;
 
 export type NazwaIkony = keyof typeof zestaw;
