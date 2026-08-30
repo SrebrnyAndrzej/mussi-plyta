@@ -286,3 +286,18 @@ export const orderDetailSections = [
   { id: "okucia", label: "Okucia i akcesoria" },
   { id: "dokumenty", label: "Dokumenty" },
 ] as const;
+
+/**
+ * Stan magazynowy na potrzeby demonstracji, wyprowadzony z dostępności dekoru.
+ *
+ * Katalog dekorów nie ma liczbowego stanu, ma etykietę dostępności. Do czasu
+ * podpięcia magazynu tłumaczymy jedno na drugie, żeby ścieżka złożenia
+ * zamówienia miała czym rezerwować. `ostatnie-sztuki` jest celowo niskie:
+ * dzięki temu na demonstracji da się pokazać odmowę z powodu braku pokrycia,
+ * a nie tylko szczęśliwą ścieżkę.
+ */
+export function stanDlaDostepnosci(dostepnosc: "na-stanie" | "ostatnie-sztuki" | "na-zamowienie"): number {
+  if (dostepnosc === "na-stanie") return 500;
+  if (dostepnosc === "ostatnie-sztuki") return 4;
+  return 0;
+}

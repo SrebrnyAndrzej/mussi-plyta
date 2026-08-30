@@ -7,6 +7,11 @@ import { kontrahentDemo, obslugaZamowien } from "@/config/brief";
 import { cartCopy, cartServiceDemo } from "@/data/portal-demo";
 import type { Dekor, Dostepnosc } from "@/data/dekory";
 import { readCartBrowserLines, saveCartBrowserState, useCartBrowserLines } from "@/lib/cart-browser";
+import { cenniki, cenyIndywidualne, kontrahenci } from "@/data/warunki-demo";
+import { zespolDemo } from "@/data/zespol-demo";
+import { stanDlaDostepnosci } from "@/data/portal-demo";
+import { zlozZamowienie, type PozycjaDoZlozenia, type WynikZlozenia } from "@/lib/zlozenie";
+import type { KategoriaPozycji } from "@/lib/fakturowanie";
 import { cenaDlaKontrahenta, podsumujKoszyk, zloty } from "@/lib/pricing";
 
 type CartGroup = keyof typeof cartCopy.groups;
@@ -56,6 +61,15 @@ function initialLines(products: CartProduct[], selectedId?: string): CartLine[] 
   return lines;
 }
 
+/** Polska odmiana: 1 indeks, 2 do 4 indeksy, reszta indeksów, z wyjątkiem nastek. */
+function odmienIndeksy(ile: number) {
+  if (ile === 1) return "indeks";
+  const dziesiatki = ile % 100;
+  const jednosci = ile % 10;
+  if (dziesiatki >= 12 && dziesiatki <= 14) return "indeksów";
+  return jednosci >= 2 && jednosci <= 4 ? "indeksy" : "indeksów";
+}
+
 function pluralizeItems(count: number) {
   if (count === 1) return cartCopy.item;
   if (count >= 2 && count <= 4) return cartCopy.itemsFew;
@@ -64,7 +78,7 @@ function pluralizeItems(count: number) {
 
 export function Cart({ products, selectedId }: { products: CartProduct[]; selectedId?: string }) {
   const [lines, setLines] = useState<CartLine[]>(() => initialLines(products, selectedId));
-  const [submitted, setSubmitted] = useState(false);
+  const [wynik, setWynik] = useState<WynikZlozenia | null>(null);
   const [browserReady, setBrowserReady] = useState(false);
 
   const summary = useMemo(
@@ -130,8 +144,50 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
     });
   }, [browserReady, lines, summary.brutto]);
 
+  /**
+   * Złożenie zamówienia prowadzi koszyk przez wszystkie silniki naraz:
+   * uprawnienia, wycenę, warunki handlowe, rezerwację, utworzenie zamówienia
+   * i potwierdzenie. Odmowa na dowolnym etapie zatrzymuje całość i mówi,
+   * na którym etapie i dlaczego.
+   */
+  function zloz() {
+    const naKategorie = (k: CartLine["kategoria"]): KategoriaPozycji =>
+      k === "obrzeze" ? "obrzeza" : k === "akcesorium" ? "akcesoria" : "materialy";
+
+    const pozycje: PozycjaDoZlozenia[] = lines.map((line) => ({
+      id: line.id,
+      sku: line.kod,
+      nazwa: line.nazwa,
+      ilosc: line.ilosc,
+      jednostka: line.jednostka,
+      cenaKatalogowa: line.cenaKatalogowa,
+      kategoria: naKategorie(line.kategoria),
+    }));
+
+    const kontrahent = kontrahenci.find((k) => k.nazwa === kontrahentDemo.nazwa) ?? kontrahenci[0];
+    const skladajacy = zespolDemo.find((c) => c.rola === "wlasciciel") ?? zespolDemo[0];
+
+    setWynik(zlozZamowienie({
+      zamowienie: `M-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+      kontrahent,
+      skladajacy,
+      zespol: zespolDemo,
+      pozycje,
+      /* Cennik demonstracyjny nie zna wszystkich indeksów katalogu, więc
+         dokładamy cenę katalogową pozycji, żeby wycena nie odmawiała
+         z powodu braków w danych zalążkowych. */
+      cenniki: [{
+        ...cenniki[0],
+        ceny: { ...cenniki[0].ceny, ...Object.fromEntries(lines.map((l) => [l.kod, l.cenaKatalogowa])) },
+      }],
+      indywidualne: cenyIndywidualne,
+      stany: Object.fromEntries(lines.map((l) => [l.kod, stanDlaDostepnosci(l.dostepnosc)])),
+      rezerwacje: [],
+    }));
+  }
+
   function changeQuantity(id: string, change: number) {
-    setSubmitted(false);
+    setWynik(null);
     setLines((current) =>
       current.map((line) =>
         line.id === id ? { ...line, ilosc: Math.max(1, Math.min(999, line.ilosc + change)) } : line,
@@ -140,7 +196,7 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
   }
 
   function removeLine(id: string) {
-    setSubmitted(false);
+    setWynik(null);
     setLines((current) => current.filter((line) => line.id !== id));
   }
 
@@ -163,10 +219,43 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
         </p>
       )}
 
-      {submitted && (
-        <section aria-live="polite" className="mt-6 rounded-core bg-[#edf7f0] p-5 ring-1 ring-[#c8e4d2]">
+      {wynik?.ok && (
+        <section aria-live="polite" className="mt-6 rounded-core bg-[#edf7f0] p-5 ring-1 ring-[#c8e4d2] sm:p-6">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">{cartCopy.submitted}</h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-mute">{cartCopy.submittedHint}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-mute">{wynik.komunikat}</p>
+          <dl className="mt-5 grid gap-3 sm:grid-cols-4">
+            <div><dt className="font-mono text-[9px] uppercase tracking-[0.12em] text-mute">Zamówienie</dt><dd className="mt-1 font-mono text-sm font-semibold text-ink">{wynik.zamowienie.id}</dd></div>
+            <div><dt className="font-mono text-[9px] uppercase tracking-[0.12em] text-mute">Potwierdzenie</dt><dd className="mt-1 font-mono text-sm text-ink">{wynik.potwierdzenie.numer}</dd></div>
+            <div><dt className="font-mono text-[9px] uppercase tracking-[0.12em] text-mute">Wartość brutto</dt><dd className="mt-1 font-mono text-sm font-semibold tabular-nums text-ink">{zloty.format(wynik.brutto)}</dd></div>
+            <div><dt className="font-mono text-[9px] uppercase tracking-[0.12em] text-mute">Zarezerwowano</dt><dd className="mt-1 font-mono text-sm text-ink">{wynik.rezerwacje.length} {odmienIndeksy(wynik.rezerwacje.length)}</dd></div>
+          </dl>
+          {wynik.wymagaAkceptacji && (
+            <p className="mt-4 rounded-ctl bg-[#fff7e8] p-3 text-xs font-semibold leading-5 text-warning">
+              Zamówienie przekracza Twój limit i czeka na akceptację: {wynik.akceptujacy.map((c) => c.imie).join(", ")}.
+            </p>
+          )}
+        </section>
+      )}
+
+      {wynik && !wynik.ok && (
+        <section role="alert" className="mt-6 rounded-core bg-danger-paper p-5 ring-1 ring-accent/10 sm:p-6">
+          <h2 className="flex items-center gap-2 font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+            <Ikona nazwa="ostrzezenie" rozmiar={20} />
+            Zamówienie nie zostało złożone
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink">{wynik.blad}</p>
+          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Etap: {wynik.etap}</p>
+          {wynik.braki.length > 0 && (
+            <ul className="mt-4 divide-y divide-hair border-y border-hair text-xs">
+              {wynik.braki.map((b) => (
+                <li key={b.sku} className="flex flex-wrap justify-between gap-3 py-2.5">
+                  <span className="font-semibold text-ink">{b.nazwa}</span>
+                  <span className="font-mono tabular-nums text-mute">potrzeba {b.potrzeba}, dostępne {b.dostepne}, brakuje {b.brakuje}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-4 text-xs leading-5 text-mute">Stan żadnego indeksu nie został pomniejszony.</p>
         </section>
       )}
 
@@ -261,7 +350,7 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
               </div>
 
               <p className="mt-5 text-xs leading-5 text-mute">{cartCopy.editWindow}</p>
-              <button type="button" onClick={() => setSubmitted(true)} className="pressable mt-6 min-h-12 w-full rounded-full bg-accent px-5 text-sm font-semibold text-white">{cartCopy.submit}</button>
+              <button type="button" onClick={zloz} className="pressable mt-6 min-h-12 w-full rounded-full bg-accent px-5 text-sm font-semibold text-white">{cartCopy.submit}</button>
               <Link href="/projekty/palmowa" className="pressable mt-3 flex min-h-11 w-full items-center justify-center rounded-full bg-paper px-5 text-center text-sm font-semibold text-ink ring-1 ring-hair">{cartCopy.continueProject}</Link>
             </div>
           </aside>

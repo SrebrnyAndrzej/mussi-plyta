@@ -53,7 +53,8 @@ export type Podsumowanie = {
   prog: ProgRabatowy;
 };
 
-const STAWKA_VAT = 0.23;
+/** Jedna stawka na całą aplikację. Do zmiany razem z cennikiem, nie osobno. */
+export const STAWKA_VAT = 0.23;
 
 /** Podsumowanie koszyka z rabatem kontrahenta. */
 export function podsumujKoszyk(
