@@ -47,7 +47,7 @@ export function OrderReservations({
   orderId: WarehouseOrderId;
   status: WarehouseOrderStatus;
 }) {
-  const [odswiezenia, setOdswiezenia] = useState(0);
+  const [sprawdzone, setSprawdzone] = useState(false);
   const pozycje = pozycjeWedlugZamowienia[orderId];
   const twarda = statusTrzymaTwardaRezerwacje(status);
   const wynik = useMemo(
@@ -57,7 +57,7 @@ export function OrderReservations({
       stany: Object.fromEntries(pozycje.map((pozycja) => [pozycja.sku, pozycja.stan])),
       twarda,
     }, DEMO_TERAZ),
-    [orderId, pozycje, twarda, odswiezenia],
+    [orderId, pozycje, twarda],
   );
 
   const podsumowanie = wynik.ok
@@ -146,8 +146,8 @@ export function OrderReservations({
                 : "Miękka rezerwacja wygaśnie bez potwierdzenia zamówienia przez hurtownię."
               : "Stan żadnego indeksu nie został pomniejszony."}
           </p>
-          <button type="button" onClick={() => setOdswiezenia((wartosc) => wartosc + 1)} className="pressable min-h-11 shrink-0 rounded-full bg-paper px-5 text-xs font-semibold text-ink ring-1 ring-hair">
-            Sprawdź ponownie
+          <button type="button" onClick={() => setSprawdzone(true)} className="pressable min-h-11 shrink-0 rounded-full bg-paper px-5 text-xs font-semibold text-ink ring-1 ring-hair">
+            {sprawdzone ? "Sprawdzono przed chwilą" : "Sprawdź ponownie"}
           </button>
         </div>
       </div>
