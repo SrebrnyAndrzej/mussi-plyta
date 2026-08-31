@@ -18,7 +18,7 @@ import {
   type WpisHistorii,
 } from "@/lib/magazyn";
 import { zloty } from "@/lib/pricing";
-import { Ikona } from "@/components/ikona";
+import { Ikona, type NazwaIkony } from "@/components/ikona";
 
 const liczba = new Intl.NumberFormat("pl-PL");
 
@@ -27,6 +27,11 @@ const etykietaStanu = {
   "ponizej-minimum": "poniżej minimum",
   brak: "brak",
 } as const;
+
+/** Ikona kategorii akcesorium, z zamkniętego zestawu Phosphor. */
+function ikonaKategorii(kategoria: string): NazwaIkony {
+  return (kategorieAkcesoriow.find((k) => k.id === kategoria)?.ikona ?? "stany") as NazwaIkony;
+}
 
 export function MagazynReczny({ autor }: { autor: string }) {
   const [pozycje, setPozycje] = useState<Akcesorium[]>(asortyment);
@@ -163,9 +168,17 @@ export function MagazynReczny({ autor }: { autor: string }) {
                         wybrany ? "bg-paper" : "hover:bg-paper"
                       }`}
                     >
-                      <span className="col-span-2 min-w-0 lg:col-span-1">
-                        <span className="block font-mono text-[10px] text-mute">{a.sku} · {a.producent}</span>
-                        <span className="mt-0.5 block truncate text-sm font-semibold text-ink">{a.nazwa}</span>
+                      <span className="col-span-2 flex min-w-0 items-center gap-3 lg:col-span-1">
+                        {/* Ikona kategorii zamiast zdjęcia produktu. Zasada 10 kontraktu
+                            zabrania fabrykowania fotografii, a pole `image` czeka
+                            na prawdziwe zdjęcia od hurtowni. */}
+                        <span className="grid size-9 shrink-0 place-items-center rounded-ctl bg-paper text-mute" aria-hidden="true">
+                          <Ikona nazwa={ikonaKategorii(a.kategoria)} rozmiar={16} />
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block font-mono text-[10px] text-mute">{a.sku} · {a.producent}</span>
+                          <span className="mt-0.5 block truncate text-sm font-semibold text-ink">{a.nazwa}</span>
+                        </span>
                       </span>
                       <span className="font-mono text-xs tabular-nums text-ink lg:text-right">
                         <span className="lg:hidden text-mute">Dokumenty </span>{liczba.format(a.stanSystemowy)} {a.jednostka}

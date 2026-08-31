@@ -40,19 +40,54 @@ export type Akcesorium = {
   image?: string;
 };
 
-export const kategorieAkcesoriow: Array<{ id: KategoriaAkcesorium; nazwa: string }> = [
-  { id: "okucia", nazwa: "Okucia" },
-  { id: "szuflady", nazwa: "Systemy szuflad" },
-  { id: "oswietlenie", nazwa: "Oświetlenie" },
-  { id: "zlaczki", nazwa: "Złączki i wkręty" },
-  { id: "chemia", nazwa: "Kleje i chemia" },
-  { id: "kosze", nazwa: "Kosze i organizacja" },
-  { id: "uchwyty", nazwa: "Uchwyty i nogi" },
-  { id: "szklo", nazwa: "Szkło i lustra" },
-  { id: "obrzeza", nazwa: "Obrzeża" },
+/**
+ * Ikona zamiast zdjęcia produktowego.
+ *
+ * Kontrakt estetyczny, zasada 10, zabrania fabrykowania fotografii produktów
+ * i wstawiania stockowych zamienników. Do czasu, aż dostaniemy zdjęcia od
+ * hurtowni albo od producentów, kategorię niesie ikona z zamkniętego zestawu
+ * Phosphor. Pole `image` w `Akcesorium` czeka na prawdziwe zdjęcia.
+ */
+export const kategorieAkcesoriow: Array<{ id: KategoriaAkcesorium; nazwa: string; ikona: string }> = [
+  { id: "okucia", ikona: "okucia", nazwa: "Okucia" },
+  { id: "szuflady", ikona: "szuflady", nazwa: "Systemy szuflad" },
+  { id: "oswietlenie", ikona: "oswietlenie", nazwa: "Oświetlenie" },
+  { id: "zlaczki", ikona: "zlaczki", nazwa: "Złączki i wkręty" },
+  { id: "chemia", ikona: "chemia", nazwa: "Kleje i chemia" },
+  { id: "kosze", ikona: "kosze", nazwa: "Kosze i organizacja" },
+  { id: "uchwyty", ikona: "uchwyty", nazwa: "Uchwyty i nogi" },
+  { id: "szklo", ikona: "szklo", nazwa: "Szkło i lustra" },
+  { id: "obrzeza", ikona: "obrzeza", nazwa: "Obrzeża" },
 ];
 
 export const akcesoria: Akcesorium[] = [
+  { sku: "AMX-SB11-HD-450", nazwa: "Prowadnica SB System Box 450 mm, miękki domyk", producent: "Amix", kategoria: "szuflady", jednostka: "kpl", cena: 68.9, stanSystemowy: 64, rezerwacje: 18, stanMinimalny: 40 },
+  { sku: "AMX-SB11-HD-500", nazwa: "Prowadnica SB System Box 500 mm, miękki domyk", producent: "Amix", kategoria: "szuflady", jednostka: "kpl", cena: 72.4, stanSystemowy: 51, rezerwacje: 12, stanMinimalny: 40 },
+  { sku: "AMX-SB41-HD-450", nazwa: "Prowadnica SB System Box 450 mm, push-open", producent: "Amix", kategoria: "szuflady", jednostka: "kpl", cena: 84.5, stanSystemowy: 28, rezerwacje: 9, stanMinimalny: 24 },
+  { sku: "AMX-SYNC-1100", nazwa: "Drążek synchronizacji push-open 1100 mm", producent: "Amix", kategoria: "szuflady", jednostka: "szt", cena: 31.2, stanSystemowy: 22, rezerwacje: 4, stanMinimalny: 15 },
+  { sku: "AMX-HS-0-EURO", nazwa: "Zawias HS-DTC nakładany, prowadnik EURO", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 5.9, stanSystemowy: 340, rezerwacje: 96, stanMinimalny: 200 },
+  { sku: "AMX-HS-9-EURO", nazwa: "Zawias HS-DTC bliźniaczy, prowadnik EURO", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 6.1, stanSystemowy: 210, rezerwacje: 48, stanMinimalny: 150 },
+  { sku: "AMX-HS-18-EURO", nazwa: "Zawias HS-DTC wpuszczany, prowadnik EURO", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 6.4, stanSystemowy: 96, rezerwacje: 20, stanMinimalny: 80 },
+  { sku: "AMX-HS3D-0", nazwa: "Zawias HS-DTC 3D nakładany", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 8.2, stanSystemowy: 148, rezerwacje: 36, stanMinimalny: 100 },
+  { sku: "AMX-TS-SE-12", nazwa: "Podnośnik Top-Stays SE 12 kg", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 46.5, stanSystemowy: 34, rezerwacje: 8, stanMinimalny: 20 },
+  { sku: "AMX-TS-SE-20", nazwa: "Podnośnik Top-Stays SE 20 kg", producent: "Amix", kategoria: "okucia", jednostka: "szt", cena: 58.9, stanSystemowy: 19, rezerwacje: 6, stanMinimalny: 16 },
+  { sku: "AMX-CARGO-300", nazwa: "Kosz cargo do szafki 300 mm", producent: "Amix", kategoria: "kosze", jednostka: "kpl", cena: 198, stanSystemowy: 14, rezerwacje: 5, stanMinimalny: 10 },
+  { sku: "AMX-CARGO-400", nazwa: "Kosz cargo do szafki 400 mm", producent: "Amix", kategoria: "kosze", jednostka: "kpl", cena: 224, stanSystemowy: 11, rezerwacje: 3, stanMinimalny: 10 },
+  { sku: "AMX-SEG-2X15", nazwa: "Segregacja odpadów 2 x 15 l do szafki 400 mm", producent: "Amix", kategoria: "kosze", jednostka: "kpl", cena: 168, stanSystemowy: 17, rezerwacje: 6, stanMinimalny: 12 },
+  { sku: "AMX-DRZWI-50", nazwa: "System drzwi przesuwnych, nośność 50 kg", producent: "Amix", kategoria: "okucia", jednostka: "kpl", cena: 312, stanSystemowy: 9, rezerwacje: 2, stanMinimalny: 8 },
+  { sku: "AMX-DRZWI-100", nazwa: "System drzwi przesuwnych, nośność 100 kg", producent: "Amix", kategoria: "okucia", jednostka: "kpl", cena: 468, stanSystemowy: 6, rezerwacje: 1, stanMinimalny: 6 },
+  { sku: "GTV-LED-PROFIL-2M", nazwa: "Profil aluminiowy LED 2 m z kloszem", producent: "GTV", kategoria: "oswietlenie", jednostka: "szt", cena: 38.4, stanSystemowy: 72, rezerwacje: 14, stanMinimalny: 40 },
+  { sku: "GTV-LED-ZAS-60", nazwa: "Zasilacz LED 60 W 12 V", producent: "GTV", kategoria: "oswietlenie", jednostka: "szt", cena: 84.9, stanSystemowy: 26, rezerwacje: 7, stanMinimalny: 20 },
+  { sku: "GTV-LED-CZUJ-DRZW", nazwa: "Czujnik drzwiowy do oświetlenia szafy", producent: "GTV", kategoria: "oswietlenie", jednostka: "szt", cena: 29.6, stanSystemowy: 41, rezerwacje: 9, stanMinimalny: 25 },
+  { sku: "GTV-MODERN-500", nazwa: "GTV Modern Box 500 mm", producent: "GTV", kategoria: "szuflady", jednostka: "kpl", cena: 79.5, stanSystemowy: 38, rezerwacje: 11, stanMinimalny: 30 },
+  { sku: "UCH-KRAW-320", nazwa: "Uchwyt krawędziowy 320 mm, czarny mat", producent: "GTV", kategoria: "uchwyty", jednostka: "szt", cena: 22.8, stanSystemowy: 118, rezerwacje: 24, stanMinimalny: 80 },
+  { sku: "UCH-GALKA-CZ", nazwa: "Gałka meblowa okrągła, czarny mat", producent: "GTV", kategoria: "uchwyty", jednostka: "szt", cena: 9.4, stanSystemowy: 204, rezerwacje: 38, stanMinimalny: 150 },
+  { sku: "NOG-COKOL-150", nazwa: "Noga cokołowa 150 mm z klipsem", producent: "Amix", kategoria: "uchwyty", jednostka: "szt", cena: 6.8, stanSystemowy: 260, rezerwacje: 60, stanMinimalny: 180 },
+  { sku: "KON-70-DWU", nazwa: "Konfirmat 7 x 70 mm, opak. 200 szt.", producent: "Amix", kategoria: "zlaczki", jednostka: "opak", cena: 62, stanSystemowy: 44, rezerwacje: 8, stanMinimalny: 30 },
+  { sku: "WKR-EURO-BIT", nazwa: "Bit do konfirmatów, komplet 5 szt.", producent: "Amix", kategoria: "zlaczki", jednostka: "kpl", cena: 24.5, stanSystemowy: 36, rezerwacje: 4, stanMinimalny: 25 },
+  { sku: "CHE-KLEJ-PUR", nazwa: "Klej poliuretanowy do obrzeży, 1 kg", producent: "Amix", kategoria: "chemia", jednostka: "szt", cena: 78, stanSystemowy: 21, rezerwacje: 5, stanMinimalny: 18 },
+  { sku: "SZK-LUSTRO-4", nazwa: "Lustro 4 mm, cięte na wymiar", producent: "Laguna", kategoria: "szklo", jednostka: "m2", cena: 148, stanSystemowy: 32, rezerwacje: 6, stanMinimalny: 20 },
+  { sku: "OBR-ABS-1180", nazwa: "Obrzeże ABS 22 x 1 mm Dąb Halifax", producent: "Hranipex", kategoria: "obrzeza", jednostka: "mb", cena: 3.9, stanSystemowy: 640, rezerwacje: 180, stanMinimalny: 400 },
   // ── okucia ──
   { sku: "BLU-CLIP-110", nazwa: "Zawias Blum Clip Top 110 stopni", producent: "Blum", kategoria: "okucia", jednostka: "szt", cena: 14.9, stanSystemowy: 420, rezerwacje: 86, stanMinimalny: 120 },
   { sku: "GTV-ZM-ECHC09", nazwa: "Zawias GTV cichy domyk", producent: "GTV", kategoria: "okucia", jednostka: "szt", cena: 6.4, stanSystemowy: 82, rezerwacje: 35, stanMinimalny: 60 },

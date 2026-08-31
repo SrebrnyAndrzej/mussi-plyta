@@ -17,10 +17,12 @@ export type Dekor = {
   dostepnosc: Dostepnosc;
   /** Podgląd powierzchni jako CSS background. Docelowo zastąpi go zdjęcie próbki. */
   probka: string;
+  image?: string;
 };
 
 const drewno = (a: string, b: string, c: string) =>
   `repeating-linear-gradient(93deg,${a} 0 4px,${b} 4px 9px,${a} 9px 14px,${c} 14px 17px)`;
+const gladki = (a: string, b: string) => `linear-gradient(158deg,${a},${b})`;
 const kamien = (a: string, b: string) =>
   `radial-gradient(120% 90% at 22% 12%,${b} 0%,transparent 55%),radial-gradient(100% 80% at 78% 88%,${b} 0%,transparent 50%),${a}`;
 
@@ -29,6 +31,54 @@ const kamien = (a: string, b: string) =>
  * ceny i stany są przykładowe do czasu podpięcia magazynu hurtowni.
  */
 export const dekory: Dekor[] = [
+  { id: "e-h1180", kod: "H1180 ST37", nazwa: "Dąb Halifax Naturalny", producent: "Egger", kategoria: "plyta",
+    opis: "Struktura szczotkowanego drewna", grubosciMm: [18, 25], cenaKatalogowa: 268, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: drewno("#B08B5E", "#9E7A4C", "#7F5D34") },
+  { id: "e-h1145", kod: "H1145 ST10", nazwa: "Dąb Bardolino Naturalny", producent: "Egger", kategoria: "plyta",
+    opis: "Jasne drewno o wyraźnym rysunku", grubosciMm: [18], cenaKatalogowa: 254, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: drewno("#C4A87C", "#B39868", "#96794C") },
+  { id: "e-h3303", kod: "H3303 ST10", nazwa: "Dąb Hamilton Naturalny", producent: "Egger", kategoria: "plyta",
+    opis: "Ciepły odcień z podłużnym słojem", grubosciMm: [18], cenaKatalogowa: 262, jednostka: "arkusz",
+    dostepnosc: "ostatnie-sztuki", probka: drewno("#AD8756", "#997444", "#7C5A30") },
+  { id: "e-w1000", kod: "W1000 ST9", nazwa: "Biały Premium", producent: "Egger", kategoria: "plyta",
+    opis: "Jednolita biel, struktura głęboka matowa", grubosciMm: [18], cenaKatalogowa: 231, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: gladki("#FCFCFB", "#EFEFEC") },
+  { id: "e-u999", kod: "U999 ST2", nazwa: "Czarny", producent: "Egger", kategoria: "plyta",
+    opis: "Głęboka czerń, struktura drobna", grubosciMm: [18], cenaKatalogowa: 245, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: gladki("#232326", "#131315") },
+  { id: "e-u732", kod: "U732 ST9", nazwa: "Szary Pyłkowy", producent: "Egger", kategoria: "plyta",
+    opis: "Chłodny szary, struktura głęboka matowa", grubosciMm: [18], cenaKatalogowa: 238, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: gladki("#A9A9A6", "#918F8C") },
+  { id: "e-u104", kod: "U104 ST9", nazwa: "Biel Alpejska", producent: "Egger", kategoria: "plyta",
+    opis: "Ciepła biel do frontów i korpusów", grubosciMm: [18], cenaKatalogowa: 229, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: gladki("#F7F5F0", "#E8E5DE") },
+  { id: "e-f186", kod: "F186 ST9", nazwa: "Beton Chicago Jasnoszary", producent: "Egger", kategoria: "plyta",
+    opis: "Imitacja betonu architektonicznego", grubosciMm: [18], cenaKatalogowa: 256, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: kamien("#B7B5B0", "#CFCDC8") },
+  { id: "k350", kod: "K350 PW", nazwa: "Beton Chicago Jasny", producent: "Kronospan", kategoria: "plyta",
+    opis: "Surowa struktura betonu", grubosciMm: [18], cenaKatalogowa: 244, jednostka: "arkusz",
+    dostepnosc: "na-zamowienie", probka: kamien("#BCBAB5", "#D3D1CC") },
+  { id: "k089", kod: "K089 PW", nazwa: "Dąb Halifax Tabac", producent: "Kronospan", kategoria: "plyta",
+    opis: "Ciemny dąb o wyraźnych porach", grubosciMm: [18], cenaKatalogowa: 259, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: drewno("#7C5B3C", "#68492E", "#4E351F") },
+  { id: "e-f812", kod: "F812 ST9", nazwa: "Marmur Levanto Biały", producent: "Egger", kategoria: "blat",
+    opis: "Blat roboczy, marmur z ciemnym żyłkowaniem", grubosciMm: [38], cenaKatalogowa: 412, jednostka: "arkusz",
+    dostepnosc: "na-stanie", probka: kamien("#F2F1EE", "#D6D4CF") },
+  { id: "e-f205", kod: "F205 ST9", nazwa: "Marmur Candela Ciemnoszary", producent: "Egger", kategoria: "blat",
+    opis: "Blat roboczy, ciemny kamień", grubosciMm: [38], cenaKatalogowa: 428, jednostka: "arkusz",
+    dostepnosc: "ostatnie-sztuki", probka: kamien("#55545A", "#6E6D74") },
+  { id: "c-fenix-bianco", kod: "FENIX 0032", nazwa: "Bianco Kos", producent: "Cleaf", kategoria: "front",
+    opis: "Powierzchnia supermatowa, odporna na odciski", grubosciMm: [18], cenaKatalogowa: 486, jednostka: "arkusz",
+    dostepnosc: "na-zamowienie", probka: gladki("#F4F3F1", "#E2E0DC") },
+  { id: "c-fenix-nero", kod: "FENIX 0720", nazwa: "Nero Ingo", producent: "Cleaf", kategoria: "front",
+    opis: "Czerń supermatowa z regeneracją mikrorys", grubosciMm: [18], cenaKatalogowa: 498, jednostka: "arkusz",
+    dostepnosc: "na-zamowienie", probka: gladki("#26262A", "#161619") },
+  { id: "ob-h1180", kod: "ABS 22x1 H1180", nazwa: "Obrzeże ABS Dąb Halifax", producent: "Hranipex", kategoria: "obrzeze",
+    opis: "Obrzeże dopasowane do dekoru H1180", grubosciMm: [1], cenaKatalogowa: 3.9, jednostka: "mb",
+    dostepnosc: "na-stanie", probka: drewno("#B08B5E", "#9E7A4C", "#7F5D34") },
+  { id: "ob-u999", kod: "ABS 22x2 U999", nazwa: "Obrzeże ABS Czarne", producent: "Rehau", kategoria: "obrzeze",
+    opis: "Obrzeże 2 mm do frontów i blatów", grubosciMm: [2], cenaKatalogowa: 5.1, jednostka: "mb",
+    dostepnosc: "na-stanie", probka: gladki("#232326", "#131315") },
   { id: "k003", kod: "K003 PW", nazwa: "Dąb Craft Złoty", producent: "Kronospan", kategoria: "plyta",
     opis: "Struktura porów drewna", grubosciMm: [18], cenaKatalogowa: 248, jednostka: "arkusz",
     dostepnosc: "na-stanie", probka: drewno("#B98A52", "#A87840", "#8C5F2E") },

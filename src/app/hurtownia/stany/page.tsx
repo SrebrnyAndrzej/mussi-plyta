@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { zdjecia } from "@/data/media";
 import { WarehouseInventoryScreen } from "@/components/warehouse-screens";
 import { MagazynReczny } from "@/components/magazyn-reczny";
 import { operatorHurtowni } from "@/config/brief";
@@ -23,11 +25,24 @@ export default function WarehouseInventoryPage() {
           >
             Pełny asortyment i korekta ręczna
           </h2>
-          <p className="mt-4 max-w-2xl text-base leading-7 text-mute">
-            Okucia, systemy szuflad, oświetlenie, złączki, chemia, kosze, uchwyty,
-            szkło i obrzeża. Import obsługuje przyjęcia hurtowe, a korekta ręczna
-            to, co policzono z natury przy regale.
-          </p>
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
+            <p className="max-w-2xl text-base leading-7 text-mute">
+              Okucia, systemy szuflad, oświetlenie, złączki, chemia, kosze, uchwyty,
+              szkło i obrzeża. Import obsługuje przyjęcia hurtowe, a korekta ręczna
+              to, co policzono z natury przy regale.
+            </p>
+            {/* Prawdziwe zdjęcie ekspozycji hurtowni. Zasada 10 kontraktu dopuszcza
+                zdjęcia hurtowni do budowania kontekstu, zakazuje natomiast
+                fabrykowania fotografii pojedynczych produktów. */}
+            <Image
+              src={zdjecia.showroom.src}
+              alt={zdjecia.showroom.alt}
+              width={zdjecia.showroom.szer}
+              height={zdjecia.showroom.wys}
+              sizes="(min-width: 1024px) 360px, 100vw"
+              className="aspect-[4/3] w-full rounded-core object-cover ring-1 ring-hair"
+            />
+          </div>
         </header>
         <MagazynReczny autor={operatorHurtowni.login} />
       </section>
