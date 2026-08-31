@@ -219,14 +219,35 @@ function Board({
   onZmienObrzeze,
 }: {
   formatki: Formatka[];
-  /** Null oznacza podgląd bez edycji, na przykład na stronie głównej. */
-  onZmienObrzeze?: (indeks: number, obrzeze: Formatka["obrzeze"]) => void;
+  /**
+   * Null oznacza podgląd bez edycji, na przykład na stronie głównej.
+   *
+   * Zmiana dotyczy jednej sztuki, nie całej pozycji. Jeśli pozycja ma więcej
+   * sztuk, wywołanie wydziela zmienioną do osobnej pozycji i zwraca jej indeks,
+   * żeby zaznaczenie mogło za nią podążyć.
+   */
+  onZmienObrzeze?: (indeks: number, obrzeze: Formatka["obrzeze"]) => number;
 }) {
   const wynik = useMemo(() => policzRozkroj(formatki), [formatki]);
   const [activeSheet, setActiveSheet] = useState(0);
-  /* Indeks formatki źródłowej, nie ułożonej sztuki: obrzeże należy do formatki,
-     a ta sama formatka bywa ułożona wiele razy. */
-  const [wybrana, setWybrana] = useState<number | null>(null);
+  /* Zaznaczenie wskazuje jedną sztukę na arkuszu, nie całą pozycję.
+     Ta sama pozycja bywa ułożona wiele razy, a stolarz chce zmienić obrzeże
+     w konkretnym elemencie, nie we wszystkich naraz. */
+  const [wybrana, setWybrana] = useState<{ zrodlo: number; kopia: number } | null>(null);
+
+  /* Numer kopii liczony w kolejności układania, przez wszystkie arkusze.
+     Dzięki temu druga sztuka tej samej pozycji ma własną tożsamość,
+     nawet gdy trafi na inny arkusz. */
+  const numeryKopii = useMemo(() => {
+    const licznik = new Map<number, number>();
+    return wynik.arkusze.map((a) =>
+      a.sztuki.map((sztuka) => {
+        const kolejny = licznik.get(sztuka.zrodlo) ?? 0;
+        licznik.set(sztuka.zrodlo, kolejny + 1);
+        return kolejny;
+      }),
+    );
+  }, [wynik.arkusze]);
   const safeIndex = Math.min(activeSheet, Math.max(0, wynik.arkusze.length - 1));
   const arkusz = wynik.arkusze[safeIndex];
   const { plyta } = rozkroj;
@@ -292,26 +313,31 @@ function Board({
           {arkusz.sztuki.map((sztuka, index) => {
             const source = formatki[sztuka.zrodlo];
             const edges = placedEdges(source.obrzeze, sztuka.obrocona);
-            const zaznaczona = wybrana === sztuka.zrodlo;
+            const kopia = numeryKopii[safeIndex]?.[index] ?? 0;
+            const zaznaczona = wybrana?.zrodlo === sztuka.zrodlo && wybrana.kopia === kopia;
             const klikalna = Boolean(onZmienObrzeze);
             return (
               <g
-                key={`${sztuka.zrodlo}-${index}`}
+                key={`${sztuka.zrodlo}-${kopia}`}
                 role={klikalna ? "button" : undefined}
                 tabIndex={klikalna ? 0 : undefined}
                 aria-label={
                   klikalna
-                    ? `${source.dlugosc} na ${source.szerokosc} mm, obrzeże ${zapisObrzeza(source.obrzeze)}, zmień`
+                    /* Numer sztuki w etykiecie, bo bez niego kilka kopii tej samej
+                       pozycji jest dla czytnika ekranu nie do odróżnienia. */
+                    ? `${source.dlugosc} na ${source.szerokosc} mm, obrzeże ${zapisObrzeza(source.obrzeze)}${
+                        source.sztuk > 1 ? `, sztuka ${kopia + 1} z ${source.sztuk}` : ""
+                      }, zmień`
                     : undefined
                 }
                 aria-pressed={klikalna ? zaznaczona : undefined}
-                onClick={klikalna ? () => setWybrana(sztuka.zrodlo) : undefined}
+                onClick={klikalna ? () => setWybrana({ zrodlo: sztuka.zrodlo, kopia }) : undefined}
                 onKeyDown={
                   klikalna
                     ? (event) => {
                         if (event.key !== "Enter" && event.key !== " ") return;
                         event.preventDefault();
-                        setWybrana(sztuka.zrodlo);
+                        setWybrana({ zrodlo: sztuka.zrodlo, kopia });
                       }
                     : undefined
                 }
@@ -366,12 +392,27 @@ function Board({
           />
         </svg>
 
-        {onZmienObrzeze && wybrana !== null && formatki[wybrana] && (
+        {onZmienObrzeze && wybrana !== null && formatki[wybrana.zrodlo] && (() => {
+          const pozycja = formatki[wybrana.zrodlo];
+          const wieleSztuk = pozycja.sztuk > 1;
+
+          /* Zmiana dotyczy jednej sztuki. Jeśli pozycja ma ich więcej,
+             wywołanie wydzieli zmienioną osobno i zwróci jej nowy indeks,
+             a zaznaczenie ma za nią podążyć. */
+          const zmien = (obrzeze: Formatka["obrzeze"]) => {
+            const nowyIndeks = onZmienObrzeze(wybrana.zrodlo, obrzeze);
+            setWybrana({ zrodlo: nowyIndeks, kopia: nowyIndeks === wybrana.zrodlo ? wybrana.kopia : 0 });
+          };
+
+          return (
           <div className="mt-4 rounded-ctl bg-surface p-4 ring-1 ring-hair">
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <p className="font-mono text-[11px] text-mute">
-                {formatki[wybrana].dlugosc} × {formatki[wybrana].szerokosc} mm
-                <span className="ml-2 text-ink">obrzeże {zapisObrzeza(formatki[wybrana].obrzeze)}</span>
+                {pozycja.dlugosc} × {pozycja.szerokosc} mm
+                <span className="ml-2 text-ink">obrzeże {zapisObrzeza(pozycja.obrzeze)}</span>
+                {wieleSztuk && (
+                  <span className="ml-2 text-mute">sztuka {wybrana.kopia + 1} z {pozycja.sztuk}</span>
+                )}
               </p>
               <button
                 type="button"
@@ -382,9 +423,18 @@ function Board({
               </button>
             </div>
 
+            {wieleSztuk && (
+              /* Stolarz musi wiedzieć, że zmiana rozbije pozycję na dwie,
+                 bo od tego zależy, co zobaczy na liście formatek i w wycenie. */
+              <p className="mt-2 text-[11px] text-mute">
+                Zmiana dotyczy tylko tej sztuki. Pozostałe {pozycja.sztuk - 1} zostaną z dotychczasowym obrzeżem,
+                a ta trafi do osobnej pozycji.
+              </p>
+            )}
+
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {KRAWEDZIE.map((krawedz, pozycja) => {
-                const wartosc = formatki[wybrana!].obrzeze[pozycja];
+              {KRAWEDZIE.map((krawedz, indeksKrawedzi) => {
+                const wartosc = pozycja.obrzeze[indeksKrawedzi];
                 return (
                   <button
                     key={krawedz}
@@ -393,9 +443,9 @@ function Board({
                        żeby jedna kontrolka obsłużyła włączenie i wybór grubości. */
                     onClick={() => {
                       const nastepna = GRUBOSCI[(GRUBOSCI.indexOf(wartosc) + 1) % GRUBOSCI.length] ?? 0;
-                      const zmienione = [...formatki[wybrana!].obrzeze] as Formatka["obrzeze"];
-                      zmienione[pozycja] = nastepna;
-                      onZmienObrzeze(wybrana!, zmienione);
+                      const zmienione = [...pozycja.obrzeze] as Formatka["obrzeze"];
+                      zmienione[indeksKrawedzi] = nastepna;
+                      zmien(zmienione);
                     }}
                     className={`pressable min-h-12 rounded-ctl px-3 text-left text-xs font-semibold ring-1 ${
                       wartosc > 0 ? "bg-danger-paper text-accent-ink ring-accent/20" : "bg-paper text-mute ring-hair"
@@ -413,28 +463,29 @@ function Board({
             <div className="mt-2 flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => onZmienObrzeze(wybrana!, [1, 1, 1, 1])}
+                onClick={() => zmien([1, 1, 1, 1])}
                 className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-ink ring-1 ring-hair"
               >
                 Dookoła 1 mm
               </button>
               <button
                 type="button"
-                onClick={() => onZmienObrzeze(wybrana!, [2, 2, 2, 2])}
+                onClick={() => zmien([2, 2, 2, 2])}
                 className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-ink ring-1 ring-hair"
               >
                 Dookoła 2 mm
               </button>
               <button
                 type="button"
-                onClick={() => onZmienObrzeze(wybrana!, [0, 0, 0, 0])}
+                onClick={() => zmien([0, 0, 0, 0])}
                 className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-mute ring-1 ring-hair"
               >
                 Zdejmij obrzeże
               </button>
             </div>
           </div>
-        )}
+          );
+        })()}
       </div>
     </div>
   );
@@ -1029,11 +1080,31 @@ export function Creator({
               <div className="mt-6">
                 <Board
                   formatki={formatki}
-                  onZmienObrzeze={(indeks, obrzeze) =>
-                    setFormatki((items) =>
-                      items.map((item, i) => (i === indeks ? { ...item, obrzeze } : item)),
-                    )
-                  }
+                  onZmienObrzeze={(indeks, obrzeze) => {
+                    const pozycja = formatki[indeks];
+                    if (!pozycja) return indeks;
+
+                    /* Pozycja to jedna sztuka: zmieniamy w miejscu, bo nie ma
+                       czego rozdzielać. */
+                    if (pozycja.sztuk <= 1) {
+                      setFormatki((items) =>
+                        items.map((item, i) => (i === indeks ? { ...item, obrzeze } : item)),
+                      );
+                      return indeks;
+                    }
+
+                    /* Kilka sztuk na jednej pozycji, a stolarz zmienił obrzeże
+                       w jednej z nich. Zmiana wszystkich byłaby cichym błędem
+                       na liście cięcia, więc wydzielamy zmienioną sztukę
+                       do własnej pozycji na końcu listy. */
+                    setFormatki((items) => [
+                      ...items.map((item, i) =>
+                        i === indeks ? { ...item, sztuk: item.sztuk - 1 } : item,
+                      ),
+                      { ...pozycja, sztuk: 1, obrzeze },
+                    ]);
+                    return formatki.length;
+                  }}
                 />
               </div>
             </section>

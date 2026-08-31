@@ -98,8 +98,19 @@ async function czytajZFirebirda(k: Konfiguracja): Promise<Array<Record<string, u
     lowercase_keys: false,
   };
 
+  /* Sterownik nie ma typów dla uchwytu połączenia, a potrzebujemy z niego
+     tylko dwóch metod. Opisujemy je wprost, zamiast otwierać całość na `any`. */
+  type Polaczenie = {
+    query: (
+      zapytanie: string,
+      parametry: unknown[],
+      zwrotka: (blad: Error | null, wynik: Array<Record<string, unknown>>) => void,
+    ) => void;
+    detach: () => void;
+  };
+
   return new Promise((rozwiaz, odrzuc) => {
-    Firebird.attach(opcje, (blad: Error | null, baza: any) => {
+    Firebird.attach(opcje, (blad: Error | null, baza: Polaczenie) => {
       if (blad) return odrzuc(new Error(`Nie mogę połączyć się z bazą: ${blad.message}`));
       baza.query(k.zapytanie, [], (bladZapytania: Error | null, wynik: Array<Record<string, unknown>>) => {
         baza.detach();

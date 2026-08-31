@@ -9,8 +9,6 @@ import { zalogujJako } from "./fixtures/sesja";
  * się kliknąć, żeby to poprawić.
  */
 
-const PLIK = "/tmp/formatki-e2e.csv";
-
 test.beforeEach(async ({ page }) => {
   await zalogujJako(page);
 });
@@ -79,4 +77,23 @@ test("skrót dookoła ustawia wszystkie cztery krawędzie", async ({ page }) => 
   await expect
     .poll(async () => page.locator('g[role="button"]').first().getAttribute("aria-label"))
     .toContain("obrzeże 1-1-1-1");
+});
+
+test("zmiana obrzeża dotyczy jednej sztuki, nie wszystkich kopii pozycji", async ({ page }) => {
+  /* Dwie sztuki tej samej formatki. Wcześniej klik w jedną zaznaczał obie,
+     bo zaznaczenie szło po pozycji, a nie po ułożonej sztuce. */
+  await wgrajPlik(
+    page,
+    "lp;dekor;dlugosc;szerokosc;sztuk;sloje;obrzeze\n1;5981 bs;800;450;2;;1111\n",
+  );
+
+  const sztuki = page.locator('g[role="button"]');
+  await expect(sztuki).toHaveCount(2);
+
+  await sztuki.nth(1).click();
+  await page.getByRole("button", { name: "Zdejmij obrzeże" }).click();
+
+  /* Jedna sztuka bez obrzeża, druga nadal oklejona dookoła. */
+  await expect(page.locator('g[role="button"][aria-label*="obrzeże 0-0-0-0"]')).toHaveCount(1);
+  await expect(page.locator('g[role="button"][aria-label*="obrzeże 1-1-1-1"]')).toHaveCount(1);
 });
