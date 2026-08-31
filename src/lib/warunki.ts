@@ -1,4 +1,5 @@
 import { progiRabatowe } from "@/config/brief";
+import { dzienHurtowni } from "@/lib/czas";
 
 /**
  * Warunki handlowe kontrahenta: cenniki z datami, ceny indywidualne,
@@ -56,9 +57,8 @@ export type Cennik = {
   ceny: Readonly<Record<string, number>>;
 };
 
-function dzienISO(d: Date): string {
-  return d.toISOString().slice(0, 10);
-}
+/* Dzień liczony w strefie hurtowni. Szczegóły i powód w `@/lib/czas`. */
+const dzienISO = dzienHurtowni;
 
 export function czyObowiazuje(cennik: Cennik, dzien: Date): boolean {
   const d = dzienISO(dzien);

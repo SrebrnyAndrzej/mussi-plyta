@@ -1,4 +1,5 @@
 import type { Promocja } from "@/lib/promocje";
+import { dzienHurtowni } from "@/lib/czas";
 
 /**
  * Promocje zalążkowe. Treść pochodzi od hurtowni i po podpięciu bazy
@@ -10,7 +11,7 @@ import type { Promocja } from "@/lib/promocje";
 function zaDni(ile: number): string {
   const d = new Date();
   d.setDate(d.getDate() + ile);
-  return d.toISOString().slice(0, 10);
+  return dzienHurtowni(d);
 }
 
 export const promocjeDemo: Promocja[] = [

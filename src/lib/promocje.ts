@@ -1,3 +1,5 @@
+import { dzienHurtowni } from "@/lib/czas";
+
 /**
  * Promocje i reklamy pokazywane na stronie głównej.
  *
@@ -29,7 +31,8 @@ export type Promocja = {
   kolejnosc: number;
 };
 
-const dzienISO = (d: Date) => d.toISOString().slice(0, 10);
+/* Dzień liczony w strefie hurtowni, nie w UTC. Powód w `@/lib/czas`. */
+const dzienISO = dzienHurtowni;
 
 export function czyTrwa(p: Promocja, dzien: Date = new Date()): boolean {
   if (!p.aktywna) return false;

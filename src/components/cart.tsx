@@ -11,6 +11,7 @@ import { cenniki, cenyIndywidualne, kontrahenci } from "@/data/warunki-demo";
 import { zespolDemo } from "@/data/zespol-demo";
 import { stanDlaDostepnosci } from "@/data/portal-demo";
 import { zlozZamowienie, type PozycjaDoZlozenia, type WynikZlozenia } from "@/lib/zlozenie";
+import { obowiazujacyCennik } from "@/lib/warunki";
 import type { KategoriaPozycji } from "@/lib/fakturowanie";
 import { cenaDlaKontrahenta, podsumujKoszyk, zloty } from "@/lib/pricing";
 
@@ -167,18 +168,31 @@ export function Cart({ products, selectedId }: { products: CartProduct[]; select
     const kontrahent = kontrahenci.find((k) => k.nazwa === kontrahentDemo.nazwa) ?? kontrahenci[0];
     const skladajacy = zespolDemo.find((c) => c.rola === "wlasciciel") ?? zespolDemo[0];
 
+    const obowiazujacyNaDzis = obowiazujacyCennik(cenniki, new Date());
+
     setWynik(zlozZamowienie({
       zamowienie: `M-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
       kontrahent,
       skladajacy,
       zespol: zespolDemo,
       pozycje,
-      /* Cennik demonstracyjny nie zna wszystkich indeksów katalogu, więc
-         dokładamy cenę katalogową pozycji, żeby wycena nie odmawiała
-         z powodu braków w danych zalążkowych. */
+      /* Podstawą są ceny z kart produktów, bo cennik handlowy nie zna
+         wszystkich indeksów katalogu. Nadpisuje je cennik obowiązujący
+         na dziś, bo to on jest decyzją handlową.
+
+         Okno ważności celowo otwarte: gdy żaden cennik handlowy nie
+         obowiązuje, wycena ma policzyć po cenach katalogowych, a nie
+         odmówić. Wcześniej brany był `cenniki[0]` na sztywno, więc
+         z dniem wygaśnięcia tamtego cennika koszyk przestawał liczyć. */
       cenniki: [{
-        ...cenniki[0],
-        ceny: { ...cenniki[0].ceny, ...Object.fromEntries(lines.map((l) => [l.kod, l.cenaKatalogowa])) },
+        id: obowiazujacyNaDzis?.id ?? "katalogowy",
+        nazwa: obowiazujacyNaDzis?.nazwa ?? "Ceny katalogowe",
+        obowiazujeOd: "1970-01-01",
+        obowiazujeDo: null,
+        ceny: {
+          ...Object.fromEntries(lines.map((l) => [l.kod, l.cenaKatalogowa])),
+          ...(obowiazujacyNaDzis?.ceny ?? {}),
+        },
       }],
       indywidualne: cenyIndywidualne,
       stany: Object.fromEntries(lines.map((l) => [l.kod, stanDlaDostepnosci(l.dostepnosc)])),

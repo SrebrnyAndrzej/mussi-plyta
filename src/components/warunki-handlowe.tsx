@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { dzisDemo, progiRabatowe } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
+import { dzienHurtowni } from "@/lib/czas";
 import { cenniki, cenyIndywidualne, indeksyDemo, kontrahenci } from "@/data/warunki-demo";
 import { zloty } from "@/lib/pricing";
 import {
@@ -46,7 +47,7 @@ export function WarunkiHandlowe() {
   const [powod, setPowod] = useState("");
   const [blad, setBlad] = useState<string | null>(null);
   const [proba, setProba] = useState(12000);
-  const [dzien, setDzien] = useState(() => dzisDemo().toISOString().slice(0, 10));
+  const [dzien, setDzien] = useState(() => dzienHurtowni(dzisDemo()));
 
   const wybrany = lista.find((k) => k.id === wybranyId) ?? lista[0];
   const dataCennika = useMemo(() => new Date(`${dzien}T12:00:00Z`), [dzien]);

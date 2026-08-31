@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { akcesoria } from "@/data/akcesoria";
 import {
@@ -21,6 +22,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
+/* Zwykłe `===` przerywa na pierwszej różnej literze, więc z czasu odpowiedzi
+   da się token odgadywać znak po znaku. Porównujemy stałoczasowo. */
+function rowneStaloczasowo(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  if (bufA.length !== bufB.length) return false;
+  return timingSafeEqual(bufA, bufB);
+}
+
 function odmowa(status: number, blad: string, dodatkowe: Record<string, unknown> = {}) {
   return NextResponse.json({ ok: false, blad, ...dodatkowe }, { status });
 }
@@ -34,7 +44,7 @@ export async function POST(request: Request) {
   }
 
   const podany = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!podany || podany !== oczekiwany) {
+  if (!podany || !rowneStaloczasowo(podany, oczekiwany)) {
     return odmowa(401, "Brak poprawnego tokenu integratora.");
   }
 

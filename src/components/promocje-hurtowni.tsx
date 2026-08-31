@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { dzisDemo } from "@/config/brief";
 import { Ikona } from "@/components/ikona";
+import { dzienHurtowni } from "@/lib/czas";
 import { promocjeDemo } from "@/data/promocje-demo";
 import {
   aktywnePromocje,
@@ -38,7 +39,7 @@ export function PromocjeHurtowni() {
   const [lista, setLista] = useState<Promocja[]>(promocjeDemo);
   const [formularz, setFormularz] = useState(() => ({
     ...pustyFormularz,
-    obowiazujeOd: dzisDemo().toISOString().slice(0, 10),
+    obowiazujeOd: dzienHurtowni(dzisDemo()),
   }));
   const [bledy, setBledy] = useState<string[]>([]);
   const [komunikat, setKomunikat] = useState<string | null>(null);
@@ -76,7 +77,7 @@ export function PromocjeHurtowni() {
     setLista(wynik.promocje);
     setBledy([]);
     setKomunikat(`Dodano promocję „${wynik.promocja.tytul}". Jest już widoczna na stronie głównej.`);
-    setFormularz({ ...pustyFormularz, obowiazujeOd: dzis.toISOString().slice(0, 10) });
+    setFormularz({ ...pustyFormularz, obowiazujeOd: dzienHurtowni(dzis) });
   }
 
   const pole = (klucz: keyof typeof pustyFormularz, wartosc: string | number) => {
