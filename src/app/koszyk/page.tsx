@@ -15,7 +15,7 @@ export default async function CartPage({
 }) {
   const params = await searchParams;
   const selectedId = Array.isArray(params.dodaj) ? params.dodaj[0] : params.dodaj;
-  const products = await katalog.wszystkie();
+  const products = await katalog.produktyDoKoszyka();
 
   return <Cart products={products} selectedId={selectedId} />;
 }

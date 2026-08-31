@@ -125,18 +125,6 @@ export const dekory: Dekor[] = [
   { id: "abs22", kod: "ABS 22x1", nazwa: "Obrzeże ABS w kolorze płyty", producent: "Hranipex", kategoria: "obrzeze",
     opis: "Dobierane do dekoru, grubość 1 i 2 mm", grubosciMm: [1, 2], cenaKatalogowa: 2.4,
     jednostka: "mb", dostepnosc: "na-stanie", probka: drewno("#B98A52", "#A87840", "#8C5F2E") },
-  { id: "blum-560h", kod: "560H5000B", nazwa: "Prowadnica TANDEM 500 mm", producent: "Blum", kategoria: "akcesorium",
-    opis: "Pełny wysuw, cichy domyk BLUMOTION", grubosciMm: [], cenaKatalogowa: 82.4,
-    jednostka: "szt", dostepnosc: "ostatnie-sztuki", probka: "linear-gradient(145deg,#D8DADD,#9DA2A8 52%,#F0F1F2)" },
-  { id: "blum-cliptop", kod: "71B3550", nazwa: "Zawias CLIP top BLUMOTION", producent: "Blum", kategoria: "akcesorium",
-    opis: "Nakładany, kąt otwarcia 110 stopni", grubosciMm: [], cenaKatalogowa: 18.9,
-    jednostka: "szt", dostepnosc: "na-stanie", probka: "linear-gradient(145deg,#E4E6E8,#AEB3B8 48%,#F7F8F8)" },
-  { id: "gtv-push", kod: "AM-PB45-20", nazwa: "Odbojnik push to open", producent: "GTV", kategoria: "akcesorium",
-    opis: "Długi skok, montaż nawierzchniowy", grubosciMm: [], cenaKatalogowa: 9.6,
-    jednostka: "szt", dostepnosc: "na-stanie", probka: "linear-gradient(145deg,#35383C,#15171A 55%,#5C6268)" },
-  { id: "hafele-konfirmat", kod: "013.50.710", nazwa: "Konfirmat 7 × 50 mm", producent: "Häfele", kategoria: "akcesorium",
-    opis: "Ocynk biały, opakowanie 100 sztuk", grubosciMm: [], cenaKatalogowa: 29.5,
-    jednostka: "szt", dostepnosc: "na-zamowienie", probka: "linear-gradient(145deg,#D3D6D7,#8D9397 52%,#ECEEEF)" },
 ];
 
 /** Marki, z którymi hurtownia współpracuje. Kolejność jak na pasku partnerów. */

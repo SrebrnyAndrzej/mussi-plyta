@@ -33,7 +33,6 @@ const categories: Array<{ value: "all" | Category; label: string }> = [
   { value: "front", label: copy.katalog.front },
   { value: "sklejka", label: copy.katalog.sklejka },
   { value: "obrzeze", label: copy.katalog.obrzeze },
-  { value: "akcesorium", label: copy.katalog.akcesorium },
 ];
 
 const availabilityLabels: Record<Availability, string> = {
@@ -86,7 +85,27 @@ export function Catalog({ produkty }: { produkty: CatalogItem[] }) {
         </div>
       </header>
 
-      <figure className="mt-9 overflow-hidden rounded-shell ring-1 ring-hair">
+      {/* Akcesoria mają własny sklep: kupuje się je po indeksie, a nie
+          przeglądając dekory, więc filtr w katalogu tylko by mylił. */}
+      <Link
+        href="/akcesoria"
+        className="pressable mt-9 flex min-h-14 items-center justify-between gap-4 rounded-ctl bg-surface px-5 py-3 ring-1 ring-hair hover:bg-paper"
+      >
+        <span className="flex items-center gap-3">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-paper text-mute">
+            <Ikona nazwa="okucia" rozmiar={17} />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-ink">Szukasz okuć, szuflad albo oświetlenia?</span>
+            <span className="mt-0.5 block text-xs text-mute">Akcesoria mają osobny sklep, z wyszukiwaniem po symbolu producenta.</span>
+          </span>
+        </span>
+        <span className="grid size-8 shrink-0 place-items-center rounded-full bg-ink text-white">
+          <Ikona nazwa="dalej" rozmiar={15} />
+        </span>
+      </Link>
+
+      <figure className="mt-6 overflow-hidden rounded-shell ring-1 ring-hair">
         <Image
           src={zdjecia.dekory.src}
           alt={zdjecia.dekory.alt}

@@ -17,6 +17,7 @@ const productLinks = [
   { href: "/panel", label: "Pulpit" },
   { href: "/projekty/palmowa", label: "Projekty" },
   { href: "/katalog", label: copy.wspolne.katalog },
+  { href: "/akcesoria", label: copy.wspolne.sklep },
   { href: "/kreator", label: copy.wspolne.kreator },
   { href: "/zamowienia", label: "Zamówienia" },
 ] as const;

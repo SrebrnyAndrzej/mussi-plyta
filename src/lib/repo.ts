@@ -1,4 +1,6 @@
 import { dekory, type Dekor, type Kategoria } from "@/data/dekory";
+import { akcesoria, type Akcesorium } from "@/data/akcesoria";
+import { jakoProduktKoszyka, type ProduktKoszyka } from "@/lib/sklep-akcesoriow";
 import { funkcje } from "@/config/brief";
 
 /**
@@ -13,6 +15,14 @@ export interface KatalogRepo {
   wgKategorii(kategoria: Kategoria): Promise<Dekor[]>;
   szukaj(fraza: string): Promise<Dekor[]>;
   wgId(id: string): Promise<Dekor | null>;
+  /** Asortyment sklepu akcesoriów. Osobny model, bo akcesorium nie jest dekorem. */
+  akcesoria(): Promise<Akcesorium[]>;
+  /**
+   * Wszystko, co da się włożyć do koszyka: płyty i akcesoria sprowadzone
+   * do wspólnego kształtu. Koszyk rozpoznaje pozycję po indeksie, więc bez
+   * tego `/koszyk?dodaj=BLU-CLIP-110` ze sklepu trafiałby w pustkę.
+   */
+  produktyDoKoszyka(): Promise<Array<Dekor | ProduktKoszyka>>;
 }
 
 const seedRepo: KatalogRepo = {
@@ -32,6 +42,12 @@ const seedRepo: KatalogRepo = {
   async wgId(id) {
     return dekory.find((d) => d.id === id) ?? null;
   },
+  async akcesoria() {
+    return akcesoria;
+  },
+  async produktyDoKoszyka() {
+    return [...dekory, ...akcesoria.map(jakoProduktKoszyka)];
+  },
 };
 
 /**
@@ -49,6 +65,12 @@ const supabaseRepo: KatalogRepo = {
     throw new Error("Repozytorium Supabase nie jest jeszcze podpięte.");
   },
   async wgId() {
+    throw new Error("Repozytorium Supabase nie jest jeszcze podpięte.");
+  },
+  async akcesoria() {
+    throw new Error("Repozytorium Supabase nie jest jeszcze podpięte.");
+  },
+  async produktyDoKoszyka() {
     throw new Error("Repozytorium Supabase nie jest jeszcze podpięte.");
   },
 };

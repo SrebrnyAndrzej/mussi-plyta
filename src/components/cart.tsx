@@ -30,8 +30,8 @@ type CartLine = CartProduct & {
 const startQuantities: Record<string, number> = {
   k003: 7,
   abs22: 96,
-  "blum-cliptop": 12,
-  "gtv-push": 8,
+  "BLU-CLIP-110": 12,
+  "AMX-PODN-GS": 8,
 };
 
 function groupFor(category: CartProduct["kategoria"]): CartGroup {

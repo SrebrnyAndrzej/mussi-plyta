@@ -142,6 +142,8 @@ export const funkcje = {
   dokumentyZamowienia: true,
   /** Panel promocji na stronie głównej i zarządzanie nimi w hurtowni. */
   promocje: true,
+  /** Sklep akcesoriów pod /akcesoria. Osobna podstrona, wspólny koszyk. */
+  sklepAkcesoriow: true,
   warunkiHandlowe: true,
   kolejkaProdukcji: true,
   organizacjaIRole: true,
@@ -187,6 +189,7 @@ export const copy = {
     portal: "Portal B2B",
     kreator: "Kreator formatek",
     katalog: "Katalog",
+    sklep: "Akcesoria",
     koszyk: "Koszyk",
     konto: "Konto klienta",
     prog: "Próg kontrahenta",
