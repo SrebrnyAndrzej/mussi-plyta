@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "// allowImportingTsExtensions": "Node uruchamia te pliki wprost, przez --experimental-strip-types, więc importy muszą mieć rozszerzenie .ts",
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts"]
+}

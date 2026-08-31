@@ -1,0 +1,28 @@
+{
+  "_uwaga": "Skopiuj do konfiguracja.json i uzupełnij. Hasło i token lepiej podać przez zmienne środowiskowe SF_HASLO oraz INTEGRATOR_TOKEN, żeby nie leżały w pliku na serwerze.",
+
+  "zrodlo": {
+    "rodzaj": "firebird",
+    "host": "192.168.1.10",
+    "port": 3050,
+    "baza": "C:\\Streamsoft\\dane\\BAZA.FDB",
+    "uzytkownik": "PORTAL_RO",
+    "haslo": "podaj-przez-SF_HASLO"
+  },
+
+  "_zapytanie_uwaga": "Nazwy tabel i kolumn do ustalenia z informatykiem hurtowni. Poniższe są przykładem, nie wiedzą o ich instalacji.",
+  "zapytanie": "SELECT T.INDEKS AS INDEKS, S.ILOSC AS STAN, S.ILOSC_REZ AS REZERWACJE FROM TOWARY T JOIN STANY S ON S.ID_TOWARU = T.ID WHERE T.AKTYWNY = 1",
+
+  "kolumny": {
+    "sku": "INDEKS",
+    "stan": "STAN",
+    "rezerwacje": "REZERWACJE"
+  },
+
+  "cel": {
+    "url": "https://mussi-plyta.vercel.app/api/stany",
+    "token": "podaj-przez-INTEGRATOR_TOKEN"
+  },
+
+  "coMinut": 15
+}
