@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Ikona } from "@/components/ikona";
@@ -39,8 +40,22 @@ export function PanelPromocji() {
 
   return (
     <div className="rounded-shell bg-shell p-1.5 ring-1 ring-hair shadow-[var(--lift)]">
-      <article className="flex min-h-[26rem] flex-col rounded-core bg-surface p-6 shadow-[var(--inner)] sm:p-8">
-        <div className="flex items-start justify-between gap-4">
+      <article className="relative flex min-h-[26rem] flex-col overflow-hidden rounded-core bg-surface p-6 shadow-[var(--inner)] sm:p-8">
+        {p.grafika && (
+          /* Wycięty produkt jako tło kompozycji. Zdjęcie dostarcza hurtownia,
+             więc nie fabrykujemy niczego. */
+          <Image
+            src={p.grafika}
+            alt=""
+            aria-hidden="true"
+            priority
+            width={1418}
+            height={994}
+            sizes="(min-width: 1024px) 460px, 70vw"
+            className="pointer-events-none absolute -bottom-16 -right-24 w-[74%] max-w-none rotate-[-7deg] drop-shadow-[0_22px_28px_rgba(14,16,19,0.22)]"
+          />
+        )}
+        <div className="relative z-10 flex items-start justify-between gap-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">
             Promocja {String(biezaca + 1).padStart(2, "0")} z {String(promocje.length).padStart(2, "0")}
           </p>
@@ -49,14 +64,14 @@ export function PanelPromocji() {
           </span>
         </div>
 
-        <div className="mt-8 flex-1">
+        <div className="relative z-10 mt-8 flex-1">
           {p.producent && (
             <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-accent-ink">{p.producent}</p>
           )}
-          <h2 className="text-balance mt-3 font-display text-[clamp(1.8rem,3.2vw,2.6rem)] font-semibold leading-[1.05] tracking-[-0.04em] text-ink">
+          <h2 className="text-balance mt-3 max-w-[13ch] font-display text-[clamp(1.8rem,3.2vw,2.6rem)] font-semibold leading-[1.05] tracking-[-0.04em] text-ink">
             {p.tytul}
           </h2>
-          <p className="mt-4 max-w-md text-sm leading-6 text-mute">{p.opis}</p>
+          <p className="mt-4 max-w-[22rem] text-sm leading-6 text-mute">{p.opis}</p>
 
           <p className="mt-6 font-mono text-[11px] text-mute">
             {zostalo === null
@@ -67,7 +82,7 @@ export function PanelPromocji() {
           </p>
         </div>
 
-        <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="relative z-10 mt-8 flex flex-wrap items-center justify-between gap-4">
           {p.odnosnik ? (
             <Link
               href={p.odnosnik}

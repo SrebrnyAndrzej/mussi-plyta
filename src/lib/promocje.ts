@@ -20,6 +20,8 @@ export type Promocja = {
   producent: string | null;
   /** Dokąd prowadzi baner. Pusta wartość oznacza baner bez odnośnika. */
   odnosnik: string | null;
+  /** Ścieżka do grafiki w `public`. Null oznacza baner czysto typograficzny. */
+  grafika: string | null;
   obowiazujeOd: string;
   obowiazujeDo: string | null;
   aktywna: boolean;
@@ -91,6 +93,10 @@ export function walidujPromocje(p: Omit<Promocja, "id">): BladPromocji[] {
 
   if (p.odnosnik !== null && !p.odnosnik.startsWith("/")) {
     bledy.push("Odnośnik musi być ścieżką w portalu, zaczynającą się od ukośnika.");
+  }
+
+  if (p.grafika !== null && !p.grafika.startsWith("/")) {
+    bledy.push("Grafika musi być plikiem z katalogu publicznego, ścieżką od ukośnika.");
   }
 
   if (!Number.isInteger(p.kolejnosc) || p.kolejnosc < 0) {

@@ -22,6 +22,7 @@ const pustyFormularz = {
   etykieta: "",
   producent: "",
   odnosnik: "/katalog",
+  grafika: "",
   obowiazujeOd: "",
   obowiazujeDo: "",
   kolejnosc: 5,
@@ -53,6 +54,7 @@ export function PromocjeHurtowni() {
       etykieta: formularz.etykieta,
       producent: formularz.producent.trim() || null,
       odnosnik: formularz.odnosnik.trim() || null,
+      grafika: formularz.grafika.trim() || null,
       obowiazujeOd: formularz.obowiazujeOd,
       obowiazujeDo: formularz.obowiazujeDo.trim() || null,
       aktywna: true,
@@ -196,6 +198,11 @@ export function PromocjeHurtowni() {
               <input type="text" value={formularz.odnosnik} onChange={(e) => pole("odnosnik", e.target.value)}
                 placeholder="/katalog" className={`${wejscie} font-mono`} />
             </label>
+            <label className="block text-xs font-semibold text-ink sm:col-span-2">
+              Grafika, ścieżka w katalogu publicznym
+              <input type="text" value={formularz.grafika} onChange={(e) => pole("grafika", e.target.value)}
+                placeholder="/promocje/blum-25-szeroki.png" className={`${wejscie} font-mono`} />
+            </label>
             <label className="block text-xs font-semibold text-ink">
               Kolejność
               <input type="number" min={0} value={formularz.kolejnosc} onChange={(e) => pole("kolejnosc", Number(e.target.value))}
@@ -227,6 +234,7 @@ export function PromocjeHurtowni() {
             disabled={walidujPromocje({
               tytul: formularz.tytul, opis: formularz.opis, etykieta: formularz.etykieta,
               producent: null, odnosnik: formularz.odnosnik.trim() || null,
+              grafika: formularz.grafika.trim() || null,
               obowiazujeOd: formularz.obowiazujeOd, obowiazujeDo: formularz.obowiazujeDo.trim() || null,
               aktywna: true, kolejnosc: Number(formularz.kolejnosc),
             }).length > 0}

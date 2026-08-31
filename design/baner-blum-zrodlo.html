@@ -1,0 +1,347 @@
+<title>Baner Blum minus 25</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Geist+Mono:wght@400;500;600&family=Geist:wght@400;500;600&display=swap">
+
+<style>
+  /*
+    Baner promocyjny Mussi-Płyta.
+
+    Paleta i typografia z DESIGN.md projektu, bez wyjątków: karmin #9F0832
+    jako jedyny akcent, Bricolage Grotesque na nagłówki, Geist Mono na dane.
+    Tło ink #0E1013, bo zasada 1 kontraktu dopuszcza ciemne bloki jako akcent
+    kompozycyjny, a w strumieniu społecznościowym odcina się od jasnej aplikacji.
+
+    Świadomie bez fotografii produktu. Zasada 10 zabrania fabrykowania zdjęć,
+    a oficjalne zdjęcia Blum wymagają konta partnerskiego. Motywem jest więc
+    kąt otwarcia 110 stopni, czyli fakt techniczny tego zawiasu.
+  */
+  :root {
+    --ink: #0e1013;
+    --ink-2: #17191d;
+    --paper: #f3f4f6;
+    --surface: #ffffff;
+    --mute: #697079;
+    --accent: #9f0832;
+    --accent-jasny: #c4315a;
+    --linia: rgb(255 255 255 / 0.1);
+    --display: "Bricolage Grotesque", "Geist", ui-sans-serif, system-ui, sans-serif;
+    --ui: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--ui);
+    padding: 40px 20px 72px;
+  }
+
+  .wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px; }
+
+  .naglowek h1 {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    text-wrap: balance;
+  }
+  .naglowek p {
+    margin: 12px 0 0;
+    max-width: 62ch;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #3e444b;
+  }
+
+  .etykieta-formatu {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--mute);
+    margin: 0 0 12px;
+  }
+
+  /* --- Sam baner. Stała szerokość, żeby eksport był przewidywalny. --- */
+  .plansza {
+    position: relative;
+    overflow: hidden;
+    background: var(--ink);
+    color: #fff;
+    border-radius: 28px;
+    box-shadow: 0 1px 2px rgb(14 16 19 / 0.04), 0 18px 40px -22px rgb(14 16 19 / 0.5);
+  }
+  .kwadrat { width: 100%; max-width: 640px; aspect-ratio: 1 / 1; }
+  .szeroki { width: 100%; max-width: 1200px; aspect-ratio: 1200 / 630; }
+
+  .plansza-tresc {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(28px, 5.2%, 56px);
+  }
+
+  /* Łuk kąta otwarcia. Rysowany, bo to parametr techniczny zawiasu,
+     a nie ozdoba. */
+  .luk {
+    position: absolute;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.9;
+  }
+  .kwadrat .luk { right: -14%; top: 8%; width: 78%; }
+  .szeroki .luk { right: -4%; top: -12%; width: 46%; }
+
+  .gora { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+
+  .marka {
+    font-family: var(--display);
+    font-size: clamp(15px, 2.2vw, 19px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+  .marka span { color: var(--accent-jasny); }
+
+  .plakietka {
+    flex: none;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: var(--accent);
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.5vw, 12px);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .srodek { display: flex; flex-direction: column; gap: clamp(10px, 1.6vw, 18px); }
+
+  .producent {
+    font-family: var(--mono);
+    font-size: clamp(11px, 1.8vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent-jasny);
+    margin: 0;
+  }
+
+  .rabat {
+    font-family: var(--display);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 0.82;
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .kwadrat .rabat { font-size: clamp(5rem, 21vw, 9.5rem); }
+  .szeroki .rabat { font-size: clamp(4rem, 11vw, 7.5rem); }
+
+  .haslo {
+    font-family: var(--display);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+    margin: 0;
+    text-wrap: balance;
+    max-width: 15ch;
+  }
+  .kwadrat .haslo { font-size: clamp(1.5rem, 5.4vw, 2.5rem); max-width: 11ch; }
+  .szeroki .haslo { font-size: clamp(1.3rem, 3vw, 2.1rem); }
+
+  .warunek {
+    margin: 0;
+    max-width: 26ch;
+    font-size: clamp(12px, 1.9vw, 15px);
+    line-height: 1.6;
+    color: rgb(255 255 255 / 0.62);
+  }
+
+  .dol {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    border-top: 1px solid var(--linia);
+    padding-top: clamp(14px, 2.4%, 22px);
+  }
+  .dol p { margin: 0; }
+  .termin {
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.6vw, 12.5px);
+    letter-spacing: 0.04em;
+    color: rgb(255 255 255 / 0.55);
+  }
+  .termin b { color: #fff; font-weight: 500; }
+  .kontakt {
+    text-align: right;
+    font-family: var(--mono);
+    font-size: clamp(10px, 1.6vw, 12.5px);
+    color: rgb(255 255 255 / 0.55);
+    line-height: 1.6;
+  }
+  .kontakt b { display: block; color: #fff; font-weight: 500; }
+
+  /* --- Miejsce na oficjalne zdjęcie Blum --- */
+  .slot {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: 22px;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px rgb(14 16 19 / 0.07);
+    font-size: 13.5px;
+    line-height: 1.7;
+    color: #3e444b;
+    max-width: 70ch;
+  }
+  .slot b { color: var(--ink); font-weight: 600; }
+  .slot code {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--paper);
+    padding: 1px 6px;
+    border-radius: 6px;
+  }
+
+  /* --- Produkt --- */
+  .scena { position: absolute; z-index: 1; pointer-events: none; }
+  .kwadrat .scena { right: -12%; bottom: 4%; width: 86%; }
+  .szeroki .scena { right: -2%; bottom: -8%; width: 44%; }
+
+  .poswiata {
+    position: absolute;
+    inset: -18% -12% -22% -12%;
+    background: radial-gradient(52% 48% at 52% 48%, rgb(196 49 90 / 0.34) 0%, transparent 68%);
+    filter: blur(2px);
+  }
+  .produkt {
+    position: relative;
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: rotate(-7deg);
+    filter: drop-shadow(0 26px 34px rgb(0 0 0 / 0.55));
+  }
+  .szeroki .produkt { transform: rotate(-5deg); }
+
+  .siatka { display: grid; gap: 40px; }
+  @media (min-width: 1080px) { .siatka { grid-template-columns: 640px minmax(0, 1fr); align-items: start; } }
+  .pelny { width: 100%; }
+</style>
+
+<div class="wrap">
+
+  <header class="naglowek">
+    <h1>Baner promocyjny: zawiasy Blum</h1>
+    <p>
+      Dwa formaty tej samej oferty, gotowe do wystawienia. Paleta i typografia
+      pochodzą z kontraktu estetycznego portalu, więc baner wygląda jak Mussi,
+      a nie jak szablon z generatora.
+    </p>
+  </header>
+
+  <div class="siatka">
+
+    <section>
+      <p class="etykieta-formatu">Format kwadratowy, 1200 na 1200</p>
+      <div class="plansza kwadrat">
+        <svg class="luk" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+          <circle cx="200" cy="200" r="196" stroke="#9F0832" stroke-opacity=".22" />
+          <path d="M200 44 A156 156 0 0 1 338 248" stroke="#C4315A" stroke-width="2.5" stroke-opacity=".85" />
+          <text x="246" y="128" fill="#ffffff" fill-opacity=".45" font-family="ui-monospace, monospace" font-size="20" letter-spacing="1">110°</text>
+        </svg>
+        <div class="scena">
+          <div class="poswiata"></div>
+          <img class="produkt" src="/promocje/blum-zawias.png" width="1418" height="994"
+               alt="Zawias Blum CLIP top BLUMOTION 110 stopni, drzwi nakładane" />
+        </div>
+
+        <div class="plansza-tresc">
+          <div class="gora">
+            <p class="marka">Mussi<br>Płyta<span>.</span></p>
+            <span class="plakietka">Promocja</span>
+          </div>
+
+          <div class="srodek">
+            <p class="producent">Blum</p>
+            <p class="rabat">-25%</p>
+            <p class="haslo">Zawiasy Blum taniej o 25%</p>
+            <p class="warunek">
+              CLIP top BLUMOTION, kąt otwarcia 110 stopni. Rabat przy zamówieniu
+              od 50 sztuk, liczony do progu kontrahenta.
+            </p>
+          </div>
+
+          <div class="dol">
+            <p class="termin">oferta do <b>30 września</b></p>
+            <p class="kontakt">
+              <b>mussi-plyta.pl</b>
+              Zielona Góra, ul. Działkowa 19
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="pelny">
+      <p class="etykieta-formatu">Format szeroki, 1200 na 630</p>
+      <div class="plansza szeroki">
+        <svg class="luk" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+          <circle cx="200" cy="200" r="196" stroke="#9F0832" stroke-opacity=".22" />
+          <path d="M200 44 A156 156 0 0 1 338 248" stroke="#C4315A" stroke-width="2.5" stroke-opacity=".85" />
+        </svg>
+        <div class="scena">
+          <div class="poswiata"></div>
+          <img class="produkt" src="/promocje/blum-zawias.png" width="1418" height="994"
+               alt="Zawias Blum CLIP top BLUMOTION 110 stopni, drzwi nakładane" />
+        </div>
+
+        <div class="plansza-tresc">
+          <div class="gora">
+            <p class="marka">Mussi Płyta<span>.</span></p>
+            <span class="plakietka">Promocja</span>
+          </div>
+
+          <div class="srodek">
+            <p class="producent">Blum</p>
+            <p class="rabat">-25%</p>
+            <p class="warunek">
+              CLIP top BLUMOTION przy zamówieniu od 50 sztuk. Rabat liczy się
+              do progu kontrahenta.
+            </p>
+          </div>
+
+          <div class="dol">
+            <p class="termin">oferta do <b>30 września</b></p>
+            <p class="kontakt"><b>mussi-plyta.pl</b> 532 183 024</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="slot">
+        <p style="margin:0 0 10px"><b>Zdjęcie produktu: CLIP top BLUMOTION 110 stopni, drzwi nakładane, 73B3550.</b></p>
+        <p style="margin:0 0 10px">
+          Tło wycięte wypełnieniem od krawędzi, a nie progiem jasności. Próg zjadłby
+          jasne, niklowane części zawiasu razem z tłem.
+        </p>
+        <p style="margin:0">
+          Plik przezroczysty leży w <code>public/promocje/blum-zawias.png</code>.
+          Prawa do zdjęcia są po stronie hurtowni, bo materiał pochodzi od Ciebie.
+        </p>
+      </div>
+
+  </section>
+</div>

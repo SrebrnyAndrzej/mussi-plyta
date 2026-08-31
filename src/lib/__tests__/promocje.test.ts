@@ -24,7 +24,7 @@ function promocja(n: Partial<Promocja> = {}): Promocja {
   return {
     id: "blum", tytul: "Zawiasy Blum taniej o 25%",
     opis: "CLIP top BLUMOTION przy zamówieniu od 50 sztuk.",
-    etykieta: "-25%", producent: "Blum", odnosnik: "/katalog",
+    etykieta: "-25%", producent: "Blum", odnosnik: "/katalog", grafika: null,
     obowiazujeOd: "2026-09-01", obowiazujeDo: "2026-09-30",
     aktywna: true, kolejnosc: 1, ...n,
   };
