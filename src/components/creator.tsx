@@ -8,7 +8,7 @@ import {
   kreatorDomyslne,
   rozkroj,
 } from "@/config/brief";
-import { policzRozkroj, type Formatka } from "@/lib/nesting";
+import { policzRozkroj, type Formatka, zapisObrzeza } from "@/lib/nesting";
 import { liczba, wycenUslugi, zloty } from "@/lib/pricing";
 import { suggestEdge } from "@/lib/edge-matching";
 import { parseMussiTable, readMussiFile } from "@/lib/import-formats";
@@ -67,6 +67,11 @@ function placedEdges(
   if (!rotated) return edges;
   return [edges[2], edges[3], edges[1], edges[0]];
 }
+
+/** Kolejność krawędzi zgodna z typem Formatka: góra, dół, lewa, prawa. */
+const KRAWEDZIE = ["Góra", "Dół", "Lewa", "Prawa"] as const;
+/** Grubości, które hurtownia trzyma na stanie. Klik przechodzi po nich w kółko. */
+const GRUBOSCI: number[] = [0, 1, 2];
 
 function edgeStrokeWidth(value: number) {
   return value === 2 ? 8 : 4;
@@ -209,9 +214,19 @@ function PieceEdges({
   );
 }
 
-function Board({ formatki }: { formatki: Formatka[] }) {
+function Board({
+  formatki,
+  onZmienObrzeze,
+}: {
+  formatki: Formatka[];
+  /** Null oznacza podgląd bez edycji, na przykład na stronie głównej. */
+  onZmienObrzeze?: (indeks: number, obrzeze: Formatka["obrzeze"]) => void;
+}) {
   const wynik = useMemo(() => policzRozkroj(formatki), [formatki]);
   const [activeSheet, setActiveSheet] = useState(0);
+  /* Indeks formatki źródłowej, nie ułożonej sztuki: obrzeże należy do formatki,
+     a ta sama formatka bywa ułożona wiele razy. */
+  const [wybrana, setWybrana] = useState<number | null>(null);
   const safeIndex = Math.min(activeSheet, Math.max(0, wynik.arkusze.length - 1));
   const arkusz = wynik.arkusze[safeIndex];
   const { plyta } = rozkroj;
@@ -277,18 +292,41 @@ function Board({ formatki }: { formatki: Formatka[] }) {
           {arkusz.sztuki.map((sztuka, index) => {
             const source = formatki[sztuka.zrodlo];
             const edges = placedEdges(source.obrzeze, sztuka.obrocona);
+            const zaznaczona = wybrana === sztuka.zrodlo;
+            const klikalna = Boolean(onZmienObrzeze);
             return (
-              <g key={`${sztuka.zrodlo}-${index}`}>
+              <g
+                key={`${sztuka.zrodlo}-${index}`}
+                role={klikalna ? "button" : undefined}
+                tabIndex={klikalna ? 0 : undefined}
+                aria-label={
+                  klikalna
+                    ? `${source.dlugosc} na ${source.szerokosc} mm, obrzeże ${zapisObrzeza(source.obrzeze)}, zmień`
+                    : undefined
+                }
+                aria-pressed={klikalna ? zaznaczona : undefined}
+                onClick={klikalna ? () => setWybrana(sztuka.zrodlo) : undefined}
+                onKeyDown={
+                  klikalna
+                    ? (event) => {
+                        if (event.key !== "Enter" && event.key !== " ") return;
+                        event.preventDefault();
+                        setWybrana(sztuka.zrodlo);
+                      }
+                    : undefined
+                }
+                className={klikalna ? "cursor-pointer focus:outline-none" : undefined}
+              >
                 <rect
                   x={sztuka.x}
                   y={sztuka.y}
                   width={sztuka.dlugosc}
                   height={sztuka.szerokosc}
                   rx="10"
-                  fill={sztuka.zrodlo % 2 === 0 ? "#FFFFFF" : "#F8F8F9"}
+                  fill={zaznaczona ? "#FFF4F5" : sztuka.zrodlo % 2 === 0 ? "#FFFFFF" : "#F8F8F9"}
                   stroke="#9F0832"
-                  strokeOpacity="0.58"
-                  strokeWidth="2"
+                  strokeOpacity={zaznaczona ? 1 : 0.58}
+                  strokeWidth={zaznaczona ? 4 : 2}
                   vectorEffect="non-scaling-stroke"
                 />
                 <PieceEdges
@@ -327,6 +365,76 @@ function Board({ formatki }: { formatki: Formatka[] }) {
             vectorEffect="non-scaling-stroke"
           />
         </svg>
+
+        {onZmienObrzeze && wybrana !== null && formatki[wybrana] && (
+          <div className="mt-4 rounded-ctl bg-surface p-4 ring-1 ring-hair">
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <p className="font-mono text-[11px] text-mute">
+                {formatki[wybrana].dlugosc} × {formatki[wybrana].szerokosc} mm
+                <span className="ml-2 text-ink">obrzeże {zapisObrzeza(formatki[wybrana].obrzeze)}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => setWybrana(null)}
+                className="pressable min-h-11 rounded-full px-3 text-[11px] font-semibold text-mute hover:text-ink"
+              >
+                Zamknij
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {KRAWEDZIE.map((krawedz, pozycja) => {
+                const wartosc = formatki[wybrana!].obrzeze[pozycja];
+                return (
+                  <button
+                    key={krawedz}
+                    type="button"
+                    /* Klik przechodzi przez dostępne grubości i wraca do braku,
+                       żeby jedna kontrolka obsłużyła włączenie i wybór grubości. */
+                    onClick={() => {
+                      const nastepna = GRUBOSCI[(GRUBOSCI.indexOf(wartosc) + 1) % GRUBOSCI.length] ?? 0;
+                      const zmienione = [...formatki[wybrana!].obrzeze] as Formatka["obrzeze"];
+                      zmienione[pozycja] = nastepna;
+                      onZmienObrzeze(wybrana!, zmienione);
+                    }}
+                    className={`pressable min-h-12 rounded-ctl px-3 text-left text-xs font-semibold ring-1 ${
+                      wartosc > 0 ? "bg-danger-paper text-accent-ink ring-accent/20" : "bg-paper text-mute ring-hair"
+                    }`}
+                  >
+                    <span className="block">{krawedz}</span>
+                    <span className="mt-0.5 block font-mono text-[10px] font-normal">
+                      {wartosc > 0 ? `${wartosc} mm` : "bez obrzeża"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => onZmienObrzeze(wybrana!, [1, 1, 1, 1])}
+                className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-ink ring-1 ring-hair"
+              >
+                Dookoła 1 mm
+              </button>
+              <button
+                type="button"
+                onClick={() => onZmienObrzeze(wybrana!, [2, 2, 2, 2])}
+                className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-ink ring-1 ring-hair"
+              >
+                Dookoła 2 mm
+              </button>
+              <button
+                type="button"
+                onClick={() => onZmienObrzeze(wybrana!, [0, 0, 0, 0])}
+                className="pressable min-h-11 rounded-full bg-paper px-4 text-[11px] font-semibold text-mute ring-1 ring-hair"
+              >
+                Zdejmij obrzeże
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -918,7 +1026,16 @@ export function Creator({
                   <Metric label={copy.kreator.wykorzystanie} value={`${liczba.format(wycena.rozkroj.wykorzystanie * 100)}%`} />
                 </div>
               </div>
-              <div className="mt-6"><Board formatki={formatki} /></div>
+              <div className="mt-6">
+                <Board
+                  formatki={formatki}
+                  onZmienObrzeze={(indeks, obrzeze) =>
+                    setFormatki((items) =>
+                      items.map((item, i) => (i === indeks ? { ...item, obrzeze } : item)),
+                    )
+                  }
+                />
+              </div>
             </section>
           </Shell>
 

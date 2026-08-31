@@ -41,13 +41,87 @@ function numberFrom(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+/**
+ * Obrzeże z pliku klienta.
+ *
+ * Kolejność krawędzi: góra, dół, lewa, prawa. Zero znaczy brak obrzeża,
+ * liczba dodatnia to grubość w milimetrach.
+ *
+ * Formaty spotykane w plikach stolarni, wszystkie obsługiwane:
+ *
+ *   "1010"       maska czterech krawędzi, notacja hurtowni
+ *   "1-1-1-0"    to samo z separatorem
+ *   "2"          jedna wartość, czyli dookoła
+ *   "2 mm"       jw. z jednostką
+ *   "0,8"        grubość ułamkowa, przecinek albo kropka
+ *   "2/1"        dwie wartości: góra z dołem, potem lewa z prawą
+ *   "tak", "nie" bez podanej grubości, przyjmujemy domyślną
+ *
+ * Wcześniej pojedyncza wartość była dopełniana zerami **z lewej**, więc "2"
+ * dawało obrzeże tylko na prawej krawędzi zamiast dookoła. Plik wyglądał
+ * na zaimportowany, a wycena oklejania była zaniżona i nikt tego nie widział.
+ * Dlatego niejednoznaczne wejście jest teraz odrzucane, a nie dopełniane.
+ */
+const DOMYSLNA_GRUBOSC_MM = 1;
+
 function parseEdges(value: string): [number, number, number, number] | null {
-  if (!value.trim()) return [0, 0, 0, 0];
-  const digits = value.replace(/[^0-2]/g, "").padStart(4, "0");
-  if (digits.length !== 4) return null;
-  const parsed = [...digits].map(Number);
-  if (parsed.some((item) => item < 0 || item > 2)) return null;
-  return parsed as [number, number, number, number];
+  const tekst = value.trim();
+  if (!tekst) return [0, 0, 0, 0];
+
+  const znormalizowany = normalize(tekst);
+  if (["nie", "n", "brak", "0", "false"].includes(znormalizowany)) return [0, 0, 0, 0];
+  if (["tak", "t", "x", "true"].includes(znormalizowany)) {
+    return [DOMYSLNA_GRUBOSC_MM, DOMYSLNA_GRUBOSC_MM, DOMYSLNA_GRUBOSC_MM, DOMYSLNA_GRUBOSC_MM];
+  }
+
+  /* Jednostki i litery krawędzi nie niosą tu informacji, którą umiemy
+     wykorzystać, więc usuwamy je zanim policzymy wartości. */
+  const bezJednostek = tekst.replace(/mm/gi, " ");
+
+  const maSeparator = /[-/;|\s]/.test(bezJednostek.trim());
+  /* Przecinek bywa separatorem pól albo znakiem dziesiętnym. Traktujemy go
+     jako dziesiętny tylko wtedy, gdy nie ma innego separatora. */
+  const przygotowany = maSeparator
+    ? bezJednostek.replace(/,/g, " ")
+    : bezJednostek.replace(/,/g, ".");
+
+  const czesci = przygotowany
+    .split(/[-/;|\s]+/)
+    .map((c) => c.trim())
+    .filter(Boolean);
+
+  if (czesci.length === 0) return null;
+
+  /* Maska bez separatorów, na przykład "1010". */
+  if (czesci.length === 1 && /^[0-9]{4}$/.test(czesci[0])) {
+    const cyfry = [...czesci[0]].map(Number);
+    return cyfry as [number, number, number, number];
+  }
+
+  const liczby: number[] = [];
+  for (const czesc of czesci) {
+    if (!/^\d+(\.\d+)?$/.test(czesc)) return null;
+    const n = Number(czesc);
+    if (!Number.isFinite(n) || n < 0) return null;
+    liczby.push(n);
+  }
+
+  if (liczby.length === 1) {
+    const g = liczby[0];
+    return [g, g, g, g];
+  }
+  if (liczby.length === 2) {
+    /* Dwie wartości: pierwsza na górę i dół, druga na boki. */
+    const [wzdluz, wpoprzek] = liczby;
+    return [wzdluz, wzdluz, wpoprzek, wpoprzek];
+  }
+  if (liczby.length === 4) {
+    return liczby as [number, number, number, number];
+  }
+
+  /* Trzy albo więcej niż cztery wartości to niejednoznaczny zapis.
+     Lepiej zgłosić błąd wiersza niż zgadywać, które krawędzie oklejać. */
+  return null;
 }
 
 function parseGrain(value: string) {
