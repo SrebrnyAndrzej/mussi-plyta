@@ -157,6 +157,8 @@ export const obslugaZamowien = {
 
 /** Dane kontrahenta używane wyłącznie w poniedziałkowej makiecie portalu. */
 export const kontrahentDemo = {
+  /** Ten sam identyfikator co w kartotece kontrahentów w `src/data/warunki-demo.ts`. */
+  id: "K-00128",
   nazwa: "Stolarnia Nowak",
   kodProgu: "B2",
 } as const;
