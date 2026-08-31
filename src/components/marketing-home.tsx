@@ -7,6 +7,8 @@ import { logotypy, realizacje, zdjecia } from "@/data/media";
 import { MussiLogo } from "@/components/mussi-logo";
 import { CartIndicator } from "@/components/cart-indicator";
 import { PanelPromocji } from "@/components/panel-promocji";
+import { Ikona } from "@/components/ikona";
+import { ikonaKategorii, type KategoriaAkcesorium } from "@/data/akcesoria";
 
 /**
  * Liczby w sekcji dowodowej muszą pochodzić z silnika, nie z tekstu.
@@ -102,7 +104,20 @@ function Foto({ z, className = "", sizes, priority = false }: { z: { src: string
   );
 }
 
-export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
+/** Zapowiedź sklepu akcesoriów. Liczby liczy serwer z asortymentu. */
+export type ZapowiedzSklepu = {
+  indeksow: number;
+  marek: number;
+  kategorie: Array<{ id: KategoriaAkcesorium; nazwa: string; ile: number }>;
+};
+
+export function MarketingHome({
+  produkty,
+  sklep,
+}: {
+  produkty: ProductPreview[];
+  sklep?: ZapowiedzSklepu;
+}) {
   return (
     <>
       <a href="#main-content" className="fixed left-4 top-3 z-50 -translate-y-20 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white transition-transform duration-150 ease-[var(--ease-out)] focus:translate-y-0">Przejdź do treści</a>
@@ -110,7 +125,7 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
         <div className="pointer-events-auto mx-auto flex min-h-16 w-full max-w-[1180px] items-center gap-2 rounded-full border border-white/60 bg-surface/72 px-4 shadow-[var(--lift-sm),inset_0_1px_0_rgb(255_255_255/0.9)] backdrop-blur-2xl backdrop-saturate-150 sm:gap-4 sm:px-5">
           <a href="#top" aria-label={`${firma.nazwa}, początek strony`} className="pressable flex items-center rounded-ctl p-1.5"><MussiLogo priority /></a>
           <nav className="ml-auto hidden items-center gap-6 text-sm font-semibold text-mute lg:flex" aria-label="Strona główna">
-            <a href="#oferta" className="hover:text-ink">Oferta</a><a href="#dekory" className="hover:text-ink">Dekory</a><a href="#rozkroj" className="hover:text-ink">Rozkrój</a><a href="#cennik" className="hover:text-ink">Cennik</a><a href="#realizacje" className="hover:text-ink">Realizacje</a><a href="#kontakt" className="hover:text-ink">Kontakt</a><Link href="/logowanie" className="text-accent-ink hover:text-accent">Panel klienta</Link>
+            <a href="#oferta" className="hover:text-ink">Oferta</a><a href="#dekory" className="hover:text-ink">Dekory</a><a href="#akcesoria" className="hover:text-ink">Akcesoria</a><a href="#rozkroj" className="hover:text-ink">Rozkrój</a><a href="#cennik" className="hover:text-ink">Cennik</a><a href="#realizacje" className="hover:text-ink">Realizacje</a><a href="#kontakt" className="hover:text-ink">Kontakt</a><Link href="/logowanie" className="text-accent-ink hover:text-accent">Panel klienta</Link>
           </nav>
           <CartIndicator variant="mobile" />
           <a href={`tel:+48${firma.telefon.replaceAll(" ", "")}`} className="hidden font-mono text-xs font-semibold text-ink xl:block">{firma.telefon}</a>
@@ -180,6 +195,50 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
           </div>
         </section>
 
+        {funkcje.sklepAkcesoriow && sklep && (
+          <section id="akcesoria" className="bg-ink py-20 text-white sm:py-28">
+            <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <p className="font-mono text-[11px] font-semibold uppercase tracking-[.16em] text-white/50">Sklep</p>
+                  <h2 className="text-balance mt-5 max-w-3xl font-display text-[clamp(2.5rem,5vw,5rem)] font-bold leading-[.95] tracking-[-0.055em]">
+                    Akcesoria mają własny sklep
+                  </h2>
+                  <p className="text-pretty mt-5 max-w-2xl text-lg leading-8 text-white/60">
+                    {sklep.indeksow} indeksów od {sklep.marek} producentów: okucia, systemy szuflad,
+                    oświetlenie, złączki i chemia. Szukasz po symbolu producenta, a dodajesz do tego
+                    samego koszyka, w którym masz płytę.
+                  </p>
+                </div>
+                <Link href="/akcesoria" className="pressable flex w-fit min-h-12 items-center gap-5 rounded-full bg-white py-1.5 pl-5 pr-1.5 text-sm font-semibold text-ink">
+                  Wejdź do sklepu <Arrow />
+                </Link>
+              </div>
+
+              <ul className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {sklep.kategorie.map((k) => (
+                  <li key={k.id}>
+                    <Link
+                      href={`/akcesoria?kategoria=${k.id}`}
+                      className="lift-on-hover pressable flex min-h-20 items-center gap-3 rounded-ctl bg-white/[0.06] px-4 py-3 ring-1 ring-white/12 hover:bg-white/10"
+                    >
+                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white/10">
+                        <Ikona nazwa={ikonaKategorii(k.id)} rozmiar={18} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-semibold">{k.nazwa}</span>
+                        <span className="mt-0.5 block font-mono text-[10px] tabular-nums text-white/50">
+                          {k.ile} indeksów
+                        </span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
+
         <section id="rozkroj" className="mx-auto grid max-w-[1440px] gap-12 px-4 py-20 sm:px-6 sm:py-28 lg:grid-cols-[.86fr_1.14fr] lg:items-center lg:px-8">
           <div><p className="font-mono text-[11px] font-semibold uppercase tracking-[.16em] text-accent-ink">Policz sam, zanim zadzwonisz</p><h2 className="mt-5 font-display text-[clamp(2.7rem,5vw,5.4rem)] font-bold leading-[.93] tracking-[-0.055em] text-ink">Ile kosztuje pocięcie Twojej kuchni</h2><p className="mt-6 max-w-xl text-lg leading-8 text-mute">Dotknij krawędzi formatki, wybierz grubość obrzeża, a rozkrój i wycena policzą się na żywo.</p><Link href="/kreator" className="pressable mt-8 flex w-fit min-h-12 items-center gap-5 rounded-full bg-accent py-1.5 pl-5 pr-1.5 text-sm font-semibold text-white">Otwórz kreator <Arrow /></Link></div>
           <div className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="grid gap-5 rounded-core bg-surface p-5 shadow-[var(--inner)] sm:p-7"><div className="grid gap-3 sm:grid-cols-3">{[["Płyty", `${przyklad.arkuszy} szt.`], ["Obrzeże", `${liczba.format(przyklad.obrzezeMb)} mb`], ["Usługi netto", zloty.format(przyklad.razemNetto)]].map(([label, value]) => <div key={label} className="rounded-ctl bg-paper p-4"><p className="text-xs text-mute">{label}</p><p className="mt-2 font-mono text-xl font-semibold text-ink">{value}</p></div>)}</div><div className="relative aspect-[1.7/1] rounded-ctl bg-paper-2 p-5 ring-1 ring-inset ring-hair"><div className="grid h-full grid-cols-4 grid-rows-3 gap-1.5">{Array.from({ length: 10 }, (_, i) => <span key={i} className={`rounded-[3px] border border-accent/35 bg-white ${i === 0 ? "col-span-2" : ""}`} />)}</div><span className="absolute left-8 top-4 rounded-full bg-accent px-2.5 py-1 font-mono text-[9px] text-white">obrzeże 1 mm</span></div><p className="text-xs leading-5 text-mute">Działający kreator pozwala zmienić sugerowane obrzeże, oznaczyć każdą krawędź i dodać wiele formatek.</p></div></div>
@@ -215,7 +274,7 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
         <section id="kontakt" className="bg-ink py-20 text-white sm:py-28"><div className="mx-auto grid max-w-[1440px] gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_.75fr] lg:px-8"><div><p className="font-mono text-[11px] font-semibold uppercase tracking-[.16em] text-white/50">Kontakt</p><h2 className="mt-5 max-w-4xl font-display text-[clamp(2.8rem,6vw,6.4rem)] font-bold leading-[.9] tracking-[-0.06em]">Prześlij listę, oddzwonimy z ceną</h2><p className="mt-6 max-w-xl text-lg leading-8 text-white/60">Najszybciej idzie telefonem. Gotową listę z kreatora możesz też przesłać mailem.</p><div className="mt-8 flex flex-wrap gap-3"><a href={`tel:+48${firma.telefon.replaceAll(" ", "")}`} className="pressable flex min-h-12 items-center gap-5 rounded-full bg-accent py-1.5 pl-5 pr-1.5 text-sm font-semibold text-white">Zadzwoń {firma.telefon} <Arrow /></a><a href={`mailto:${firma.email}`} className="pressable flex min-h-12 items-center gap-5 rounded-full bg-white py-1.5 pl-5 pr-1.5 text-sm font-semibold text-ink">Napisz e-mail <Arrow /></a></div></div><dl className="divide-y divide-white/12 border-y border-white/12">{[["Adres", `${firma.ulica}, ${firma.kod} ${firma.miasto}`], ["Telefon", firma.telefon], ["E-mail", firma.email], ["Godziny", firma.godziny]].map(([label, value]) => <div key={label} className="flex justify-between gap-6 py-5"><dt className="text-sm text-white/45">{label}</dt><dd className="text-right font-mono text-sm">{value}</dd></div>)}</dl></div></section>
       </main>
 
-      <footer className="border-t border-hair bg-surface"><div className="mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p className="font-display font-semibold text-ink">{firma.nazwa}</p><div className="flex flex-wrap gap-5 text-sm text-mute"><Link href="/katalog">Katalog B2B</Link><Link href="/kreator">Kreator formatek</Link><a href="#kontakt">Kontakt</a></div><p className="font-mono text-[10px] uppercase tracking-[.1em] text-mute">Zielona Góra · od {firma.odRoku}</p></div></footer>
+      <footer className="border-t border-hair bg-surface"><div className="mx-auto flex max-w-[1440px] flex-col gap-5 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p className="font-display font-semibold text-ink">{firma.nazwa}</p><div className="flex flex-wrap gap-5 text-sm text-mute"><Link href="/katalog">Katalog B2B</Link><Link href="/akcesoria">Sklep z akcesoriami</Link><Link href="/kreator">Kreator formatek</Link><a href="#kontakt">Kontakt</a></div><p className="font-mono text-[10px] uppercase tracking-[.1em] text-mute">Zielona Góra · od {firma.odRoku}</p></div></footer>
     </>
   );
 }

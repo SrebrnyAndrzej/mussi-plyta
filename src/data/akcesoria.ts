@@ -1,3 +1,5 @@
+import type { NazwaIkony } from "@/components/ikona";
+
 /**
  * Asortyment akcesoriów hurtowni.
  *
@@ -48,7 +50,11 @@ export type Akcesorium = {
  * hurtowni albo od producentów, kategorię niesie ikona z zamkniętego zestawu
  * Phosphor. Pole `image` w `Akcesorium` czeka na prawdziwe zdjęcia.
  */
-export const kategorieAkcesoriow: Array<{ id: KategoriaAkcesorium; nazwa: string; ikona: string }> = [
+export const kategorieAkcesoriow: Array<{
+  id: KategoriaAkcesorium;
+  nazwa: string;
+  ikona: NazwaIkony;
+}> = [
   { id: "okucia", ikona: "okucia", nazwa: "Okucia" },
   { id: "szuflady", ikona: "szuflady", nazwa: "Systemy szuflad" },
   { id: "oswietlenie", ikona: "oswietlenie", nazwa: "Oświetlenie" },
@@ -59,6 +65,15 @@ export const kategorieAkcesoriow: Array<{ id: KategoriaAkcesorium; nazwa: string
   { id: "szklo", ikona: "szklo", nazwa: "Szkło i lustra" },
   { id: "obrzeza", ikona: "obrzeza", nazwa: "Obrzeża" },
 ];
+
+/**
+ * Ikona kategorii. Trzymamy ją przy danych, nie w komponencie sklepu:
+ * strona główna też jej potrzebuje, a wartość eksportowana z modułu
+ * `"use client"` nie przechodzi przez granicę do komponentu serwerowego.
+ */
+export function ikonaKategorii(kategoria: KategoriaAkcesorium): NazwaIkony {
+  return kategorieAkcesoriow.find((k) => k.id === kategoria)?.ikona ?? "katalog";
+}
 
 export const akcesoria: Akcesorium[] = [
   { sku: "AMX-SB11-HD-450", nazwa: "Prowadnica SB System Box 450 mm, miękki domyk", producent: "Amix", kategoria: "szuflady", jednostka: "kpl", cena: 68.9, stanSystemowy: 64, rezerwacje: 18, stanMinimalny: 40 },

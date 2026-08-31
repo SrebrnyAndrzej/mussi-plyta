@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { Ikona, type NazwaIkony } from "@/components/ikona";
+import { Ikona } from "@/components/ikona";
 import { copy, firma } from "@/config/brief";
 import type { KategoriaAkcesorium } from "@/data/akcesoria";
-import { kategorieAkcesoriow } from "@/data/akcesoria";
+import { ikonaKategorii, kategorieAkcesoriow } from "@/data/akcesoria";
 import { zloty } from "@/lib/pricing";
 import { useCzyWidacCeny } from "@/lib/sesja";
 import {
@@ -35,19 +35,6 @@ type PozycjaSklepu = Akcesorium & {
   /* Dostępność liczy strona, żeby klient nie widział ani stanu magazynu,
      ani rezerwacji innych firm. */
   dostepnoscSklepu: Dostepnosc;
-};
-
-/** Kategorie mają ikony z zamkniętego zestawu, bez fabrykowanych zdjęć. */
-const IKONY: Record<KategoriaAkcesorium, NazwaIkony> = {
-  okucia: "okucia",
-  szuflady: "szuflady",
-  oswietlenie: "oswietlenie",
-  zlaczki: "zlaczki",
-  chemia: "chemia",
-  kosze: "kosze",
-  uchwyty: "uchwyty",
-  szklo: "szklo",
-  obrzeza: "obrzeza",
 };
 
 const ETYKIETY_DOSTEPNOSCI = {
@@ -90,14 +77,21 @@ function Miniatura({ pozycja }: { pozycja: PozycjaSklepu }) {
 
   return (
     <span className="grid size-full place-items-center rounded-ctl bg-paper text-mute ring-1 ring-inset ring-hair">
-      <Ikona nazwa={IKONY[pozycja.kategoria]} rozmiar={22} />
+      <Ikona nazwa={ikonaKategorii(pozycja.kategoria)} rozmiar={22} />
     </span>
   );
 }
 
-export function SklepAkcesoriow({ pozycje }: { pozycje: PozycjaSklepu[] }) {
+export function SklepAkcesoriow({
+  pozycje,
+  kategoriaStartowa = null,
+}: {
+  pozycje: PozycjaSklepu[];
+  /** Kategoria z adresu. Wchodzi jako stan początkowy, dalej rządzi klient. */
+  kategoriaStartowa?: KategoriaAkcesorium | null;
+}) {
   const [fraza, setFraza] = useState("");
-  const [kategoria, setKategoria] = useState<KategoriaAkcesorium | null>(null);
+  const [kategoria, setKategoria] = useState<KategoriaAkcesorium | null>(kategoriaStartowa);
   const [producent, setProducent] = useState<string | null>(null);
   const [tylkoDostepne, setTylkoDostepne] = useState(false);
   const [sortowanie, setSortowanie] = useState<Sortowanie>("dostepnosc");
@@ -155,7 +149,7 @@ export function SklepAkcesoriow({ pozycje }: { pozycje: PozycjaSklepu[] }) {
                       aktywna ? "bg-white/12 text-white" : "bg-paper text-mute"
                     }`}
                   >
-                    <Ikona nazwa={IKONY[k.id]} rozmiar={17} />
+                    <Ikona nazwa={k.ikona} rozmiar={17} />
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-xs font-semibold">{k.nazwa}</span>

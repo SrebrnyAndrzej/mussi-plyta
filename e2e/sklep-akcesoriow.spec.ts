@@ -58,3 +58,34 @@ test("nic nie pasuje, a sklep mówi o tym wprost zamiast pokazywać pustkę", as
   await page.getByLabel("Szukaj akcesorium").fill("czegotakiegoniema");
   await expect(page.getByText(/Nic nie pasuje do tych warunków/)).toBeVisible();
 });
+
+test.describe("wejście ze strony głównej", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  test("strona główna zapowiada sklep prawdziwymi liczbami", async ({ page }) => {
+    await page.goto("/");
+    const sekcja = page.locator("#akcesoria");
+    await expect(sekcja.getByRole("heading", { name: "Akcesoria mają własny sklep" })).toBeVisible();
+    /* Liczba indeksów ma pochodzić z asortymentu, a nie z tekstu w kodzie. */
+    await expect(sekcja.getByText(/\d+ indeksów od \d+ producentów/)).toBeVisible();
+  });
+
+  test("kafelek kategorii otwiera sklep od razu zawężony", async ({ page }) => {
+    await page.goto("/");
+    await page.locator("#akcesoria").getByRole("link", { name: /Oświetlenie/ }).click();
+
+    await expect(page).toHaveURL(/\/akcesoria\?kategoria=oswietlenie/);
+    await expect(page.getByRole("button", { name: /Oświetlenie/ })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("nieznana kategoria w adresie otwiera pełny sklep, nie pustkę", async ({ page }) => {
+    await page.goto("/akcesoria?kategoria=czegotakiegoniema");
+    const licznik = page.getByText(/z \d+ indeksów/);
+    const tekst = (await licznik.textContent()) ?? "";
+    const [widoczne, wszystkie] = tekst.match(/(\d+) z (\d+)/)?.slice(1) ?? [];
+    expect(widoczne).toBe(wszystkie);
+  });
+});
