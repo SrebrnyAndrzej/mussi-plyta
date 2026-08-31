@@ -1,0 +1,153 @@
+{
+  "opis": "Wektory testowe formatu CSV zamowienia. Kazda implementacja, takze ta w Swift, ma dawac dokladnie te wyniki. Pole wejscie zawiera tresc pliku, \\n oznacza znak nowej linii.",
+  "wersjaFormatu": 1,
+  "katalog": [
+    { "indeks": "BLU-CLIP-110", "jednostka": "szt" },
+    { "indeks": "BLU-TAND-500", "jednostka": "kpl" },
+    { "indeks": "OBR-ABS-1180", "jednostka": "mb" }
+  ],
+  "przypadki": [
+    {
+      "nazwa": "minimalny poprawny plik",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;12\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "separatorem jest przecinek",
+      "wejscie": "indeks,ilosc\nBLU-CLIP-110,12\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "separatorem jest tabulator",
+      "wejscie": "indeks\tilosc\nBLU-CLIP-110\t12\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "znacznik BOM z Excela nie psuje naglowka",
+      "wejscie": "﻿indeks;ilosc\nBLU-CLIP-110;12\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "konce linii w stylu Windows",
+      "wejscie": "indeks;ilosc\r\nBLU-CLIP-110;12\r\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "naglowki z ogonkami i w innej kolejnosci",
+      "wejscie": "Ilość;Indeks\n12;BLU-CLIP-110\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "nieznane kolumny sa pomijane",
+      "wejscie": "lp;indeks;ilosc;cena\n1;BLU-CLIP-110;12;9.99\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "ilosc ulamkowa z przecinkiem",
+      "wejscie": "indeks;ilosc\nOBR-ABS-1180;12,5\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "OBR-ABS-1180", "ilosc": 12.5 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "ilosc ulamkowa z kropka",
+      "wejscie": "indeks;ilosc\nOBR-ABS-1180;12.5\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "OBR-ABS-1180", "ilosc": 12.5 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "spacja jako separator tysiecy",
+      "wejscie": "indeks;ilosc\nOBR-ABS-1180;1 200\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "OBR-ABS-1180", "ilosc": 1200 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "puste wiersze sa pomijane, numeracja tego nie gubi",
+      "wejscie": "indeks;ilosc\n\nBLU-CLIP-110;12\n\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12 }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "uwagi w cudzyslowie z srednikiem w srodku",
+      "wejscie": "indeks;ilosc;uwagi\nBLU-CLIP-110;12;\"pilne; na piatek\"\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12, "uwagi": "pilne; na piatek" }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "podwojony cudzyslow to jeden znak",
+      "wejscie": "indeks;ilosc;uwagi\nBLU-CLIP-110;12;\"pas 22\"\"\"\n",
+      "oczekiwane": { "ok": true, "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 12, "uwagi": "pas 22\"" }], "kodyBledow": [] }
+    },
+    {
+      "nazwa": "ten sam indeks w dwoch wierszach zostaje zsumowany",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;12\nBLU-CLIP-110;8\n",
+      "oczekiwane": {
+        "ok": true,
+        "pozycje": [{ "wiersz": 2, "indeks": "BLU-CLIP-110", "ilosc": 20 }],
+        "kodyBledow": [],
+        "scalone": [{ "indeks": "BLU-CLIP-110", "wiersze": [2, 3], "ilosc": 20 }]
+      }
+    },
+    {
+      "nazwa": "pusty plik",
+      "wejscie": "",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["pusty-plik"] }
+    },
+    {
+      "nazwa": "sam naglowek bez danych",
+      "wejscie": "indeks;ilosc\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["brak-naglowka"] }
+    },
+    {
+      "nazwa": "brak kolumny z indeksem",
+      "wejscie": "nazwa;ilosc\nZawias;12\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["brak-kolumny-indeks"] }
+    },
+    {
+      "nazwa": "brak kolumny z iloscia",
+      "wejscie": "indeks;cena\nBLU-CLIP-110;9.99\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["brak-kolumny-ilosc"] }
+    },
+    {
+      "nazwa": "pusty indeks w wierszu",
+      "wejscie": "indeks;ilosc\n;12\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["pusty-indeks"] }
+    },
+    {
+      "nazwa": "ilosc nie jest liczba",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;kilka\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["ilosc-niepoprawna"] }
+    },
+    {
+      "nazwa": "ilosc zerowa",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;0\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["ilosc-niedodatnia"] }
+    },
+    {
+      "nazwa": "ilosc ujemna",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;-5\n",
+      "oczekiwane": { "ok": false, "pozycje": [], "kodyBledow": ["ilosc-niedodatnia"] }
+    },
+    {
+      "nazwa": "blad jednego wiersza nie przepuszcza reszty pliku",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;12\nBLU-TAND-500;0\n",
+      "oczekiwane": { "ok": false, "kodyBledow": ["ilosc-niedodatnia"], "wierszeBledow": [3] }
+    }
+  ],
+  "przypadkiKatalogowe": [
+    {
+      "nazwa": "indeks spoza asortymentu",
+      "wejscie": "indeks;ilosc\nNIE-MA-TAKIEGO;5\n",
+      "oczekiwaneKodyBledow": ["nieznany-indeks"]
+    },
+    {
+      "nazwa": "jednostka niezgodna z asortymentem",
+      "wejscie": "indeks;ilosc;jednostka\nBLU-CLIP-110;5;kpl\n",
+      "oczekiwaneKodyBledow": ["jednostka-niezgodna"]
+    },
+    {
+      "nazwa": "jednostka zgodna, rozna wielkosc liter",
+      "wejscie": "indeks;ilosc;jednostka\nBLU-CLIP-110;5;SZT\n",
+      "oczekiwaneKodyBledow": []
+    },
+    {
+      "nazwa": "jednostka pominieta jest dopuszczalna",
+      "wejscie": "indeks;ilosc\nBLU-CLIP-110;5\n",
+      "oczekiwaneKodyBledow": []
+    }
+  ]
+}

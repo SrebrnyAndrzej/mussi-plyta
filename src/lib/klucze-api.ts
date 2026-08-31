@@ -22,7 +22,7 @@ import { dzienHurtowni } from "@/lib/czas";
 /** Wyróżnik w tekście klucza, żeby dało się go rozpoznać w cudzym kodzie i logach. */
 export const PREFIKS = "mussi";
 
-export type Zakres = "cennik";
+export type Zakres = "cennik" | "zamowienia";
 
 export type KluczApi = {
   /** Jawny identyfikator. Trafia do logów zamiast sekretu. */
@@ -33,6 +33,13 @@ export type KluczApi = {
   skrot: string;
   zakresy: Zakres[];
   aktywny: boolean;
+  /**
+   * Członek zespołu, w imieniu którego działa integracja.
+   *
+   * Dzięki temu zamówienie z aplikacji podlega tym samym limitom akceptacji,
+   * co zamówienie złożone ręcznie. Puste znaczy właściciela konta.
+   */
+  skladajacy?: string | null;
   /** Dzień w formacie ISO albo null, gdy klucz jest bezterminowy. */
   wazneDo?: string | null;
 };
@@ -159,6 +166,7 @@ export function wczytajKlucze(zrodlo: string | undefined = process.env.KLUCZE_AP
       zakresy: k.zakresy as Zakres[],
       aktywny: k.aktywny !== false,
       wazneDo: k.wazneDo ?? null,
+      skladajacy: k.skladajacy ?? null,
     };
   });
 }
