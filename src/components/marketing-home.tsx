@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { cennik, firma, rozkroj } from "@/config/brief";
+import { funkcje, cennik, firma, rozkroj } from "@/config/brief";
 import { wycenUslugi, liczba, zloty } from "@/lib/pricing";
 import type { Formatka } from "@/lib/nesting";
 import Image from "next/image";
 import { logotypy, realizacje, zdjecia } from "@/data/media";
 import { MussiLogo } from "@/components/mussi-logo";
 import { CartIndicator } from "@/components/cart-indicator";
+import { PanelPromocji } from "@/components/panel-promocji";
 
 /**
  * Liczby w sekcji dowodowej muszą pochodzić z silnika, nie z tekstu.
@@ -130,7 +131,7 @@ export function MarketingHome({ produkty }: { produkty: ProductPreview[] }) {
             </div>
           </div>
           <div className="grid gap-4">
-            <BoardPreview />
+            {funkcje.promocje ? <PanelPromocji /> : <BoardPreview />}
             <Foto z={zdjecia.hala} priority sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[1100/458]" />
           </div>
         </section>

@@ -140,6 +140,8 @@ export const funkcje = {
    */
   rezerwacjeStanow: true,
   dokumentyZamowienia: true,
+  /** Panel promocji na stronie głównej i zarządzanie nimi w hurtowni. */
+  promocje: true,
   warunkiHandlowe: true,
   kolejkaProdukcji: true,
   organizacjaIRole: true,

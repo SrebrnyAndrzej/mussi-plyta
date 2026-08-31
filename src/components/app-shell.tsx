@@ -141,6 +141,7 @@ const trasyZaFlaga: Record<string, boolean> = {
   "/hurtownia/warunki": funkcje.warunkiHandlowe,
   "/hurtownia/produkcja": funkcje.kolejkaProdukcji,
   "/zespol": funkcje.organizacjaIRole,
+  "/hurtownia/promocje": funkcje.promocje,
 };
 
 function widoczne<T extends { href: string }>(pozycje: readonly T[]): T[] {
