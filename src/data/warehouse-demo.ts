@@ -1,4 +1,5 @@
 import type { PozycjaDokumentu } from "@/lib/fakturowanie";
+import type { PozycjaKoszyka } from "@/lib/pricing";
 export type WarehouseOrderStatus = "Nowe" | "Do weryfikacji" | "Przyjęte" | "W produkcji" | "Gotowe" | "Wstrzymane";
 
 export const authCopy = {
@@ -49,12 +50,22 @@ export const warehouseDashboardCopy = {
 } as const;
 
 export const warehouseOrders = [
-  { id: "M-2026-0848", client: "Stolarnia Dąb", project: "Apartament Parkowa", status: "Nowe" as const, placed: "dzisiaj, 07:42", deadline: "4 września", stock: "Kompletne", value: "11 240,80 zł", valueNet: 11240.8, priority: "standard" },
-  { id: "M-2026-0847", client: "Meble Krawiec", project: "Kuchnia Zielona", status: "Do weryfikacji" as const, placed: "dzisiaj, 07:16", deadline: "4 września", stock: "2 niezgodności", value: "7 818,40 zł", valueNet: 7818.4, priority: "uwaga" },
-  { id: "M-2026-0842", client: "Stolarnia Nowak", project: "Kuchnia Palmowa", status: "W produkcji" as const, placed: "28 sierpnia, 10:31", deadline: "3 września", stock: "1 brak", value: "8 462,70 zł", valueNet: 8462.7, priority: "uwaga" },
-  { id: "M-2026-0839", client: "Forma Studio", project: "Recepcja Klinika", status: "Gotowe" as const, placed: "27 sierpnia, 13:08", deadline: "dzisiaj", stock: "Kompletne", value: "15 029,00 zł", valueNet: 15029, priority: "standard" },
-  { id: "M-2026-0835", client: "Stolarstwo Lis", project: "Szafy Hotelowe", status: "Wstrzymane" as const, placed: "26 sierpnia, 15:44", deadline: "do ustalenia", stock: "5 braków", value: "21 684,30 zł", valueNet: 21684.3, priority: "blokada" },
-] as const;
+  { id: "M-2026-0848", client: "Stolarnia Dąb", project: "Apartament Parkowa", status: "Nowe" as const, placed: "dzisiaj, 07:42", deadline: "4 września", kodProgu: "B0", stockSkus: ["BLU-CLIP-110"], pricingLines: [{ nazwa: "Apartament Parkowa", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 11240.8 }] },
+  { id: "M-2026-0847", client: "Meble Krawiec", project: "Kuchnia Zielona", status: "Do weryfikacji" as const, placed: "dzisiaj, 07:16", deadline: "4 września", kodProgu: "B1", stockSkus: ["OB-ABS-22x2", "GTV-ZM-ECHC09"], pricingLines: [{ nazwa: "Kuchnia Zielona", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 8406.88 }] },
+  { id: "M-2026-0842", client: "Stolarnia Nowak", project: "Kuchnia Palmowa", status: "W produkcji" as const, placed: "28 sierpnia, 10:31", deadline: "3 września", kodProgu: "B2", stockSkus: ["BLU-TAND-500"], pricingLines: [{ nazwa: "Kuchnia Palmowa", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 9508.65 }] },
+  { id: "M-2026-0839", client: "Forma Studio", project: "Recepcja Klinika", status: "Gotowe" as const, placed: "27 sierpnia, 13:08", deadline: "dzisiaj", kodProgu: "B3", stockSkus: ["BLU-AVENT-HK"], pricingLines: [{ nazwa: "Recepcja Klinika", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 17274.71 }] },
+  { id: "M-2026-0835", client: "Stolarstwo Lis", project: "Szafy Hotelowe", status: "Wstrzymane" as const, placed: "26 sierpnia, 15:44", deadline: "do ustalenia", kodProgu: "B2", stockSkus: ["BLU-TAND-500", "OB-ABS-22x2", "AMX-DRZWI-100", "GTV-MODERN-500", "CHE-KLEJ-PUR"], pricingLines: [{ nazwa: "Szafy Hotelowe", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 24364.38 }] },
+] satisfies ReadonlyArray<{
+  id: string;
+  client: string;
+  project: string;
+  status: WarehouseOrderStatus;
+  placed: string;
+  deadline: string;
+  kodProgu: string;
+  stockSkus: readonly string[];
+  pricingLines: PozycjaKoszyka[];
+}>;
 
 export const invoiceAllocationCopy = {
   eyebrow: "Dokumenty sprzedaży",
@@ -106,21 +117,6 @@ export function pozycjeZamowienia(totalNet: number): PozycjaDokumentu[] {
     { id: "uslugi", nazwa: "Usługi stolarskie", kategoria: "uslugi", netto: uslugi, opis: "Cięcie, oklejanie i przygotowanie zamówienia" },
   ];
 }
-
-export const warehouseMetrics = [
-  { label: warehouseDashboardCopy.newOrders, value: "7", hint: "3 od ostatniej synchronizacji" },
-  { label: warehouseDashboardCopy.verify, value: "4", hint: "2 z niezgodnością cen" },
-  { label: warehouseDashboardCopy.production, value: "18", hint: "6 do wydania dzisiaj" },
-  { label: warehouseDashboardCopy.shortages, value: "9", hint: "w 5 zamówieniach" },
-] as const;
-
-export const inventoryRows = [
-  { sku: "KR-5981-BS-18", name: "Płyta 5981 BS Dąb Palmowy 18 mm", system: "24 ark.", reserved: "7 ark.", available: "17 ark.", state: "zgodne", synced: "10:42" },
-  { sku: "OB-5981-ABS2", name: "Obrzeże ABS 2 mm 5981", system: "148,0 mb", reserved: "95,6 mb", available: "52,4 mb", state: "zgodne", synced: "10:42" },
-  { sku: "BL-500-TANDEM", name: "Prowadnica Blum Tandem 500 mm", system: "0 szt.", reserved: "4 szt.", available: "-4 szt.", state: "brak", synced: "10:41" },
-  { sku: "GTV-ZM-ECHC09", name: "Zawias GTV cichy domyk", system: "82 szt.", reserved: "35 szt.", available: "47 szt.", state: "zgodne", synced: "10:41" },
-  { sku: "HDF-BIA-3", name: "HDF biały 3 mm", system: "31 ark.", reserved: "9 ark.", available: "22 ark.", state: "różnica", synced: "09:58" },
-] as const;
 
 export const customerRows = [
   { id: "K-00128", name: "Stolarnia Nowak", group: "B2", discount: 11, payment: "Przelew 14 dni", limit: "25 000 zł", turnover: "18 420 zł", status: "Aktywny" },

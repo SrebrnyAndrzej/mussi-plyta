@@ -102,6 +102,7 @@ export const dashboardCopy = {
 export const activeOrder = {
   id: "M-2026-0842",
   status: "W produkcji",
+  statusId: "okno-zmian" as const,
   editWindow: "19 godz. 24 min",
   editHint: "Polityka edycji: 48 godzin od złożenia",
   delivery: "3 września",
@@ -111,6 +112,14 @@ export const activeOrder = {
   /* Zakotwiczenie demonstracyjne: ile godzin temu system przyjął zamówienie.
      Dzięki temu okno zmian na pokazie zawsze jest żywe. */
   godzinOdPrzyjecia: 28,
+  terminPotwierdzony: "2026-09-03T12:00:00.000Z",
+  prognoza: "2026-09-05T12:00:00.000Z",
+  customerId: "K-00128",
+  pricingLines: [
+    { nazwa: "Rozkrój płyt", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 6324.04 },
+    { nazwa: "Okleiny i obrzeża", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 1263.26 },
+    { nazwa: "Akcesoria i okucia", ilosc: 1, jednostka: "zamówienie", cenaKatalogowa: 1921.35 },
+  ],
   pozycje: [
     { id: "plyty", nazwa: "Rozkrój płyt", ilosc: 18, netto: 5628.4 },
     { id: "obrzeza", nazwa: "Okleiny i obrzeża", ilosc: 5, netto: 1124.3 },

@@ -1,8 +1,47 @@
 import Link from "next/link";
 import { activeOrder, dashboardCopy } from "@/data/portal-demo";
+import { kontrahenci } from "@/data/warunki-demo";
 import { obslugaZamowien } from "@/config/brief";
+import { cenaDlaKontrahenta, podsumujKoszyk, zloty } from "@/lib/pricing";
+import { doWyzszegoProgu } from "@/lib/warunki";
+import {
+  czyOpoznienie,
+  pozostalyCzas,
+  stanOknaZmian,
+  statusy,
+  type Zamowienie,
+} from "@/lib/zamowienia";
 
 export function ClientDashboard() {
+  const contractor = kontrahenci.find((item) => item.id === activeOrder.customerId) ?? kontrahenci[0];
+  const pricing = podsumujKoszyk([...activeOrder.pricingLines], contractor.kodProgu);
+  const nextTier = doWyzszegoProgu(contractor.obrotRoczny);
+  const now = new Date();
+  const acceptedAt = new Date(now);
+  acceptedAt.setHours(acceptedAt.getHours() - activeOrder.godzinOdPrzyjecia);
+  const changeWindow = stanOknaZmian(activeOrder.statusId, acceptedAt, now);
+  const enginePositions = activeOrder.pozycje.map((item, index) => ({
+    ...item,
+    netto: cenaDlaKontrahenta(activeOrder.pricingLines[index].cenaKatalogowa, contractor.kodProgu),
+  }));
+  const order: Zamowienie = {
+    id: activeOrder.id,
+    status: activeOrder.statusId,
+    przyjeteO: acceptedAt,
+    terminOczekiwany: null,
+    terminPotwierdzony: new Date(activeOrder.terminPotwierdzony),
+    wersje: [{
+      numer: 1,
+      pozycje: enginePositions,
+      wartoscNetto: pricing.wartoscNetto,
+      prognoza: new Date(activeOrder.prognoza),
+      utworzona: acceptedAt,
+      autor: contractor.nazwa,
+      powod: null,
+    }],
+  };
+  const requiresAttention = czyOpoznienie(order);
+
   return (
     <main id="main-content" className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
       <header className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
@@ -29,8 +68,8 @@ export function ClientDashboard() {
             </div>
 
             <dl className="mt-6 grid divide-y divide-hair rounded-ctl bg-paper px-5 ring-1 ring-hair sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-0">
-              <div className="py-5 sm:px-5"><dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{dashboardCopy.statusLabel}</dt><dd className="mt-2 text-lg font-semibold text-accent-ink">{activeOrder.status}</dd></div>
-              <div className="py-5 sm:px-5"><dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{dashboardCopy.editLabel}</dt><dd className="mt-2 font-mono text-lg font-semibold tabular-nums text-accent-ink">{activeOrder.editWindow}</dd><p className="mt-1 text-[11px] text-mute">{activeOrder.editHint}</p></div>
+              <div className="py-5 sm:px-5"><dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{dashboardCopy.statusLabel}</dt><dd className="mt-2 text-lg font-semibold text-accent-ink">{statusy[order.status].nazwa}</dd></div>
+              <div className="py-5 sm:px-5"><dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{dashboardCopy.editLabel}</dt><dd className="mt-2 font-mono text-lg font-semibold tabular-nums text-accent-ink">{pozostalyCzas(changeWindow.pozostaloMs)}</dd><p className="mt-1 text-[11px] text-mute">{statusy[order.status].coWidziKlient}</p></div>
               <div className="py-5 sm:px-5"><dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">{dashboardCopy.deliveryLabel}</dt><dd className="mt-2 font-mono text-lg font-semibold tabular-nums text-ink">{activeOrder.delivery}</dd><p className="mt-1 text-[11px] text-mute">{activeOrder.deliveryHint}</p></div>
             </dl>
 
@@ -44,18 +83,20 @@ export function ClientDashboard() {
               ))}
             </ol>
 
-            <div className="mt-7 flex flex-col gap-3 rounded-ctl border border-[#d9c8ae] bg-[#fbf7f0] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center sm:justify-between">
-              <p><strong className="font-semibold">Brak magazynowy:</strong> {dashboardCopy.stockAlert.replace("Brak magazynowy: ", "")}</p>
-              <Link href="/zamowienia" className="inline-flex min-h-11 shrink-0 items-center text-xs font-semibold text-accent-ink">{dashboardCopy.seeDetails}</Link>
-            </div>
+            {requiresAttention && (
+              <div className="mt-7 flex flex-col gap-3 rounded-ctl border border-[#d9c8ae] bg-[#fbf7f0] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center sm:justify-between">
+                <p><strong className="font-semibold">Brak magazynowy:</strong> {dashboardCopy.stockAlert.replace("Brak magazynowy: ", "")}</p>
+                <Link href="/zamowienia" className="inline-flex min-h-11 shrink-0 items-center text-xs font-semibold text-accent-ink">{dashboardCopy.seeDetails}</Link>
+              </div>
+            )}
 
             <div className="mt-7">
               <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-ink">{dashboardCopy.orderContents}</h3>
               <div className="mt-3 divide-y divide-hair rounded-ctl border border-hair">
-                {activeOrder.rows.map((row) => (
+                {activeOrder.rows.map((row, index) => (
                   <Link key={row.label} href="/zamowienia" className="grid gap-2 px-4 py-4 hover:bg-paper sm:grid-cols-[1fr_auto] sm:items-center">
                     <div><p className="text-sm font-semibold text-ink">{row.label}</p><p className="mt-1 text-xs text-mute">{row.description}</p></div>
-                    <strong className="font-mono text-sm tabular-nums text-ink">{row.value}</strong>
+                    <strong className="font-mono text-sm tabular-nums text-ink">{zloty.format(enginePositions[index].netto)}</strong>
                   </Link>
                 ))}
               </div>
@@ -76,8 +117,12 @@ export function ClientDashboard() {
           <div className="flex h-full flex-col rounded-core bg-surface p-5 shadow-[var(--inner)]">
             <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-ink">{dashboardCopy.summary}</p>
             <p className="mt-8 text-sm text-mute">Wartość zamówienia</p>
-            <strong className="mt-2 font-mono text-3xl font-semibold tracking-[-0.04em] tabular-nums text-ink">{activeOrder.value}</strong>
+            <strong className="mt-2 font-mono text-3xl font-semibold tracking-[-0.04em] tabular-nums text-ink">{zloty.format(pricing.wartoscNetto)}</strong>
             <p className="mt-2 text-xs leading-5 text-mute">Cena jest już dopasowana do Twoich warunków handlowych.</p>
+            <dl className="mt-4 divide-y divide-hair border-y border-hair text-xs">
+              <div className="flex justify-between gap-4 py-3"><dt className="text-mute">Próg rabatowy</dt><dd className="font-mono font-semibold text-ink">{pricing.prog.kod}</dd></div>
+              <div className="flex justify-between gap-4 py-3"><dt className="text-mute">Do wyższego progu</dt><dd className="text-right font-mono font-semibold text-ink">{nextTier ? `${zloty.format(nextTier.brakuje)} do ${nextTier.kod}` : "najwyższy próg"}</dd></div>
+            </dl>
             <Link href="/zamowienia" className="pressable mt-6 rounded-full bg-accent px-5 py-3 text-center text-sm font-semibold text-white">{dashboardCopy.goToOrder}</Link>
             <div className="mt-5 divide-y divide-hair border-y border-hair text-xs font-semibold text-ink">
               <Link href="/zamowienia#dokumenty" className="block py-3 hover:text-accent-ink">Pobierz specyfikację PDF</Link>

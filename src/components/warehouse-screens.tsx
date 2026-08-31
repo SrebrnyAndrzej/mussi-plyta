@@ -3,25 +3,28 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { InvoiceAllocation } from "@/components/invoice-allocation";
-import { funkcje } from "@/config/brief";
+import { dzisDemo, funkcje } from "@/config/brief";
 import { OrderDocumentWorkflow } from "@/components/order-document-workflow";
 import { OrderReservations } from "@/components/order-reservations";
 import { OrderIntakeGate } from "@/components/order-intake-gate";
+import { akcesoria, type Akcesorium } from "@/data/akcesoria";
+import { zleceniaDemo } from "@/data/produkcja-demo";
 import {
   customerRows,
   integrationCopy,
   integrationDomains,
   integrationSafeguards,
-  inventoryRows,
   salesSystemContract,
   syncEvents,
   warehouseDashboardCopy,
-  warehouseMetrics,
   warehouseOrders,
   type WarehouseOrderStatus,
   type WarehouseOrderId,
   type CustomerRowId,
 } from "@/data/warehouse-demo";
+import { dostepne, podsumujMagazyn, stanPozycji } from "@/lib/magazyn";
+import { liczba, podsumujKoszyk, zloty } from "@/lib/pricing";
+import { czyZakonczone, obciazenie, pilnosc, type PilnoscZlecenia } from "@/lib/produkcja";
 
 const statusTones: Record<WarehouseOrderStatus, string> = {
   Nowe: "bg-ink text-white",
@@ -32,6 +35,64 @@ const statusTones: Record<WarehouseOrderStatus, string> = {
   Wstrzymane: "bg-paper-2 text-mute",
 };
 
+type WarehousePriority = "standard" | "uwaga" | "blokada";
+
+function priorityFromUrgency(urgency: PilnoscZlecenia): WarehousePriority {
+  if (urgency === "po-terminie" || urgency === "zagrozone") return "blokada";
+  if (urgency === "pilne") return "uwaga";
+  return "standard";
+}
+
+function stockForOrder(stockSkus: readonly string[]) {
+  const items = stockSkus
+    .map((sku) => akcesoria.find((item) => item.sku === sku))
+    .filter((item): item is Akcesorium => item !== undefined);
+  const summary = podsumujMagazyn(items);
+  if (summary.brakow > 0) return `${summary.brakow} ${summary.brakow === 1 ? "brak" : "braków"}`;
+  if (summary.ponizejMinimum > 0) return `${summary.ponizejMinimum} ${summary.ponizejMinimum === 1 ? "niezgodność" : "niezgodności"}`;
+  return "Kompletne";
+}
+
+const warehouseSummary = podsumujMagazyn(akcesoria);
+const productionLoad = obciazenie(zleceniaDemo);
+const openProductionJobs = zleceniaDemo.filter((job) => !czyZakonczone(job));
+const today = dzisDemo();
+const calculatedOrders = warehouseOrders.map((order) => {
+  const job = zleceniaDemo.find((item) => item.zamowienie === order.id);
+  const urgency = job ? pilnosc(job, today) : "spokojnie";
+  const pricing = podsumujKoszyk(order.pricingLines, order.kodProgu);
+  return {
+    ...order,
+    priority: priorityFromUrgency(urgency),
+    stock: stockForOrder(order.stockSkus),
+    valueNet: pricing.wartoscNetto,
+    value: zloty.format(pricing.wartoscNetto),
+  };
+});
+
+const warehouseMetrics = [
+  {
+    label: warehouseDashboardCopy.newOrders,
+    value: calculatedOrders.filter((order) => order.status === "Nowe").length,
+    hint: `${calculatedOrders.filter((order) => order.placed.startsWith("dzisiaj")).length} dzisiaj`,
+  },
+  {
+    label: warehouseDashboardCopy.verify,
+    value: calculatedOrders.filter((order) => order.status === "Do weryfikacji").length,
+    hint: `${calculatedOrders.filter((order) => order.stock !== "Kompletne").length} ze stanem do sprawdzenia`,
+  },
+  {
+    label: warehouseDashboardCopy.production,
+    value: openProductionJobs.length,
+    hint: `${liczba.format(productionLoad.reduce((sum, day) => sum + day.godziny, 0))} h w kolejce`,
+  },
+  {
+    label: warehouseDashboardCopy.shortages,
+    value: warehouseSummary.brakow,
+    hint: `${warehouseSummary.ponizejMinimum} poniżej minimum`,
+  },
+];
+
 function WarehouseHeader({ eyebrow, title, subtitle, action }: { eyebrow: string; title: string; subtitle: string; action?: React.ReactNode }) {
   return <header className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-accent-ink">{eyebrow}</p><h1 className="mt-3 font-display text-[clamp(2.8rem,5vw,4.8rem)] font-bold leading-[0.94] tracking-[-0.055em] text-ink">{title}</h1><p className="mt-4 max-w-3xl text-sm leading-6 text-mute sm:text-base">{subtitle}</p></div>{action}</header>;
 }
@@ -39,25 +100,25 @@ function WarehouseHeader({ eyebrow, title, subtitle, action }: { eyebrow: string
 export function WarehouseDashboard() {
   return <main id="main-content" className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10"><WarehouseHeader eyebrow={warehouseDashboardCopy.eyebrow} title={warehouseDashboardCopy.title} subtitle={warehouseDashboardCopy.subtitle} action={<span className="w-fit rounded-full bg-surface px-4 py-2.5 font-mono text-[10px] font-semibold text-mute ring-1 ring-hair">{warehouseDashboardCopy.shift}</span>} />
     <section aria-label="Najważniejsze liczby" className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{warehouseMetrics.map((metric)=><article key={metric.label} className="rounded-core bg-surface p-5 ring-1 ring-hair shadow-[var(--lift-sm)]"><p className="text-xs font-semibold text-mute">{metric.label}</p><p className="mt-4 font-display text-5xl font-bold tracking-[-0.055em] text-ink">{metric.value}</p><p className="mt-3 text-xs text-mute">{metric.hint}</p></article>)}</section>
-    <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"><section className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="rounded-core bg-surface p-5 shadow-[var(--inner)] sm:p-7"><div className="flex items-end justify-between gap-4"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-ink">{warehouseDashboardCopy.attention}</p><h2 className="mt-2 font-display text-2xl font-semibold text-ink">Kolejka operacyjna</h2></div><Link href="/hurtownia/zamowienia" className="rounded-full bg-paper px-4 py-2.5 text-xs font-semibold text-ink">{warehouseDashboardCopy.openQueue}</Link></div><div className="mt-5 divide-y divide-hair border-y border-hair">{warehouseOrders.filter((order)=>order.priority!=="standard").map((order)=><Link href="/hurtownia/zamowienia" key={order.id} className="grid gap-3 py-4 hover:bg-paper sm:grid-cols-[1fr_auto] sm:items-center"><div><div className="flex flex-wrap items-center gap-2"><strong className="font-mono text-xs text-ink">{order.id}</strong><span className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${statusTones[order.status]}`}>{order.status}</span></div><p className="mt-2 text-sm font-semibold text-ink">{order.project}</p><p className="mt-1 text-xs text-mute">{order.client} · {order.stock}</p></div><div className="sm:text-right"><strong className="font-mono text-sm text-ink">{order.deadline}</strong><p className="mt-1 text-[10px] text-mute">termin realizacji</p></div></Link>)}</div></div></section><aside className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="flex h-full flex-col rounded-core bg-surface p-5 shadow-[var(--inner)]"><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-ink">{warehouseDashboardCopy.integration}</p><h2 className="mt-3 font-display text-2xl font-semibold text-ink">System sprzedażowy</h2><p className="mt-4 text-sm leading-6 text-mute">Kontrakt danych jest przygotowany. Połączenie pozostaje wyłączone do czasu wyboru systemu i dostępu do API.</p><dl className="mt-6 divide-y divide-hair border-y border-hair text-xs"><div className="flex justify-between py-3"><dt className="text-mute">Towary</dt><dd className="font-mono font-semibold text-ink">1 284</dd></div><div className="flex justify-between py-3"><dt className="text-mute">Ostatnia próbka</dt><dd className="font-mono font-semibold text-ink">10:42</dd></div><div className="flex justify-between py-3"><dt className="text-mute">Uwagi</dt><dd className="font-mono font-semibold text-accent-ink">2</dd></div></dl><Link href="/hurtownia/integracje" className="pressable mt-auto rounded-full bg-accent px-5 py-3 text-center text-sm font-semibold text-white">Otwórz centrum integracji</Link></div></aside></div>
+    <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]"><section className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="rounded-core bg-surface p-5 shadow-[var(--inner)] sm:p-7"><div className="flex items-end justify-between gap-4"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-ink">{warehouseDashboardCopy.attention}</p><h2 className="mt-2 font-display text-2xl font-semibold text-ink">Kolejka operacyjna</h2></div><Link href="/hurtownia/zamowienia" className="rounded-full bg-paper px-4 py-2.5 text-xs font-semibold text-ink">{warehouseDashboardCopy.openQueue}</Link></div><div className="mt-5 divide-y divide-hair border-y border-hair">{calculatedOrders.filter((order)=>order.priority!=="standard").map((order)=><Link href="/hurtownia/zamowienia" key={order.id} className="grid gap-3 py-4 hover:bg-paper sm:grid-cols-[1fr_auto] sm:items-center"><div><div className="flex flex-wrap items-center gap-2"><strong className="font-mono text-xs text-ink">{order.id}</strong><span className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${statusTones[order.status]}`}>{order.status}</span></div><p className="mt-2 text-sm font-semibold text-ink">{order.project}</p><p className="mt-1 text-xs text-mute">{order.client} · {order.stock}</p></div><div className="sm:text-right"><strong className="font-mono text-sm text-ink">{order.deadline}</strong><p className="mt-1 text-[10px] text-mute">termin realizacji</p></div></Link>)}</div></div></section><aside className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="flex h-full flex-col rounded-core bg-surface p-5 shadow-[var(--inner)]"><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-accent-ink">{warehouseDashboardCopy.integration}</p><h2 className="mt-3 font-display text-2xl font-semibold text-ink">System sprzedażowy</h2><p className="mt-4 text-sm leading-6 text-mute">Kontrakt danych jest przygotowany. Połączenie pozostaje wyłączone do czasu wyboru systemu i dostępu do API.</p><dl className="mt-6 divide-y divide-hair border-y border-hair text-xs"><div className="flex justify-between py-3"><dt className="text-mute">Towary</dt><dd className="font-mono font-semibold text-ink">{warehouseSummary.pozycji}</dd></div><div className="flex justify-between py-3"><dt className="text-mute">Ostatnia próbka</dt><dd className="font-mono font-semibold text-ink">{syncEvents[0]?.time.slice(0, 5) ?? "brak danych"}</dd></div><div className="flex justify-between py-3"><dt className="text-mute">Uwagi</dt><dd className="font-mono font-semibold text-accent-ink">{syncEvents.filter((event)=>event.result!=="Zaktualizowano").length}</dd></div></dl><Link href="/hurtownia/integracje" className="pressable mt-auto rounded-full bg-accent px-5 py-3 text-center text-sm font-semibold text-white">Otwórz centrum integracji</Link></div></aside></div>
   </main>;
 }
 
 export function WarehouseOrdersScreen() {
   const statuses: Array<"Wszystkie" | WarehouseOrderStatus> = ["Wszystkie", "Nowe", "Do weryfikacji", "Przyjęte", "W produkcji", "Gotowe", "Wstrzymane"];
   const [filter, setFilter] = useState<(typeof statuses)[number]>("Wszystkie");
-  const [selectedId, setSelectedId] = useState<WarehouseOrderId>(warehouseOrders[0].id);
-  const [status, setStatus] = useState<WarehouseOrderStatus>(warehouseOrders[0].status);
+  const [selectedId, setSelectedId] = useState<WarehouseOrderId>(calculatedOrders[0].id);
+  const [status, setStatus] = useState<WarehouseOrderStatus>(calculatedOrders[0].status);
   const [saved, setSaved] = useState(false);
-  const rows = filter === "Wszystkie" ? warehouseOrders : warehouseOrders.filter((order)=>order.status===filter);
-  const selected = warehouseOrders.find((order)=>order.id===selectedId) ?? warehouseOrders[0];
+  const rows = filter === "Wszystkie" ? calculatedOrders : calculatedOrders.filter((order)=>order.status===filter);
+  const selected = calculatedOrders.find((order)=>order.id===selectedId) ?? calculatedOrders[0];
   return <main id="main-content" className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10"><WarehouseHeader eyebrow="Realizacja" title="Kolejka zamówień" subtitle="Operator przyjmuje zamówienie, weryfikuje stany, nadaje termin i przekazuje komplet na produkcję." action={<Link href="/hurtownia/integracje" className="rounded-full bg-surface px-4 py-2.5 text-xs font-semibold text-ink ring-1 ring-hair">Sprawdź synchronizację</Link>} /><div className="mt-7 flex gap-2 overflow-x-auto pb-1">{statuses.map((item)=><button key={item} type="button" onClick={()=>setFilter(item)} className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold ${filter===item?"bg-ink text-white":"bg-surface text-mute ring-1 ring-hair"}`}>{item}</button>)}</div><div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]"><section className="overflow-hidden rounded-core bg-surface ring-1 ring-hair shadow-[var(--lift-sm)]"><div className="hidden grid-cols-[1.3fr_.8fr_.8fr_.7fr] gap-4 border-b border-hair bg-paper px-5 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-mute md:grid"><span>Zamówienie</span><span>Status</span><span>Termin</span><span>Stan</span></div><div className="divide-y divide-hair">{rows.map((order)=><button key={order.id} type="button" onClick={()=>{setSelectedId(order.id);setStatus(order.status);setSaved(false);}} className={`grid w-full gap-3 px-5 py-4 text-left md:grid-cols-[1.3fr_.8fr_.8fr_.7fr] md:items-center ${selected.id===order.id?"bg-paper shadow-[inset_3px_0_0_var(--color-accent)]":"hover:bg-paper/70"}`}><span><strong className="font-mono text-xs text-ink">{order.id}</strong><span className="mt-1 block text-sm font-semibold text-ink">{order.project}</span><small className="mt-1 block text-[10px] text-mute">{order.client}</small></span><span><span className={`inline-flex rounded-full px-3 py-1.5 text-[9px] font-semibold ${statusTones[order.status]}`}>{order.status}</span></span><span className="font-mono text-xs font-semibold text-ink">{order.deadline}</span><span className={`text-xs font-semibold ${order.priority==="standard"?"text-ok":"text-accent-ink"}`}>{order.stock}</span></button>)}</div></section><aside className="rounded-shell bg-shell p-1.5 ring-1 ring-hair"><div className="rounded-core bg-surface p-5 shadow-[var(--inner)]"><p className="font-mono text-[10px] uppercase tracking-[0.12em] text-mute">Wybrane zamówienie</p><h2 className="mt-2 font-display text-2xl font-semibold text-ink">{selected.id}</h2><p className="mt-1 text-sm font-semibold text-ink">{selected.project}</p><dl className="mt-5 divide-y divide-hair border-y border-hair text-xs"><div className="flex justify-between gap-4 py-3"><dt className="text-mute">Klient</dt><dd className="text-right font-semibold text-ink">{selected.client}</dd></div><div className="flex justify-between gap-4 py-3"><dt className="text-mute">Wartość</dt><dd className="font-mono font-semibold text-ink">{selected.value}</dd></div><div className="flex justify-between gap-4 py-3"><dt className="text-mute">Stan</dt><dd className="font-semibold text-accent-ink">{selected.stock}</dd></div></dl><label className="mt-5 block text-xs font-semibold text-ink">Status operacyjny<select value={status} onChange={(event)=>{setStatus(event.target.value as WarehouseOrderStatus);setSaved(false);}} className="mt-2 min-h-11 w-full rounded-ctl bg-paper px-3 text-sm font-normal text-ink ring-1 ring-inset ring-hair">{Object.keys(statusTones).map((item)=><option key={item}>{item}</option>)}</select></label><label className="mt-4 block text-xs font-semibold text-ink">Notatka dla produkcji<textarea defaultValue="Sprawdzić prowadnicę Blum przed potwierdzeniem terminu." className="mt-2 min-h-24 w-full rounded-ctl bg-paper p-3 text-sm font-normal text-ink ring-1 ring-inset ring-hair" /></label><button type="button" onClick={()=>setSaved(true)} className="mt-4 w-full rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">Zapisz decyzję</button>{saved&&<p className="mt-3 rounded-ctl bg-[#edf7f0] p-3 text-xs font-semibold text-ok" aria-live="polite">Status zapisany lokalnie. Po integracji zmiana trafi do systemu sprzedażowego.</p>}</div></aside></div><OrderIntakeGate key={selected.id} orderId={selected.id} stock={selected.stock} priority={selected.priority} deadline={selected.deadline} />{funkcje.rezerwacjeStanow&&<OrderReservations orderId={selected.id} status={status} />}{funkcje.dokumentyZamowienia&&<OrderDocumentWorkflow orderId={selected.id} totalNet={selected.valueNet} status={status} />}<InvoiceAllocation orderId={selected.id} totalNet={selected.valueNet} /></main>;
 }
 
 export function WarehouseInventoryScreen() {
   const [query,setQuery]=useState(""); const [onlyIssues,setOnlyIssues]=useState(false); const [synced,setSynced]=useState(false);
-  const rows=useMemo(()=>inventoryRows.filter((row)=>(!query||`${row.sku} ${row.name}`.toLocaleLowerCase("pl").includes(query.toLocaleLowerCase("pl")))&&(!onlyIssues||row.state!=="zgodne")),[query,onlyIssues]);
-  return <main id="main-content" className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10"><WarehouseHeader eyebrow="Magazyn" title="Stany i rezerwacje" subtitle="Widok łączy stan systemowy, rezerwacje portalu i ilość rzeczywiście dostępną do potwierdzenia zamówień." action={<button type="button" onClick={()=>setSynced(true)} className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">Odśwież dane</button>} />{synced&&<p className="mt-6 rounded-ctl bg-[#edf7f0] p-4 text-sm font-semibold text-ok" aria-live="polite">Dane demonstracyjne odświeżone. W integracji operacja pobierze przyrost zmian od ostatniego znacznika czasu.</p>}<section className="mt-7 flex flex-col gap-4 rounded-core bg-surface p-4 ring-1 ring-hair sm:flex-row sm:items-center sm:justify-between"><input type="search" value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Szukaj po SKU lub nazwie" className="min-h-11 w-full rounded-full bg-paper px-5 text-sm text-ink ring-1 ring-inset ring-hair sm:max-w-md" /><label className="flex min-h-11 cursor-pointer items-center gap-3 text-xs font-semibold text-ink"><input type="checkbox" checked={onlyIssues} onChange={(event)=>setOnlyIssues(event.target.checked)} className="size-4 accent-[var(--color-accent)]" />Tylko braki i różnice</label></section><section className="mt-5 overflow-hidden rounded-core bg-surface ring-1 ring-hair shadow-[var(--lift-sm)]"><div className="hidden grid-cols-[1.5fr_.65fr_.65fr_.65fr_.55fr] gap-4 border-b border-hair bg-paper px-5 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-mute md:grid"><span>Towar</span><span>Stan systemowy</span><span>Rezerwacje</span><span>Dostępne</span><span>Synchronizacja</span></div><div className="divide-y divide-hair">{rows.map((row)=><article key={row.sku} className="grid gap-3 px-5 py-4 md:grid-cols-[1.5fr_.65fr_.65fr_.65fr_.55fr] md:items-center"><div><strong className="font-mono text-xs text-ink">{row.sku}</strong><p className="mt-1 text-sm font-semibold text-ink">{row.name}</p></div><span className="font-mono text-xs text-ink">{row.system}</span><span className="font-mono text-xs text-mute">{row.reserved}</span><strong className={`font-mono text-xs ${row.state==="zgodne"?"text-ok":"text-accent-ink"}`}>{row.available}</strong><span><span className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${row.state==="zgodne"?"bg-[#edf7f0] text-ok":"bg-danger-paper text-accent-ink"}`}>{row.state}</span><small className="mt-1 block font-mono text-[9px] text-mute">{row.synced}</small></span></article>)}</div></section></main>;
+  const rows=useMemo(()=>akcesoria.filter((row)=>(!query||`${row.sku} ${row.nazwa}`.toLocaleLowerCase("pl").includes(query.toLocaleLowerCase("pl")))&&(!onlyIssues||stanPozycji(row)!=="zgodne")),[query,onlyIssues]);
+  return <main id="main-content" className="mx-auto w-full max-w-[1320px] px-4 py-8 sm:px-6 lg:px-8 lg:py-10"><WarehouseHeader eyebrow="Magazyn" title="Stany i rezerwacje" subtitle="Widok łączy stan systemowy, rezerwacje portalu i ilość rzeczywiście dostępną do potwierdzenia zamówień." action={<button type="button" onClick={()=>setSynced(true)} className="rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white">Odśwież dane</button>} />{synced&&<p className="mt-6 rounded-ctl bg-[#edf7f0] p-4 text-sm font-semibold text-ok" aria-live="polite">Dane demonstracyjne odświeżone. W integracji operacja pobierze przyrost zmian od ostatniego znacznika czasu.</p>}<section className="mt-7 flex flex-col gap-4 rounded-core bg-surface p-4 ring-1 ring-hair sm:flex-row sm:items-center sm:justify-between"><input type="search" value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Szukaj po SKU lub nazwie" className="min-h-11 w-full rounded-full bg-paper px-5 text-sm text-ink ring-1 ring-inset ring-hair sm:max-w-md" /><label className="flex min-h-11 cursor-pointer items-center gap-3 text-xs font-semibold text-ink"><input type="checkbox" checked={onlyIssues} onChange={(event)=>setOnlyIssues(event.target.checked)} className="size-4 accent-[var(--color-accent)]" />Tylko braki i różnice</label></section><section className="mt-5 overflow-hidden rounded-core bg-surface ring-1 ring-hair shadow-[var(--lift-sm)]"><div className="hidden grid-cols-[1.5fr_.65fr_.65fr_.65fr_.55fr] gap-4 border-b border-hair bg-paper px-5 py-3 font-mono text-[9px] uppercase tracking-[0.1em] text-mute md:grid"><span>Towar</span><span>Stan systemowy</span><span>Rezerwacje</span><span>Dostępne</span><span>Synchronizacja</span></div><div className="divide-y divide-hair">{rows.map((row)=>{const state=stanPozycji(row);return <article key={row.sku} className="grid gap-3 px-5 py-4 md:grid-cols-[1.5fr_.65fr_.65fr_.65fr_.55fr] md:items-center"><div><strong className="font-mono text-xs text-ink">{row.sku}</strong><p className="mt-1 text-sm font-semibold text-ink">{row.nazwa}</p></div><span className="font-mono text-xs text-ink">{liczba.format(row.stanSystemowy)} {row.jednostka}</span><span className="font-mono text-xs text-mute">{liczba.format(row.rezerwacje)} {row.jednostka}</span><strong className={`font-mono text-xs ${state==="zgodne"?"text-ok":"text-accent-ink"}`}>{liczba.format(dostepne(row))} {row.jednostka}</strong><span><span className={`rounded-full px-2.5 py-1 text-[9px] font-semibold ${state==="zgodne"?"bg-[#edf7f0] text-ok":"bg-danger-paper text-accent-ink"}`}>{state}</span><small className="mt-1 block font-mono text-[9px] text-mute">{syncEvents[0]?.time.slice(0, 5) ?? "brak danych"}</small></span></article>;})}</div></section></main>;
 }
 
 export function WarehouseCustomersScreen() {
